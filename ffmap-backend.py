@@ -37,13 +37,15 @@ The data that was put into alfred by every node looks like this:
 	"clientcount" : 2
 }
 
-"links" consists of source MAC ("smac") and destination MAC ("dmac") addresses.
+Each link in "links" consists of a source MAC ("smac") and a destination MAC ("dmac") addresse.
 "qual" refers to link quality (0-255). A node may have several network devices,
-resulting in different macs for each node.
+resulting in mutliple MACs that belong to one node.
 "clientcount" is the number of connected (non-batman) clients/nodes.
 The number is idependent of the "links" entries.
 
-All entries are optional, except for the "smac" and "dmac" in "links" .
+Note:
+  - All entries are optional, except for the "smac" and "dmac" in  each link.
+ - The data may be passed through gzip when passed to alfred (echo "hello" | gzip | alfred -s 64).
 
 #### Aliases Data File #####
 
@@ -71,7 +73,8 @@ as part of the "smac".
 "vpn" : true forces every connection to be displayed as uplink.
 "gateway" : true displays a node as gateway.
 
-All entries are optional and will overwrite values from maps.
+Note:
+ - All entries are optional and will overwrite values from maps.
 '''
 
 '''
@@ -282,17 +285,22 @@ def readMaps(filename):
 					node_mac = bytes(strings[0], 'utf-8').decode("unicode_escape")
 					node_value = bytes(strings[1], 'utf-8').decode("unicode_escape")
 
-					node_value = json.loads(node_value)
+					#data might be from gzip, let us try that
+					if node_value.endswith("\\x00"):
+						data = node_value.encode('latin-1')
+						proc = subprocess.Popen(['gunzip'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+						node_value = proc.communicate(data)[0]
 
+					node_value = json.loads(node_value)
 					validateMapEntry(node_mac, node_value)
 					maps[node_mac] = node_value
-					
+
 				except Exception as e:
 					sys.stderr.write(str(e)+"\n")
-	
+
+	#pretty print json for debuging
 	#print(json.dumps(maps, indent=4, sort_keys=True))
-	#print("#####\n")
-	
+
 	return maps
 
 '''
@@ -556,8 +564,7 @@ def main():
 
 				#force all connections to be displayed as vpn uplink
 				for m in [node1["id"], node2["id"]]:
-					if m in aliases:
-						if aliases[m].get("vpn", False):
+					if m in aliases and aliases[m].get("vpn", False):
 							type = "vpn"
 
 				links_list.append({
