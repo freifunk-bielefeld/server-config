@@ -14,6 +14,7 @@ import datetime
 import re
 import json
 import argparse
+import subprocess
 
 
 '''
@@ -44,7 +45,7 @@ resulting in mutliple MACs that belong to one node.
 The number is idependent of the "links" entries.
 
 Note:
-  - All entries are optional, except for the "smac" and "dmac" in  each link.
+ - All entries are optional, except for the "smac" and "dmac" in  each link.
  - The data may be passed through gzip when passed to alfred (echo "hello" | gzip | alfred -s 64).
 
 #### Aliases Data File #####
@@ -286,10 +287,10 @@ def readMaps(filename):
 					node_value = bytes(strings[1], 'utf-8').decode("unicode_escape")
 
 					#data might be from gzip, let us try that
-					if node_value.endswith("\\x00"):
-						data = node_value.encode('latin-1')
+					if strings[1].endswith("\\x00"):
 						proc = subprocess.Popen(['gunzip'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-						node_value = proc.communicate(data)[0]
+						node_value = proc.communicate(node_value.encode('latin-1'))[0]
+						node_value = node_value.decode("utf-8")
 
 					node_value = json.loads(node_value)
 					validateMapEntry(node_mac, node_value)
