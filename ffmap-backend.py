@@ -96,7 +96,7 @@ def create_unique_mac():
 
 addr_re = re.compile("^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$")
 mac_re = re.compile("^([0-9a-f]{2}:){5}[0-9a-f]{2}$")
-geo_re = re.compile("^\d{1,3}\.\d{1,8} \d{1,3}\.\d{1,8}$")
+geo_re = re.compile("^\d{1,3}\.\d+ \d{1,3}\.\d+$")
 strings_re = re.compile(r'(?x)(?<!\\)"(.*?)(?<!\\)"')
 
 def isMAC(mac):
@@ -225,7 +225,7 @@ def readMaps(filename):
 						"Map Entry {}. Invalid range for link quality: {}".format(sender_mac, value)
 					)
 			elif key == "type":
-				if not value in [None, "client", "vpn"]:
+				if not value in [None, "vpn"]:
 					raise Exception(
 						"Map Entry {}. Invalid value for link type: {}".format(sender_mac, value)
 					)
@@ -398,11 +398,13 @@ def main():
 				if len(value):
 					node1["links"].extend(value)
 			elif key == "name":
-				if new_value and new_value != node1["id"]:
+				if new_value and not isMAC(new_value):
 					node1["name"] = new_value
 			elif key == "geo":
 				if new_value:
 					node1["geo"] = new_value
+			elif key == "clientcount":
+				node1["clientcount"] += new_value
 			elif key == "firmware":
 				if new_value:
 					node1["firmware"] = new_value
@@ -440,8 +442,9 @@ def main():
 	'''
 	for mac, data in maps.items():
 		firmware = data.get("firmware")
-		name = data.get("name")
+		name = data.get("name", mac)
 		geo = data.get("geo")
+		clientcount = data.get("clientcount", 0)
 
 		if geo:
 			geo = geo.split()
@@ -457,7 +460,8 @@ def main():
 			'macs' : ' '.join(macs),
 			'links' : data.get("links", []),
 			'firmware': firmware,
-			'flags': {"client": False, "legacy": False, "gateway": False, "online": True}
+			'clientcount' : clientcount,
+			'flags': {"legacy": False, "gateway": False, "online": True}
 		}
 
 		'''add node under all known MACs'''
@@ -465,10 +469,10 @@ def main():
 			addNode(smac, node)
 
 	'''
-	Add nodes from alias database
+	Add nodes from aliases database
 	'''
 	for mac, data in aliases.items():
-		name = data.get("name")
+		name = data.get("name", mac)
 		geo = data.get("geo")
 		gateway = data.get("gateway", False)
 
@@ -482,32 +486,9 @@ def main():
 			'macs' : mac,
 			'links' : [],
 			'firmware': None,
-			'flags': {"client": False, "legacy": False, "gateway": gateway, "online": False}
+			'clientcount' : 0,
+			'flags': {"legacy": False, "gateway": gateway, "online": False}
 		})
-
-	'''
-	Create fake entries for clients
-	'''
-	for mac, data in maps.items():
-		clientcount = data.get("clientcount", 0)
-		node = nodes[mac]
-		
-		for i in range(0, clientcount):
-			cmac = create_unique_mac()
-			
-			node["links"].append(
-				{ "smac" : mac, "dmac" : cmac, "qual" : 255 }
-			)
-
-			addNode(cmac, {
-				'id': cmac,
-				'name': None,
-				'geo': None,
-				'macs' : cmac,
-				'links' : [{ "smac" : cmac, "dmac" : mac, "qual" : 255 }],
-				'firmware': None,
-				'flags': {"client": True, "legacy": False, "gateway": False, "online": True}
-			})
 
 	'''
 	Create a unique list of nodes by "id".
@@ -520,9 +501,8 @@ def main():
 	for idx, node in enumerate(nodes_list):
 		node["index"] = idx
 		
-		if(valid_firmwares and not node["flags"]["client"]):
-			if not (node["firmware"] in valid_firmwares):
-				node["flags"]["legacy"] = True
+		if not (node["firmware"] in valid_firmwares):
+			node["flags"]["legacy"] = True
 
 	links_list = []
 	done_links = set()
@@ -561,25 +541,11 @@ def main():
 					continue
 
 				found = True
-
+				type = None
 				quality = "{:.3f}, {:.3f}".format(
 					255.0/max([qual1, 1]),
 					255.0/max([qual2, 1]),
 				)
-				type = None
-				
-				'''
-				if type1 == type2 and type1 != None and type2 != None:
-					type = type1
-				elif type1 == None and type2 != None:
-					type = type2
-				elif type2 != None and type2 == None:
-					type = type1
-				'''
-
-				if node1["flags"]["client"] or node2["flags"]["client"]:
-					quality = "TT"
-					type = "client"
 
 				#display as uplink if any side of the link is marked as vpn
 				for m in (node1["macs"] + node2["macs"]).split():
@@ -607,6 +573,7 @@ def main():
 	for node in nodes_list:
 		del node["links"]
 		del node["index"]
+		del node["macs"]
 
 	now = datetime.datetime.utcnow().replace(microsecond=0)
 
