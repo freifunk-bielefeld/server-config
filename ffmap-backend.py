@@ -175,21 +175,21 @@ def readAliases(filename):
 			raise Exception(
 				"Entry {}. Unexpected key: {}".format(mac, key)
 			)
-	
+
 	for key, value in aliases.items():
 		if not isMAC(key):
 			raise Exception(
 				"Invalid MAC address: {}".format(key)
 			)
-		
+
 		if not isinstance(value, dict):
 			raise Exception(
 				"Invalid value type for {}".format(key)
 			)
-		
+
 		for k, v in value.items():
 			validateAliasesEntry(k, v)
-	
+
 	return aliases
 
 def readMaps(filename):
@@ -202,12 +202,12 @@ def readMaps(filename):
 			raise Exception(
 				"Map entry {}. Invalid value type for links element.".format(sender_mac)
 			)
-		
+
 		if not ("smac" in link and "dmac" in link):
 			raise Exception(
 				"Map entry {}. \"smac\" and \"dmac\" missing in links element.".format(sender_mac)
 			)
-		
+
 		for key, value in link.items():
 			if key == "smac" or key == "dmac":
 				if not isMAC(value):
@@ -219,7 +219,7 @@ def readMaps(filename):
 					raise Exception(
 						"Map Entry {}. Invalid format for link quality: {}".format(sender_mac, value)
 					)
-				
+	
 				if value < 0 or value > 255:
 					raise Exception(
 						"Map Entry {}. Invalid range for link quality: {}".format(sender_mac, value)
@@ -239,7 +239,7 @@ def readMaps(filename):
 			raise Exception(
 				"Map entry {}. Invalid value type.".format(sender_mac)
 			)
-		
+
 		for key, value in json_value.items():
 			if key == "geo":
 				if not isGeo(value):
@@ -257,21 +257,19 @@ def readMaps(filename):
 						"Map entry {}. Invalid value type for name.".format(sender_mac)
 					)
 			elif key == "links":
-				
 				if not isinstance(value, list):
 					raise Exception(
 						"Map entry {}. Invalid value type for links.".format(sender_mac)
 					)
-				
+
 				for link in value:
 					validateMapLink(sender_mac, link)
-			
 			elif key == "clientcount":
 				if not isinstance(value, int):
 					raise Exception(
 						"Map Entry {}. Invalid type for clientcount: {}".format(sender_mac, value)
 					)
-				
+
 				if value < 0 or value > 255:
 					raise Exception(
 						"Map Entry {}. Invalid range for clientcount: {}".format(sender_mac, value)
@@ -395,7 +393,7 @@ def main():
 						value[flag_key] = True
 			elif key == "macs":
 				if len(value):
-					node1["macs"] = list(set(node1["macs"] + value))
+					node1["macs"] = node1["macs"] + " " + value
 			elif key == "links":
 				if len(value):
 					node1["links"].extend(value)
@@ -445,6 +443,9 @@ def main():
 		name = data.get("name")
 		geo = data.get("geo")
 
+		if geo:
+			geo = geo.split()
+
 		macs = [ mac ]
 		for link in data.get("links", []):
 			macs.append(link["smac"])
@@ -453,7 +454,7 @@ def main():
 			'id': mac,
 			'name': name,
 			'geo': geo,
-			'macs' : macs,
+			'macs' : ' '.join(macs),
 			'links' : data.get("links", []),
 			'firmware': firmware,
 			'flags': {"client": False, "legacy": False, "gateway": False, "online": True}
@@ -470,12 +471,15 @@ def main():
 		name = data.get("name")
 		geo = data.get("geo")
 		gateway = data.get("gateway", False)
-		
+
+		if geo:
+			geo = geo.split()
+
 		addNode(mac, {
 			'id': mac,
 			'name': name,
 			'geo': geo,
-			'macs' : [ mac ],
+			'macs' : mac,
 			'links' : [],
 			'firmware': None,
 			'flags': {"client": False, "legacy": False, "gateway": gateway, "online": False}
@@ -499,7 +503,7 @@ def main():
 				'id': cmac,
 				'name': None,
 				'geo': None,
-				'macs' : [ cmac ],
+				'macs' : cmac,
 				'links' : [{ "smac" : cmac, "dmac" : mac, "qual" : 255 }],
 				'firmware': None,
 				'flags': {"client": True, "legacy": False, "gateway": False, "online": True}
@@ -578,7 +582,7 @@ def main():
 					type = "client"
 
 				#display as uplink if any side of the link is marked as vpn
-				for m in (node1["macs"] + node2["macs"]):
+				for m in (node1["macs"] + node2["macs"]).split():
 					if m in aliases and aliases[m].get("vpn", False):
 						type = "vpn"
 
@@ -589,9 +593,9 @@ def main():
 					"quality": quality,
 					"type": type
 				})
-				
+
 				break
-			
+
 			if not found:
 				sys.stderr.write(
 					"Warning: Unidirectional link found {} => {}.\n".format(smac1, dmac1)
@@ -599,12 +603,10 @@ def main():
 
 	'''
 	Remove some temporary entries not intended for output.
-	Reformat macs.
 	'''
 	for node in nodes_list:
 		del node["links"]
 		del node["index"]
-		node["macs"] = ' '.join(node["macs"])
 
 	now = datetime.datetime.utcnow().replace(microsecond=0)
 
