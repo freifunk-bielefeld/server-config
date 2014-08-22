@@ -18,8 +18,18 @@ import subprocess
 
 
 '''
+List of firmware version that are not legacy.
+None will set legacy always to false.
+'''
+valid_firmwares = [None, "0.3"]
 
-./build_ffmap.py -m maps.txt -a aliases.json > ffmap.json
+
+'''
+Typical call:
+
+./build_ffmap.py -m maps.txt -a aliases.json > nodes.json
+
+The output is for ffmap-d3.
 
 #### Maps Data File #####
 
@@ -45,7 +55,7 @@ resulting in mutliple MACs that belong to one node.
 The number is idependent of the "links" entries.
 
 Note:
- - All entries are optional, except for the "smac" and "dmac" in  each link.
+ - All entries are optional, except for the "smac" and "dmac" in each link.
  - The data may be passed through gzip when passed to alfred (echo "hello" | gzip | alfred -s 64).
 
 #### Aliases Data File #####
@@ -77,12 +87,6 @@ as part of the "smac".
 Note:
  - All entries are optional and will overwrite values from maps.
 '''
-
-'''
-List of firmware version that are not legacy.
-None will set legacy always to false.
-'''
-valid_firmwares = [None, "0.3"]
 
 mac_n = 0
 def create_unique_mac():
@@ -289,8 +293,7 @@ def readMaps(filename):
 					#data might be from gzip, let us try that
 					if strings[1].endswith("\\x00"):
 						proc = subprocess.Popen(['gunzip'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-						node_value = proc.communicate(node_value.encode('latin-1'))[0]
-						node_value = node_value.decode("utf-8")
+						node_value = proc.communicate(node_value.encode('latin-1'))[0].decode("utf-8")
 
 					node_value = json.loads(node_value)
 					validateMapEntry(node_mac, node_value)
@@ -390,8 +393,12 @@ def main():
 					
 					if not flag_value and alt_flag_value:
 						value[flag_key] = True
+			elif key == "macs":
+				if len(value):
+					node1["macs"] = list(set(node1["macs"] + value))
 			elif key == "links":
-				node1["links"].extend(value)
+				if len(value):
+					node1["links"].extend(value)
 			elif key == "name":
 				if new_value and new_value != node1["id"]:
 					node1["name"] = new_value
@@ -437,19 +444,24 @@ def main():
 		firmware = data.get("firmware")
 		name = data.get("name")
 		geo = data.get("geo")
-		
+
+		macs = [ mac ]
+		for link in data.get("links", []):
+			macs.append(link["smac"])
+
 		node = {
 			'id': mac,
 			'name': name,
 			'geo': geo,
+			'macs' : macs,
 			'links' : data.get("links", []),
 			'firmware': firmware,
 			'flags': {"client": False, "legacy": False, "gateway": False, "online": True}
 		}
 
-		addNode(mac, node)
-		for link in data.get("links", []):
-			addNode(link["smac"], node)
+		'''add node under all known MACs'''
+		for smac in macs:
+			addNode(smac, node)
 
 	'''
 	Add nodes from alias database
@@ -463,6 +475,7 @@ def main():
 			'id': mac,
 			'name': name,
 			'geo': geo,
+			'macs' : [ mac ],
 			'links' : [],
 			'firmware': None,
 			'flags': {"client": False, "legacy": False, "gateway": gateway, "online": False}
@@ -486,6 +499,7 @@ def main():
 				'id': cmac,
 				'name': None,
 				'geo': None,
+				'macs' : [ cmac ],
 				'links' : [{ "smac" : cmac, "dmac" : mac, "qual" : 255 }],
 				'firmware': None,
 				'flags': {"client": True, "legacy": False, "gateway": False, "online": True}
@@ -563,10 +577,10 @@ def main():
 					quality = "TT"
 					type = "client"
 
-				#force all connections to be displayed as vpn uplink
-				for m in [node1["id"], node2["id"]]:
+				#display as uplink if any side of the link is marked as vpn
+				for m in (node1["macs"] + node2["macs"]):
 					if m in aliases and aliases[m].get("vpn", False):
-							type = "vpn"
+						type = "vpn"
 
 				links_list.append({
 					"id": "{}-{}".format(smac1, smac2),
@@ -585,12 +599,12 @@ def main():
 
 	'''
 	Remove some temporary entries not intended for output.
-	Also add a dummy macs entry.
+	Reformat macs.
 	'''
 	for node in nodes_list:
 		del node["links"]
 		del node["index"]
-		node["macs"] = node["id"] #add macs?
+		node["macs"] = ' '.join(node["macs"])
 
 	now = datetime.datetime.utcnow().replace(microsecond=0)
 
