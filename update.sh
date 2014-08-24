@@ -2,8 +2,11 @@
 
 #This script is called every 5 minutes via crond
 
-#publish own piece of map information
+#announce own piece of map information
 /root/print_map.sh | alfred -s 64
+
+#announce service as gateway
+/root/print_service.sh | alfred -s 88
 
 #collect all map pieces
 alfred -r 64 > /root/maps.txt
