@@ -63,9 +63,6 @@ def main(argv):
 		if element["flags"].get("gateway", False):
 			gateway_counter += 1
 
-	#FFBI fixup, since we have ghost clients for each node
-	client_counter -= 2 * (node_counter) + gateway_counter
-
 	#print("gatewway_counter: {}".format(gateway_counter))
 	#print("client_counter: {}".format(client_counter))
 	#print("node_counter: {}".format(node_counter))
