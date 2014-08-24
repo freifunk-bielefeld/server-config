@@ -34,9 +34,10 @@ The output is for ffmap-d3.
 #### Maps Data File #####
 
 The maps file (-m) contains the output from alfred.
-One line comes from one node and might look like this:
+Each line has one entry containing a MAC and a string value:
 { "b2:48:7a:f6:85:76", "{ \"links\" : [{ \"smac\" : \"b0:48:7a:f6:85:76\", \"dmac\" : \"8c:21:0a:d8:af:2b\", \"qual\" : 251 }, { \"smac\" : \"2a:88:01:80:6b:93\", \"dmac\" : \"ee:51:43:05:1f:ef\", \"qual\" : 255 }], \"clientcount\" : 2}\x0a" },
-The data that was put into alfred by every node looks like this:
+
+The data that was put into alfred by a node looks like this:
 {
 	"name" : "foobar",
 	"firmware" : "ffbi-0.3",
@@ -56,7 +57,8 @@ The number is idependent of the "links" entries.
 
 Note:
  - All entries are optional, except for the "smac" and "dmac" in each link.
- - The data may be passed through gzip when passed to alfred (echo "hello" | gzip | alfred -s 64).
+ - The data may be passed through gzip before it is passed to alfred:
+    echo "hello" | gzip | alfred -s 64
 
 #### Aliases Data File #####
 
@@ -86,15 +88,19 @@ as part of the "smac".
 
 Note:
  - All entries are optional and will overwrite values from maps.
+
+#### Services Data File #####
+
+ The services file is similar to the maps data file as the output comes from Alfred.
+ A formatted value may look like this:
+{
+	"type" : "gateway",
+	"addr" : "10.20.30.40"
+}
+
 '''
 
-mac_n = 0
-def create_unique_mac():
-	global mac_n
-	mac_n += 1
-	return '00:00:00:{:02x}:{:02x}:{:02x}'.format(int((mac_n/255/255)%255), int((mac_n/255)%255), int(mac_n%255))
-
-addr_re = re.compile("^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$")
+addr_re = re.compile('^[\[\]\d:\.]{7,45}$')
 mac_re = re.compile("^([0-9a-f]{2}:){5}[0-9a-f]{2}$")
 geo_re = re.compile("^\d{1,3}\.\d+ \d{1,3}\.\d+$")
 strings_re = re.compile(r'(?x)(?<!\\)"(.*?)(?<!\\)"')
@@ -305,33 +311,32 @@ def readMaps(filename):
 
 	return maps
 
-'''
 def readServices(filename):
 
 	if not filename:
 		return {}
-	
-	def validateEntry(sender_mac, json_value):
+
+	def validateServiceEntry(sender_mac, json_value):
 		if not isinstance(json_value, dict):
 			raise Exception(
 				"Service entry {}. Invalid value type.".format(sender_mac)
 			)
-		
+
 		if not "type" in json_value:
 			raise Exception(
 				"Service entry {}. type not found.".format(sender_mac)
 			)
-		
+
 		if not "addr" in json_value:
 			raise Exception(
 				"Service entry {}. Addr not found.".format(sender_mac)
 			)
-		
+
 		if not isAddr(json_value["addr"]):
 			raise Exception(
 				"Service entry {}. Invalid address format: {}".format(sender_mac, json_value["addr"])
 			)
-	
+
 	services = {}
 	with open(filename) as f:
 		for line in f.readlines():
@@ -339,26 +344,30 @@ def readServices(filename):
 			if len(strings) == 2:
 				node_mac = bytes(strings[0], 'utf-8').decode("unicode_escape")
 				node_value = bytes(strings[1], 'utf-8').decode("unicode_escape")
-				
+
+				#data might be from gzip, let us try that
+				if strings[1].endswith("\\x00"):
+					proc = subprocess.Popen(['gunzip'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+					node_value = proc.communicate(node_value.encode('latin-1'))[0].decode("utf-8")
+
 				node_value = json.loads(node_value)
 				try:
-					validateEntry(node_mac, node_value)
-					services[node_mac] = node_value["addr"]
+					validateServiceEntry(node_mac, node_value)
+					services[node_mac] = node_value
 				except Exception as e:
 					sys.stderr.write(str(e)+"\n")
-	
+
 	return services
-'''
 
 def main():
 	parser = argparse.ArgumentParser()
 
 	parser.add_argument('-a', '--aliases',
 		help='read aliases from FILE')
-	'''
+
 	parser.add_argument('-s', '--services', 
 		help='read services from FILE')
-	'''
+
 	parser.add_argument('-m', '--maps',
 		help='read maps from FILE')
 
@@ -419,10 +428,8 @@ def main():
 	#locally stored additional data
 	aliases = readAliases(args.aliases)
 
-	'''
 	#gateway data from nodes via alfred
 	services = readServices(args.services)
-	'''
 
 	#<macs> => <node>
 	nodes = {}
@@ -489,6 +496,14 @@ def main():
 			'clientcount' : 0,
 			'flags': {"legacy": False, "gateway": gateway, "online": False}
 		})
+
+	'''
+	Set gateway flag
+	'''
+	for mac, data in services.items():
+		if mac in nodes:
+			if data["type"] == "gateway":
+				nodes[mac]["flags"]["gateway"] = True
 
 	'''
 	Create a unique list of nodes by "id".
