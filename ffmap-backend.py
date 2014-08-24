@@ -501,9 +501,8 @@ def main():
 	Set gateway flag
 	'''
 	for mac, data in services.items():
-		if mac in nodes:
-			if data["type"] == "gateway":
-				nodes[mac]["flags"]["gateway"] = True
+		if mac in nodes and data["type"] == "gateway":
+			nodes[mac]["flags"]["gateway"] = True
 
 	'''
 	Create a unique list of nodes by "id".
