@@ -1,0 +1,37 @@
+* {
+ margin: 0px;
+ font-weight: bold;
+ font-family: Arial, sans-serif;
+}
+
+table {
+ margin-top: 4%;
+ margin-left: auto;
+ margin-right: auto;
+}
+
+h2 {
+ text-align: center;
+}
+
+.schema  {
+ width: 98%;
+ max-width: 100%;
+}
+
+#left_top, #left_bottom {
+ width: 40%;
+ text-align: right;
+}
+
+#right_top, #right_bottom  {
+ width: 40%;
+ text-align: left;
+}
+
+#middle_top,  #middle_bottom {
+ width: 20%;
+ text-align: center;
+}
+
+//td { border:1px solid black; }
