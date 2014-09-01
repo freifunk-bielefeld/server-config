@@ -515,7 +515,7 @@ def main():
 	for idx, node in enumerate(nodes_list):
 		node["index"] = idx
 		
-		if not (node["firmware"] in valid_firmwares):
+		if not (node.get("firmware") in valid_firmwares):
 			node["flags"]["legacy"] = True
 
 	links_list = []
