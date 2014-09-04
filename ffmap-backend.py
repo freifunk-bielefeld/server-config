@@ -131,6 +131,12 @@ def isAddr(addr):
 		return False
 
 '''
+Convert between locally administered and globally administered MAC address
+'''
+def flip_mac(mac):
+	return "{:02x}{}".format(int(mac[0:2], 16) ^ 2, mac[2:])
+
+'''
 Read and validate aliases file
 '''
 def readAliases(filename):
@@ -472,6 +478,7 @@ def main():
 		}
 
 		'''add node under all known MACs'''
+		addNode(flip_mac(mac), node)
 		for smac in macs:
 			addNode(smac, node)
 
