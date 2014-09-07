@@ -134,80 +134,80 @@
   <text
      xml:space="preserve"
      style="font-size:75.65912628px;font-style:normal;font-weight:bold;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#1047c0;fill-opacity:1;stroke:#000000;stroke-width:1.02867711;stroke-miterlimit:4;stroke-opacity:0.73893804;stroke-dasharray:none;font-family:Sans;-inkscape-font-specification:Sans Bold"
-     x="25.561707"
-     y="94.74929"
+     x="45.672276"
+     y="94.749298"
      id="text3037-0"
      sodipodi:linespacing="125%"
      inkscape:label="client_counter"
      transform="scale(0.9945024,1.005528)"><tspan
        sodipodi:role="line"
        id="tspan3039-5"
-       x="25.561707"
-       y="94.74929"
-       style="font-size:33.45291138px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:center;text-anchor:middle;fill:#1047c0;fill-opacity:1;stroke:#000000;stroke-width:1.02867711;stroke-miterlimit:4;stroke-opacity:0.73893804;stroke-dasharray:none;font-family:STIXSizeFourSym;-inkscape-font-specification:STIXSizeFourSym Bold">42</tspan></text>
+       x="45.672276"
+       y="94.749298"
+       style="font-size:33.45291138px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:center;text-anchor:middle;fill:#1047c0;fill-opacity:1;stroke:#000000;stroke-width:1.02867711;stroke-miterlimit:4;stroke-opacity:0.73893804;stroke-dasharray:none;font-family:STIXSizeFourSym;-inkscape-font-specification:STIXSizeFourSym Bold">60</tspan></text>
   <text
      xml:space="preserve"
      style="font-size:28px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-     x="66.131363"
-     y="55.4799"
+     x="86.131371"
+     y="55.479908"
      id="text2996"
      sodipodi:linespacing="125%"><tspan
        sodipodi:role="line"
        id="tspan2998"
-       x="66.131363"
-       y="55.4799"
+       x="86.131371"
+       y="55.479908"
        style="font-size:32px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:STIXSizeFourSym;-inkscape-font-specification:STIXSizeFourSym">Knoten online.</tspan></text>
   <text
      xml:space="preserve"
      style="font-size:28px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-     x="66.131363"
-     y="95.479904"
+     x="86.131371"
+     y="95.479912"
      id="text3000"
      sodipodi:linespacing="125%"><tspan
        sodipodi:role="line"
        id="tspan3002"
-       x="66.131363"
-       y="95.479904"
+       x="86.131371"
+       y="95.479912"
        style="font-size:32px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:STIXSizeFourSym;-inkscape-font-specification:STIXSizeFourSym">Clients online.</tspan></text>
   <text
      xml:space="preserve"
      style="font-size:75.65912628px;font-style:normal;font-weight:bold;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#1047c0;fill-opacity:1;stroke:#000000;stroke-width:1.02867711;stroke-miterlimit:4;stroke-opacity:0.73893804;stroke-dasharray:none;font-family:Sans;-inkscape-font-specification:Sans Bold"
-     x="26.275824"
-     y="55.174904"
+     x="46.386395"
+     y="55.174911"
      id="text3037-0-6"
      sodipodi:linespacing="125%"
      inkscape:label="node_counter"
      transform="scale(0.9945024,1.005528)"><tspan
        sodipodi:role="line"
        id="tspan3039-5-0"
-       x="26.275824"
-       y="55.174904"
-       style="font-size:33.45291138px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:center;text-anchor:middle;fill:#1047c0;fill-opacity:1;stroke:#000000;stroke-width:1.02867711;stroke-miterlimit:4;stroke-opacity:0.73893804;stroke-dasharray:none;font-family:STIXSizeFourSym;-inkscape-font-specification:STIXSizeFourSym Bold">79</tspan></text>
+       x="46.386395"
+       y="55.174911"
+       style="font-size:33.45291138px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:center;text-anchor:middle;fill:#1047c0;fill-opacity:1;stroke:#000000;stroke-width:1.02867711;stroke-miterlimit:4;stroke-opacity:0.73893804;stroke-dasharray:none;font-family:STIXSizeFourSym;-inkscape-font-specification:STIXSizeFourSym Bold">101</tspan></text>
   <text
      xml:space="preserve"
      style="font-size:75.65912628px;font-style:normal;font-weight:bold;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#1047c0;fill-opacity:1;stroke:#000000;stroke-width:1.02867711;stroke-miterlimit:4;stroke-opacity:0.73893804;stroke-dasharray:none;font-family:Sans;-inkscape-font-specification:Sans Bold"
-     x="26.275814"
-     y="134.73509"
+     x="36.331112"
+     y="134.73511"
      id="text3037-0-8"
      sodipodi:linespacing="125%"
      inkscape:label="gateway_counter"
      transform="scale(0.99450239,1.005528)"><tspan
        sodipodi:role="line"
        id="tspan3039-5-3"
-       x="26.275814"
-       y="134.73509"
+       x="36.331112"
+       y="134.73511"
        style="font-size:33.45291138px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:center;text-anchor:middle;fill:#1047c0;fill-opacity:1;stroke:#000000;stroke-width:1.02867711;stroke-miterlimit:4;stroke-opacity:0.73893804;stroke-dasharray:none;font-family:STIXSizeFourSym;-inkscape-font-specification:STIXSizeFourSym Bold">2</tspan></text>
   <text
      xml:space="preserve"
      style="font-size:28.00000191px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-     x="66.131363"
-     y="135.4799"
+     x="56.131371"
+     y="135.47992"
      id="text3000-4"
      sodipodi:linespacing="125%"><tspan
        sodipodi:role="line"
        id="tspan3002-3"
-       x="66.131363"
-       y="135.4799"
+       x="56.131371"
+       y="135.47992"
        style="font-size:32px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:STIXSizeFourSym;-inkscape-font-specification:STIXSizeFourSym">Gateways online.</tspan></text>
   <text
      xml:space="preserve"
@@ -221,6 +221,6 @@
        id="tspan3000"
        x="86.131371"
        y="15.479908"
-       style="font-size:14.00000095px;font-weight:bold;-inkscape-font-specification:Sans Bold">'2014-08-23 17:42:01'
+       style="font-size:14.00000095px;font-weight:bold;-inkscape-font-specification:Sans Bold">'2014-09-07 15:29:01'
 </tspan></text>
 </svg>
