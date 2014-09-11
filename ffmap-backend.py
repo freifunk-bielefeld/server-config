@@ -91,16 +91,18 @@ Note:
 
 #### Services Data File #####
 
- The services file is similar to the maps data file as the output comes from Alfred.
- A formatted value may look like this:
+The services file is similar to the maps data file as the output comes from Alfred.
+A formatted value may look like this:
 {
-	"type" : "gateway",
-	"addr" : "10.20.30.40"
+	"link" : "http://10.20.30.40/",
+	"label" : "My Public Gateway"
 }
 
+This is useful to announce services. Currently limited to one entry per router.
 '''
 
-addr_re = re.compile('^[\[\]\d:\.]{7,45}$')
+link_re = re.compile('^[\w\.\:\[\]\(\)\/ ]{3,30}$')
+label_re = link_re
 mac_re = re.compile("^([0-9a-f]{2}:){5}[0-9a-f]{2}$")
 geo_re = re.compile("^\d{1,3}\.\d+ \d{1,3}\.\d+$")
 strings_re = re.compile(r'(?x)(?<!\\)"(.*?)(?<!\\)"')
@@ -124,8 +126,14 @@ def parseStrings(line):
 	else:
 		return []
 
-def isAddr(addr):
-	if isinstance(addr, str) and addr_re.match(addr):
+def isLink(link):
+	if isinstance(link, str) and link_re.match(link):
+		return True
+	else:
+		return False
+
+def isLabel(label):
+	if isinstance(label, str) and label_re.match(label):
 		return True
 	else:
 		return False
@@ -328,19 +336,24 @@ def readServices(filename):
 				"Service entry {}. Invalid value type.".format(sender_mac)
 			)
 
-		if not "type" in json_value:
-			raise Exception(
-				"Service entry {}. type not found.".format(sender_mac)
-			)
-
-		if not "addr" in json_value:
+		if not "link" in json_value:
 			raise Exception(
 				"Service entry {}. Addr not found.".format(sender_mac)
 			)
 
-		if not isAddr(json_value["addr"]):
+		if not "label" in json_value:
 			raise Exception(
-				"Service entry {}. Invalid address format: {}".format(sender_mac, json_value["addr"])
+				"Service entry {}. type not found.".format(sender_mac)
+			)
+
+		if not isLink(json_value["link"]):
+			raise Exception(
+				"Service entry {}. Invalid link format: {}".format(sender_mac, json_value["link"])
+			)
+
+		if not isLabel(json_value["label"]):
+			raise Exception(
+				"Service entry {}. Invalid label format: {}".format(sender_mac, json_value["label"])
 			)
 
 	services = {}
