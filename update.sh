@@ -6,13 +6,13 @@
 /root/print_map.sh | alfred -s 64
 
 #announce service as gateway
-/root/print_service.sh | alfred -s 88
+/root/print_service.sh | alfred -s 91
 
 #collect all map pieces
 alfred -r 64 > /root/maps.txt
 
 #collect all services
-alfred -r 88 > /root/services.txt
+alfred -r 91 > /root/services.txt
 
 #create map data
 /root/ffmap-backend.py -m /root/maps.txt -a /root/aliases.json -s /root/services.json > /var/www/nodes.json
