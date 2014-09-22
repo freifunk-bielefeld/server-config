@@ -4,4 +4,4 @@ addr() {
 	ip -$1 address show dev $2 2> /dev/null | tr '/' ' '| awk '/inet/{print($2); exit(0);}'
 }
 
-echo -n "{\"link\" : \"$(addr 4 bat0)\", \"label\" : \"Freifunk Gateway VPN1\"}"
+echo -n "{\"link\" : \"http://[$(addr 6 bat0)]/index.html\", \"label\" : \"Freifunk Gateway VPN1\"}"
