@@ -5,7 +5,7 @@
 #announce own piece of map information
 /root/print_map.sh | alfred -s 64
 
-#announce service as gateway
+#announce own gateway service
 /root/print_service.sh | alfred -s 91
 
 #collect all map pieces
