@@ -8,6 +8,7 @@ License: GPL-3.0
 Author: Freifunk Bielefeld
 '''
 
+import os
 import sys
 import time
 import datetime
@@ -101,8 +102,8 @@ A formatted value may look like this:
 This is useful to announce services. Currently limited to one entry per router.
 '''
 
-link_re = re.compile('^[\w\.\:\[\]\(\)\/ ]{3,30}$')
-label_re = link_re
+link_re = re.compile('^[\w\.\:\[\]\(\)\/ ]{3,60}$')
+label_re = re.compile('^[\w\.\:\[\]\(\)\/ ]{3,30}$')
 mac_re = re.compile("^([0-9a-f]{2}:){5}[0-9a-f]{2}$")
 geo_re = re.compile("^\d{1,3}\.\d+ \d{1,3}\.\d+$")
 strings_re = re.compile(r'(?x)(?<!\\)"(.*?)(?<!\\)"')
@@ -393,7 +394,25 @@ def main():
 	args = parser.parse_args()
 	if not args.maps:
 		sys.stderr.write(
-			"Input file for --maps expected.\n"
+			"{}: Input file for --maps expected.\n".format(parser.prog)
+		)
+		return 1
+
+	if args.maps and not os.path.isfile(args.maps):
+		sys.stderr.write(
+			"{}: File does not exist: {}\n".format(parser.prog, args.maps)
+		)
+		return 1
+
+	if args.aliases and not os.path.isfile(args.aliases):
+		sys.stderr.write(
+			"{}: File does not exist: {}\n".format(parser.prog, args.aliases)
+		)
+		return 1
+
+	if args.services and not os.path.isfile(args.services):
+		sys.stderr.write(
+			"{}: File does not exist: {}\n".format(parser.prog, args.services)
 		)
 		return 1
 
