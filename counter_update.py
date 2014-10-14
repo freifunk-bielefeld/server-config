@@ -21,6 +21,7 @@ def main(argv):
 		print("Usage: {} <json-file> <svg-file>".format(argv[0]))
 		return 0
 
+	prog = argv[0]
 	json_path = argv[1]
 	svg_path = argv[2]
 
@@ -45,6 +46,12 @@ def main(argv):
 	json_content = ""	
 	with open(json_path, 'r') as json_file:
 		json_content = json_file.read()
+
+	if len(json_content) == 0:
+		sys.stderr.write(
+			"{}: File is empty: {}\n".format(prog, json_path)
+		)
+		return 1
 
 	decoded = json.loads(json_content)
 	node_counter = 0
