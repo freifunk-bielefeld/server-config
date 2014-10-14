@@ -59,8 +59,6 @@ def main(argv):
 	gateway_counter = 0
 
 	for element in decoded["nodes"]:
-		gateway_flag = 
-
 		if element["flags"].get("online", False):
 			continue
 
