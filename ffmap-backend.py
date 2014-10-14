@@ -4,8 +4,8 @@
 Convert data received from alfred to
 a format accepted by ffmap-d3 format.
 
-License: GPL-3.0
-Author: Freifunk Bielefeld
+License: CC0 1.0
+Author: Moritz Warning
 '''
 
 import os
