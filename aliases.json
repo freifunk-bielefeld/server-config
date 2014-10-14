@@ -1,0 +1,14 @@
+{
+	"02:16:3c:58:d0:b5" : {
+		"name" : "vpn1",
+		"vpn" : "true",
+		"gateway" : "true",
+	},
+	"ee:11:43:15:1f:ef" : {
+		"name" : "Shadow"
+	},
+	"12:fe:ed:7e:86:00" : {
+		"name" : "Cool Node",
+		"geo" : "52.02513078 8.55887"
+	}
+}
