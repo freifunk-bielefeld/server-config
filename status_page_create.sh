@@ -3,7 +3,7 @@
 dst="$1"
 src="/tmp/freifunk_status.tmp"
 
-vpn_if='fastd_bat'
+vpn_if='bat0'
 wan_if='vpnexit'
 avg_time=5
 
