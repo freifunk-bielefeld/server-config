@@ -1,6 +1,7 @@
 #!/bin/sh
 
 #A server setup script (alpha)
+server_num=1
 
 #abort script on first error
 set -e
@@ -23,17 +24,6 @@ get_mac() {
 	echo "$a:${mac#*:}" #reassemble mac
 }
 
-get_ula() {
-	local prefix="$1" mac="$2"
-
-	mac=${mac//:/} # remove ':'
-	mac=${mac:0:6}fffe${mac:6:6} # insert ffee
-	mac=`echo $mac | sed 's/..../&:/g'` # insert ':'
-
-	# assemble IPv6 address
-	echo "${prefix%%::*}:${mac%?}"
-}
-
 #we like to have a constant MAC
 #to be able to track a node on the map.
 mac="get_mac eth0"
@@ -41,7 +31,7 @@ mac="get_mac eth0"
 if [ ! -f /etc/radvd.conf ]; then
 	echo "(I) Create /etc/radvd.conf"
 	cp etc/radvd.conf /etc/
-	sed -i "s/fdef:17a0:ffb1:300::1/$(get_ula fdef:17a0:ffb1:300::/64 $mac)/g" /etc/radvd.conf
+	sed -i "s/fdef:17a0:ffb1:300::1/fdef:17a0:ffb1:300::$server_num/g" /etc/radvd.conf
 fi
 
 if [ ! -f /etc/tayga.conf ]; then
@@ -72,7 +62,7 @@ fi
 if [ ! -f /etc/lighttpd/lighttpd.conf ]; then
 	echo "(I) Create /etc/lighttpd/lighttpd.conf"
 	cp -r etc/lighttpd/lighttpd.conf /etc/lighttpd/
-	sed -i "s/fdef:17a0:ffb1:300::1/$(get_ula fdef:17a0:ffb1:300::/64 $mac)/g" /etc/lighttpd/lighttpd.conf
+	sed -i "s/fdef:17a0:ffb1:300::1/fdef:17a0:ffb1:300::$server_num/g" /etc/lighttpd/lighttpd.conf
 fi
 
 if cat /etc/crontab | grep '/root/scripts/update.sh'; then
@@ -191,5 +181,5 @@ ip link set bat0 address "$mac"
 batctl if add fastd_mesh
 ip link set bat0 up
 
-ip -6 addr add "get_ula fdef:17a0:ffb1:300::/64 $mac" dev bat0
-ip -6 addr add "get_ula 2001:bf7:1320:300::/64 $mac" dev bat0
+ip -6 addr add fdef:17a0:ffb1:300::$server_num/64 dev bat0
+ip -6 addr add 2001:bf7:1320:300::$server_num/64 dev bat0
