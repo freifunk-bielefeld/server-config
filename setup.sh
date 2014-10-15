@@ -5,6 +5,7 @@ server_num=1
 
 #abort script on first error
 set -e
+set -u
 
 is_running() {
   ps aux | grep -v grep | grep "$1" &> /dev/null
