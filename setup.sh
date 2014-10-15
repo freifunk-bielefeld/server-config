@@ -34,6 +34,31 @@ get_ula() {
 	echo "${prefix%%::*}:${mac%?}"
 }
 
+if [ ! -f /etc/radvd.conf ]; then
+	echo "(I) Create /etc/radvd.conf"
+	cp etc/radvd.conf /etc/
+fi
+
+if [ ! -f /etc/tayga.conf ]; then
+	echo "(I) Create /etc/tayga.conf"
+	cp -r etc/tayga.conf /etc/
+fi
+
+if [ ! -f /etc/fastd/fastd.conf ]; then
+	echo "(I) Create /etc/fastd/"
+	cp -r etc/fastd /etc/
+fi
+
+if [ ! -f /root/scripts/update.sh ]; then
+	echo "(I) Create /root/scripts/"
+	cp -r scripts /root/
+fi
+
+if cat /etc/crontab | grep '/root/scripts/update.sh'; then
+	echo "(I) Add entry to /etc/crontab"
+	echo '*/5 * * * * root /root/scripts/update.sh' >> /etc/crontab
+fi
+
 if ! is_installed "alfred"; then
 	echo "(I) Install batman, batctl and alfred."
 	VERSION=2014.3.0
