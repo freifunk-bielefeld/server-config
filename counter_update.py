@@ -59,7 +59,7 @@ def main(argv):
 	gateway_counter = 0
 
 	for element in decoded["nodes"]:
-		if element["flags"].get("online", False):
+		if not element["flags"].get("online", False):
 			continue
 
 		node_counter += 1
