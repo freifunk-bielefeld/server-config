@@ -34,9 +34,14 @@ get_ula() {
 	echo "${prefix%%::*}:${mac%?}"
 }
 
+#we like to have a constant MAC
+#to be able to track a node on the map.
+mac="get_mac eth0"
+
 if [ ! -f /etc/radvd.conf ]; then
 	echo "(I) Create /etc/radvd.conf"
 	cp etc/radvd.conf /etc/
+	sed -i "s/fdef:17a0:ffb1:300::1/$(get_ula fdef:17a0:ffb1:300::/64 $mac)/g" /etc/radvd.conf
 fi
 
 if [ ! -f /etc/tayga.conf ]; then
@@ -52,6 +57,22 @@ fi
 if [ ! -f /root/scripts/update.sh ]; then
 	echo "(I) Create /root/scripts/"
 	cp -r scripts /root/
+fi
+
+if [ ! -d /var/www/ ]; then
+	echo "(I) Create /var/www/"
+	cp -r var/www/* /var/www/
+fi
+
+if ! is_installed "lighttpd"; then
+	echo "(I) Install lighttpd"
+	apt-get install lighttpd
+fi
+
+if [ ! -f /etc/lighttpd/lighttpd.conf ]; then
+	echo "(I) Create /etc/lighttpd/lighttpd.conf"
+	cp -r etc/lighttpd/lighttpd.conf /etc/lighttpd/
+	sed -i "s/fdef:17a0:ffb1:300::1/$(get_ula fdef:17a0:ffb1:300::/64 $mac)/g" /etc/lighttpd/lighttpd.conf
 fi
 
 if cat /etc/crontab | grep '/root/scripts/update.sh'; then
@@ -161,10 +182,6 @@ if ! is_running "tayga"; then
   echo "(I) Start tayga."
   /etc/init.d/tayga start
 fi
-
-#we like to have a constant MAC
-#to be able to track a node on the map.
-mac="get_mac eth0"
 
 ip addr flush dev fastd_mesh
 ip link set fastd_mesh up
