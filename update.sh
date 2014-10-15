@@ -11,11 +11,8 @@
 #collect all map pieces
 alfred -r 64 > /root/maps.txt
 
-#collect all services
-alfred -r 91 > /root/services.txt
-
 #create map data
-./ffmap-backend.py -m /root/maps.txt -s /root/services.txt -a /root/aliases.json > /var/www/nodes.json
+./ffmap-backend.py -m /root/maps.txt -a /root/aliases.json > /var/www/nodes.json
 
 #update nodes/clients/gateways counter
 ./counter_update.py '/var/www/nodes.json' '/var/www/counter_image.svg'
