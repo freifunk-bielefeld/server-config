@@ -1,0 +1,3 @@
+key "5369f843d41a89c107fe1839b1683e14869046252bb7af734f7d67b2711dd9cc";
+float no;
+remote "vpn2.freifunk-bielefeld.de" port 1244;
