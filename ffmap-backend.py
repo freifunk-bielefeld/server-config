@@ -100,6 +100,7 @@ A formatted value may look like this:
 }
 
 This is useful to announce services. Currently limited to one entry per router.
+Note: The data is not yet used as ffmap does not support to display the data yet.
 '''
 
 link_re = re.compile('^[\w\.\:\[\]\(\)\/ ]{3,60}$')
@@ -535,13 +536,6 @@ def main():
 			'clientcount' : 0,
 			'flags': {"legacy": False, "gateway": gateway, "online": False}
 		})
-
-	'''
-	Set gateway flag
-	'''
-	for mac, data in services.items():
-		if mac in nodes and data["type"] == "gateway":
-			nodes[mac]["flags"]["gateway"] = True
 
 	'''
 	Create a unique list of nodes by "id".
