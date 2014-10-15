@@ -2,8 +2,16 @@
 
 #Print out local connection data for map creation
 
+geo=""
+name="$(hostname)"
+firmware=""
 
 echo -n "{"
+
+[ -n "$geo" ] && echo -n "\"geo\" : \"$geo\", "
+[ -n "$name" ] && echo -n "\"name\" : \"$name\", "
+[ -n "$firmware" ] && echo -n "\"firmware\" : \"$firmware\", "
+
 echo -n "\"links\" : ["
 
 printLink() { echo -n "{ \"smac\" : \"$(cat /sys/class/net/$3/address)\", \"dmac\" : \"$1\", \"qual\" : $2 }"; }
