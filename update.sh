@@ -18,7 +18,7 @@ alfred -r 91 > /root/services.txt
 ./ffmap-backend.py -m /root/maps.txt -s /root/services.txt -a /root/aliases.json > /var/www/nodes.json
 
 #update nodes/clients/gateways counter
-./counter_update.py '/var/www/map.freifunk-bielefeld.de/nodes.json' '/var/www/freifunk-bielefeld.de/counter.svg'
+./counter_update.py '/var/www/nodes.json' '/var/www/counter_image.svg'
 
 #update FF-Internal status page
-./status_page_create.sh '/var/www/vpn.ffbi/index.html'
+./status_page_create.sh '/var/www/index.html'
