@@ -50,9 +50,28 @@ if [ ! -f /root/scripts/update.sh ]; then
 	cp -r scripts /root/
 fi
 
-if [ ! -d /var/www/ ]; then
-	echo "(I) Create /var/www/"
-	cp -r var/www/* /var/www/
+if [ ! -d /var/www/status ]; then
+	echo "(I) Create /var/www/status"
+	mkdir -p /var/www/status
+	cp -r var/www/status /var/www/
+	chown -R www:www var/www/status
+fi
+
+if [ ! -d /var/www/map ]; then
+	echo "(I) Create /var/www/map"
+	git clone https://github.com/freifunk-bielefeld/ffmap-d3.git
+	cd ffmap-d3
+	make && mv www /var/www/map
+	cd ..
+	rm -rf ffmap-d3
+	chown -R www:www var/www/map
+fi
+
+if [ ! -d /var/www/counter ]; then
+	echo "(I) Create /var/www/counter"
+	mkdir -p /var/www/counter
+	cp -r var/www/counter /var/www/
+	chown -R www:www var/www/counter
 fi
 
 if ! is_installed "lighttpd"; then
@@ -74,10 +93,7 @@ fi
 if ! is_installed "alfred"; then
 	echo "(I) Install batman, batctl and alfred."
 	VERSION=2014.3.0
-	apt-get install build-essential 
-	apt-get install linux-headers-$(uname -r)
-	apt-get install pkg-config
-	apt-get install libnl-3-dev
+	apt-get install wget build-essential linux-headers-$(uname -r) pkg-config libnl-3-dev
 
 	wget http://downloads.open-mesh.org/batman/releases/batman-adv-$VERSION/batman-adv-$VERSION.tar.gz
 	tar -xzf batman-adv-$VERSION.tar.gz
