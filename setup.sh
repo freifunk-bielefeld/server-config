@@ -50,30 +50,6 @@ if [ ! -f /root/scripts/update.sh ]; then
 	cp -r scripts /root/
 fi
 
-if [ ! -d /var/www/status ]; then
-	echo "(I) Create /var/www/status"
-	mkdir -p /var/www/status
-	cp -r var/www/status /var/www/
-	chown -R www:www var/www/status
-fi
-
-if [ ! -d /var/www/map ]; then
-	echo "(I) Create /var/www/map"
-	git clone https://github.com/freifunk-bielefeld/ffmap-d3.git
-	cd ffmap-d3
-	make && mv www /var/www/map
-	cd ..
-	rm -rf ffmap-d3
-	chown -R www:www var/www/map
-fi
-
-if [ ! -d /var/www/counter ]; then
-	echo "(I) Create /var/www/counter"
-	mkdir -p /var/www/counter
-	cp -r var/www/counter /var/www/
-	chown -R www:www var/www/counter
-fi
-
 if ! is_installed "lighttpd"; then
 	echo "(I) Install lighttpd"
 	apt-get install lighttpd
@@ -83,6 +59,35 @@ if [ ! -f /etc/lighttpd/lighttpd.conf ]; then
 	echo "(I) Create /etc/lighttpd/lighttpd.conf"
 	cp -r etc/lighttpd/lighttpd.conf /etc/lighttpd/
 	sed -i "s/fdef:17a0:ffb1:300::1/fdef:17a0:ffb1:300::$server_num/g" /etc/lighttpd/lighttpd.conf
+fi
+
+if ! id www-data 2> /dev/null; then
+	echo "(I) Create user www for lighttpd."
+	useradd --system --no-create-home --user-group --shell /bin/false www-data
+fi
+
+if [ ! -d /var/www/status ]; then
+	echo "(I) Create /var/www/status"
+	mkdir -p /var/www/status
+	cp -r var/www/status /var/www/
+	chown -R www-data:www-data var/www/status
+fi
+
+if [ ! -d /var/www/map ]; then
+	echo "(I) Create /var/www/map"
+	git clone https://github.com/freifunk-bielefeld/ffmap-d3.git
+	cd ffmap-d3
+	make && mv www /var/www/map
+	cd ..
+	rm -rf ffmap-d3
+	chown -R www-data:www-data var/www/map
+fi
+
+if [ ! -d /var/www/counter ]; then
+	echo "(I) Create /var/www/counter"
+	mkdir -p /var/www/counter
+	cp -r var/www/counter /var/www/
+	chown -R www-data:www-data var/www/counter
 fi
 
 if cat /etc/crontab | grep '/root/scripts/update.sh'; then
@@ -163,6 +168,7 @@ fi
 if ! lsmod | grep -v grep | grep "batman_adv" > /dev/null; then
   echo "(I) Start batman-adv."
   echo "5000" >  /sys/class/net/bat0/mesh/orig_interval
+  echo "0" >  /sys/class/net/bat0/mesh/multicast_mode
 fi
 
 if ! is_running "alfred"; then
