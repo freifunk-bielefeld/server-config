@@ -8,11 +8,11 @@ set -e
 set -u
 
 is_running() {
-  ps aux | grep -v grep | grep "$1" &> /dev/null
+  pidof "$1" > /dev/null || return $?
 }
 
 is_installed() {
-	which "$1" &> /dev/null
+  which "$1" > /dev/null || return $?
 }
 
 get_mac() {
