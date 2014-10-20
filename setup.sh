@@ -187,7 +187,7 @@ fi
 
 if ! is_running "fastd"; then
   echo "(I) Start fastd."
-  fastd --config /etc/fastd/vpn/fastd.conf --daemon
+  fastd --config /etc/fastd/fastd.conf --daemon
 fi
 
 if ! is_running "radvd"; then
