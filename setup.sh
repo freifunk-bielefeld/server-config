@@ -111,7 +111,7 @@ if ! is_installed "alfred"; then
 	cd ..
 	rm -rf batman-adv-$VERSION*
 
-	wget http://downloads.open-mesh.org/batman/releases/batctl-$VERSION/batctl-$VERSION.tar.gz
+	wget http://downloads.open-mesh.org/batman/releases/batman-adv-$VERSION/batctl-$VERSION.tar.gz
 	tar -xzf batctl-$VERSION.tar.gz
 	cd batctl-$VERSION/
 	make
