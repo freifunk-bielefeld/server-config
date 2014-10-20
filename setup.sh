@@ -57,7 +57,7 @@ fi
 
 if [ ! -f /etc/lighttpd/lighttpd.conf ]; then
 	echo "(I) Create /etc/lighttpd/lighttpd.conf"
-	cp -r etc/lighttpd/lighttpd.conf /etc/lighttpd/
+	cp etc/lighttpd/lighttpd.conf /etc/lighttpd/
 	sed -i "s/fdef:17a0:ffb1:300::1/fdef:17a0:ffb1:300::$server_num/g" /etc/lighttpd/lighttpd.conf
 fi
 
@@ -75,6 +75,7 @@ fi
 
 if [ ! -d /var/www/map ]; then
 	echo "(I) Create /var/www/map"
+	apt-get install make
 	git clone https://github.com/freifunk-bielefeld/ffmap-d3.git
 	cd ffmap-d3
 	make && mv www /var/www/map
