@@ -170,6 +170,7 @@ fi
 
 if ! lsmod | grep -v grep | grep "batman_adv" > /dev/null; then
   echo "(I) Start batman-adv."
+  modprobe batman_adv
   echo "5000" >  /sys/class/net/bat0/mesh/orig_interval
   echo "0" >  /sys/class/net/bat0/mesh/multicast_mode
 fi
