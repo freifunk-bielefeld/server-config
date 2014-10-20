@@ -62,7 +62,7 @@ if [ ! -f /etc/lighttpd/lighttpd.conf ]; then
 fi
 
 if ! id www-data 2> /dev/null; then
-	echo "(I) Create user www for lighttpd."
+	echo "(I) Create user/group www-data for lighttpd."
 	useradd --system --no-create-home --user-group --shell /bin/false www-data
 fi
 
