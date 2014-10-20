@@ -78,7 +78,9 @@ if [ ! -d /var/www/map ]; then
 	apt-get install make
 	git clone https://github.com/freifunk-bielefeld/ffmap-d3.git
 	cd ffmap-d3
-	make && mv www /var/www/map
+	make
+	mkdir -p /var/www/map
+	cp -r www/* /var/www/map/
 	cd ..
 	rm -rf ffmap-d3
 	chown -R www-data:www-data var/www/map
