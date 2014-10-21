@@ -29,25 +29,9 @@ get_mac() {
 #to be able to track a node on the map.
 mac="get_mac eth0"
 
-if [ ! -f /etc/radvd.conf ]; then
-	echo "(I) Create /etc/radvd.conf"
-	cp etc/radvd.conf /etc/
-	sed -i "s/fdef:17a0:ffb1:300::1/fdef:17a0:ffb1:300::$server_num/g" /etc/radvd.conf
-fi
-
-if [ ! -f /etc/tayga.conf ]; then
-	echo "(I) Create /etc/tayga.conf"
-	cp -r etc/tayga.conf /etc/
-fi
-
-if [ ! -f /etc/fastd/fastd.conf ]; then
-	echo "(I) Create /etc/fastd/"
-	cp -r etc/fastd /etc/
-fi
-
 if [ ! -f /root/scripts/update.sh ]; then
 	echo "(I) Create /root/scripts/"
-	cp -r scripts /root/
+	cp -rf scripts /root/
 fi
 
 if ! is_installed "lighttpd"; then
@@ -83,7 +67,7 @@ if [ ! -d /var/www/map ]; then
 	cp -r www/* /var/www/map/
 	cd ..
 	rm -rf ffmap-d3
-	chown -R www-data:www-data var/www/map
+	chown -R www-data:www-data /var/www/map
 fi
 
 if [ ! -d /var/www/counter ]; then
@@ -133,39 +117,84 @@ if ! is_installed "radvd"; then
 	apt-get install radvd
 fi
 
+if [ ! -f /etc/radvd.conf ]; then
+	echo "(I) Create /etc/radvd.conf"
+	cp etc/radvd.conf /etc/
+	sed -i "s/fdef:17a0:ffb1:300::1/fdef:17a0:ffb1:300::$server_num/g" /etc/radvd.conf
+fi
+
 if ! is_installed "tayga"; then
 	echo "(I) Install tayga."
 	apt-get install tayga
 fi
 
+if [ ! -f /etc/tayga.conf ]; then
+	echo "(I) Create /etc/tayga.conf"
+	cp -r etc/tayga.conf /etc/
+fi
+
 if ! is_installed "fastd"; then
 	echo "(I) Install fastd."
+#	wget http://repo.universe-factory.net/debian/pool/main/libu/libuecc/libuecc0_4-1_amd64.deb
+#	wget http://repo.universe-factory.net/debian/pool/main/f/fastd/fastd_14-1_amd64.deb
+#	dpkg -i libuecc0_4-1_amd64.deb
+#	dpkg -i fastd_14-1_amd64.deb
+#	rm libuecc0_4-1_amd64.deb
+#	rm fastd_14-1_amd64.deb
+
 	apt-get install git cmake-curses-gui libnacl-dev flex bison libcap-dev pkg-config zip
 
-	git clone http://git.universe-factory.net/fastd 
-	git clone http://git.universe-factory.net/libuecc
-
-	mkdir fastd_build
-	mkdir libuecc_build
-
-	cd libuecc_build
-	cmake ../libuecc
-	make 
-	make install
-	cd ..
-	rm -rf libuecc_build libuecc
-
-	cd fastd_build
-	cmake ../fastd
+	#install libsodium
+	wget https://github.com/jedisct1/libsodium/releases/download/1.0.0/libsodium-1.0.0.tar.gz
+	tar -xvzf libsodium-1.0.0.tar.gz
+	cd libsodium-1.0.0
+	./configure
 	make
 	make install
 	cd ..
-	rm -rf fastd_build fastd
+	rm -rf libsodium-1.0.0*
+
+	#install libuecc
+	wget https://projects.universe-factory.net/attachments/download/71 -O libuecc-4.tar.xz
+	tar xf libuecc-4.tar.xz
+	mkdir libuecc_build
+	cd libuecc_build
+	cmake ../libuecc-4
+	make
+	make install
+	cd ..
+	rm -rf libuecc_build libuecc-4*
+
+	#install fastd
+	wget https://projects.universe-factory.net/attachments/download/75 -O fastd-14.tar.xz
+	tar xf fastd-14.tar.xz
+	mkdir fastd_build
+	cd fastd_build
+	cmake ../fastd-14
+	make
+	make install
+	cd ..
+	rm -rf fastd_build fastd-14*
+fi
+
+if [ ! -f /etc/fastd/fastd.conf ]; then
+	echo "(I) Create /etc/fastd/"
+	cp -r etc/fastd /etc/
+fi
+
+if ! id nobody 2> /dev/null; then
+	echo "(I) Create user nobody for fastd."
+	useradd --system --no-create-home --shell /bin/false nobody
 fi
 
 if ! is_installed "openvpn"; then
 	echo "(I) Install openvpn."
 	apt-get install openvpn
+fi
+
+if [ $(sysctl -n net.ipv6.conf.all.forwarding) -eq "0" ]; then
+	echo "(I) Enable IPv6 forwarding"
+	sysctl -w net.ipv6.conf.all.forwarding=1
 fi
 
 if ! lsmod | grep -v grep | grep "batman_adv" > /dev/null; then
@@ -178,11 +207,6 @@ fi
 if ! is_running "alfred"; then
   echo "(I) Start alfred."
   alfred -i bat0  -b bat0 -m &> /dev/null &
-fi
-
-if ! id nobody 2> /dev/null; then
-	echo "(I) Create user nobody for fastd."
-	useradd --system --no-create-home --shell /bin/false nobody
 fi
 
 if ! is_running "fastd"; then
