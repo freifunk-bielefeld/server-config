@@ -2,6 +2,7 @@
 
 #A server setup script (alpha)
 server_num=1
+fastd_secret=""
 
 #abort script on first error
 set -e
@@ -180,6 +181,14 @@ fi
 if [ ! -f /etc/fastd/fastd.conf ]; then
 	echo "(I) Create /etc/fastd/"
 	cp -r etc/fastd /etc/
+
+	if [ -z "$fastd_secret" ]; then
+		echo "(I) Create Fastd private key pair. This may take a while..."
+		fastd_secret=$(fastd --generate-key --machine-readable)
+	fi
+	echo "secret=\"$fastd_secret\";" >> /etc/fastd/fastd.conf
+	fastd_key=$(echo "secret \"$fastd_secret\";" | fastd --config - --show-key --machine-readable)
+	echo "key=\"$fastd_key\";" >> /etc/fastd/fastd.conf
 fi
 
 if ! id nobody 2> /dev/null; then
@@ -200,8 +209,6 @@ fi
 if ! lsmod | grep -v grep | grep "batman_adv" > /dev/null; then
   echo "(I) Start batman-adv."
   modprobe batman_adv
-  echo "5000" >  /sys/class/net/bat0/mesh/orig_interval
-  echo "0" >  /sys/class/net/bat0/mesh/multicast_mode
 fi
 
 if ! is_running "alfred"; then
@@ -231,6 +238,9 @@ ip link set bat0 down
 ip link set bat0 address "$mac"
 batctl if add fastd_mesh
 ip link set bat0 up
+
+echo "5000" >  /sys/class/net/bat0/mesh/orig_interval
+echo "0" >  /sys/class/net/bat0/mesh/multicast_mode
 
 ip -6 addr add fdef:17a0:ffb1:300::$server_num/64 dev bat0
 ip -6 addr add 2001:bf7:1320:300::$server_num/64 dev bat0
