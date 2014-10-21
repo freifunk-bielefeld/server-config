@@ -253,7 +253,7 @@ echo "5000" >  /sys/class/net/bat0/mesh/orig_interval
 echo "0" >  /sys/class/net/bat0/mesh/multicast_mode
 
 ip -6 addr add fdef:17a0:ffb1:300::$server_num/64 dev bat0
-ip -6 addr add 2001:bf7:1320:300::$server_num/64 dev bat0
+#ip -6 addr add 2001:bf7:1320:300::$server_num/64 dev bat0
 
 if ! is_running "radvd"; then
   echo "(I) Start radvd."
