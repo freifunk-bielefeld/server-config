@@ -155,7 +155,7 @@ if ! is_installed "fastd"; then
 	rm -rf libsodium-1.0.0*
 
 	#install libuecc
-	wget https://projects.universe-factory.net/attachments/download/71 -O libuecc-4.tar.xz
+	wget http://projects.universe-factory.net/attachments/download/71 -O libuecc-4.tar.xz
 	tar xf libuecc-4.tar.xz
 	mkdir libuecc_build
 	cd libuecc_build
@@ -166,7 +166,7 @@ if ! is_installed "fastd"; then
 	rm -rf libuecc_build libuecc-4*
 
 	#install fastd
-	wget https://projects.universe-factory.net/attachments/download/75 -O fastd-14.tar.xz
+	wget http://projects.universe-factory.net/attachments/download/75 -O fastd-14.tar.xz
 	tar xf fastd-14.tar.xz
 	mkdir fastd_build
 	cd fastd_build
