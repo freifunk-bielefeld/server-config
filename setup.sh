@@ -95,7 +95,7 @@ if [ ! -d /var/www/counter ]; then
 	chown -R www-data:www-data var/www/counter
 fi
 
-if cat /etc/crontab | grep '/root/scripts/update.sh'; then
+if [ -z "$(cat /etc/crontab | grep '/root/scripts/update.sh')" ]; then
 	echo "(I) Add entry to /etc/crontab"
 	echo '*/5 * * * * root /root/scripts/update.sh' >> /etc/crontab
 fi
