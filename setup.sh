@@ -150,8 +150,12 @@ if ! is_installed "tayga"; then
 
 	echo "(I) Configure tayga"
 	cp -r etc/tayga.conf /etc/
+
 	#enable tayga
 	sed -i 's/RUN="no"/RUN="yes"/g' /etc/default/tayga
+
+	#set dynamic-pool for ICVPN
+	sed -i "s/10.26.0./10.26.$((($server_num - 1) * 8))./g" /etc/tayga.conf
 fi
 
 if ! is_installed "fastd"; then
