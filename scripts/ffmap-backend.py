@@ -70,8 +70,8 @@ is an uplink node ("vpn" : true).
 {
 	"02:16:3c:58:d0:b5" : {
 		"name" : "vpn1",
-		"vpn" : "true",
-		"gateway" : "true",
+		"vpn" : true,
+		"gateway" : true,
 	},
 	"ee:11:43:15:1f:ef" : {
 		"name" : "Shadow"
@@ -164,7 +164,7 @@ def readAliases(filename):
 			"Invalid type for aliases."
 		)
 	
-	def validateAliasesEntry(key, value):
+	def validateAliasesEntry(mac, key, value):
 		if key == "name":
 			if not isinstance(value, str):
 				raise Exception(
@@ -198,19 +198,19 @@ def readAliases(filename):
 				"Entry {}. Unexpected key: {}".format(mac, key)
 			)
 
-	for key, value in aliases.items():
-		if not isMAC(key):
+	for mac, value in aliases.items():
+		if not isMAC(mac):
 			raise Exception(
-				"Invalid MAC address: {}".format(key)
+				"Invalid MAC address: {}".format(mac)
 			)
 
 		if not isinstance(value, dict):
 			raise Exception(
-				"Invalid value type for {}".format(key)
+				"Invalid value type for {}".format(mac)
 			)
 
 		for k, v in value.items():
-			validateAliasesEntry(k, v)
+			validateAliasesEntry(mac, k, v)
 
 	return aliases
 
