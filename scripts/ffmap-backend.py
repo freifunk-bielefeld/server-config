@@ -42,6 +42,7 @@ The data that was put into alfred by a node looks like this:
 {
 	"name" : "foobar",
 	"firmware" : "ffbi-0.3",
+	"community" : "bielefeld",
 	"geo" : "52.02513078 8.55887",
 	"links" : [
 		{ "smac" : "b0:48:7a:f6:85:76", "dmac" : "8c:21:0a:d8:af:2b", "qual" : 251 }, 
@@ -273,6 +274,11 @@ def readMaps(filename):
 					raise Exception(
 						"Map entry {}. Invalid value type for firmware.".format(sender_mac)
 					)
+			elif key == "community":
+				if not isinstance(value, str) or len(value) > 32:
+					raise Exception(
+						"Map entry {}. Invalid value type for community.".format(sender_mac)
+					)
 			elif key == "name":
 				if not isinstance(value, str) or len(value) > 32:
 					raise Exception(
@@ -456,6 +462,9 @@ def main():
 			elif key == "firmware":
 				if new_value:
 					node1["firmware"] = new_value
+			elif key == "community":
+				if new_value:
+					node1["community"] = new_value
 			elif key == "id":
 				pass
 			else:
@@ -490,6 +499,7 @@ def main():
 		firmware = data.get("firmware")
 		name = data.get("name", mac)
 		geo = data.get("geo")
+		community = data.get("community")
 		clientcount = data.get("clientcount", 0)
 
 		if geo:
@@ -503,6 +513,7 @@ def main():
 			'id': mac,
 			'name': name,
 			'geo': geo,
+			'community' : community,
 			'macs' : ' '.join(macs),
 			'links' : data.get("links", []),
 			'firmware': firmware,
@@ -530,6 +541,7 @@ def main():
 			'id': mac,
 			'name': name,
 			'geo': geo,
+			'community' : None,
 			'macs' : mac,
 			'links' : [],
 			'firmware': None,
