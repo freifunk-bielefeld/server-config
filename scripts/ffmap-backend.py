@@ -104,7 +104,7 @@ This is useful to announce services. Currently limited to one entry per router.
 Note: The data is not yet used as ffmap does not support to display the data yet.
 '''
 
-link_re = re.compile('^[\w\.\:\[\]\(\)\/ ]{3,60}$')
+link_re = re.compile('^[\w\.\:\[\]\(\)\/ ]{3,300}$')
 label_re = re.compile('^[\w\.\:\[\]\(\)\/ ]{3,30}$')
 mac_re = re.compile("^([0-9a-f]{2}:){5}[0-9a-f]{2}$")
 geo_re = re.compile("^\d{1,3}\.\d+ \d{1,3}\.\d+$")
