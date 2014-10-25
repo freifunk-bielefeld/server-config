@@ -46,6 +46,7 @@ mac="$(get_mac $wan_iface)"
 
 if [ ! -f /root/scripts/update.sh ]; then
 	echo "(I) Create /root/scripts/"
+	apt-get install --assume-yes python3
 	cp -rf scripts /root/
 fi
 
