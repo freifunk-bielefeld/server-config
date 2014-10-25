@@ -71,8 +71,6 @@ if [ ! -d /var/www/status ]; then
 	mkdir -p /var/www/status
 	cp -r var/www/status /var/www/
 
-	#set server name/number in status page
-	sed -i "s/vpn0/vpn$server_num/g" /root/scripts/status_page_create.sh
 	chown -R www-data:www-data var/www/status
 fi
 

@@ -57,7 +57,7 @@ echo '</head>'
 echo '<body>'
 
 echo '<br /><br />'
-echo '<h2>Statusseite des Gateways vpn0.freifunk-bielefeld.de</h2>'
+echo '<h2>Statusseite des Gateways '`hostname`'</h2>'
 echo '<center>('`date`')</center>'
 echo '<table>'
 echo '<tr style="vertical-align:bottom;">'
