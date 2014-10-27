@@ -1,0 +1,6 @@
+#!/bin/sh
+ip link set dev backbone up
+ip addr add 10.26.255.228/27 dev backbone
+ip -6 addr add 2001:bf7:1320:ffff::4/64 dev backbone
+ip -6 addr add fdef:17a0:ffb1:ffff::4/64 dev backbone
+
