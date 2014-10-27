@@ -4,6 +4,7 @@
 server_num=0
 fastd_secret=""
 wan_iface="eth0"
+community_id="" #first part of the default SSID
 
 #abort script on first error
 set -e
@@ -12,6 +13,10 @@ set -u
 echo "Please enter the number of the server: "
 read server_num
 [ $server_num -gt 0 ] || exit 1
+
+echo "Please enter the identifier of the community: "
+read community_id
+[ -z "$community_id" ] || exit 1
 
 
 is_running() {
@@ -48,6 +53,8 @@ if [ ! -f /root/scripts/update.sh ]; then
 	echo "(I) Create /root/scripts/"
 	apt-get install --assume-yes python3
 	cp -rf scripts /root/
+
+	sed -i "s/community=\"\"/community=\"$community_id\"/g" /root/scripts/print_map.sh
 fi
 
 if ! is_installed "lighttpd"; then
