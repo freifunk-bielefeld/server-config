@@ -5,12 +5,14 @@
 geo=""
 name="$(hostname)"
 firmware=""
+community=""
 
 echo -n "{"
 
 [ -n "$geo" ] && echo -n "\"geo\" : \"$geo\", "
 [ -n "$name" ] && echo -n "\"name\" : \"$name\", "
 [ -n "$firmware" ] && echo -n "\"firmware\" : \"$firmware\", "
+[ -n "$community" ] && echo -n "\"community\" : \"$community\", "
 
 echo -n "\"links\" : ["
 
