@@ -527,6 +527,20 @@ def main():
 			addNode(smac, node)
 
 	'''
+	Mark every node as gateway when it also announces
+	a service using a label that contains the word 'gateway'.
+	'''
+	for mac, data in services.items():
+		if "gateway" in data['label'].lower():
+			node = nodes.get(mac)
+			if node:
+				node['flags']['gateway'] = True
+			else:
+				sys.stderr.write(
+					"Warning: Gateway label found for non-existing node {}.\n".format(mac)
+				)
+
+	'''
 	Add nodes from aliases database
 	'''
 	for mac, data in aliases.items():
