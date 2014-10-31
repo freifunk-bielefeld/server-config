@@ -104,10 +104,13 @@ This is useful to announce services. Currently limited to one entry per router.
 Note: The data is not yet used as ffmap does not support to display the data yet.
 '''
 
-link_re = re.compile('^[\w\.\:\[\]\(\)\/ ]{3,300}$')
-label_re = re.compile('^[\w\.\:\[\]\(\)\/ ]{3,30}$')
+link_re = re.compile('^[#\w\.\:\[\]\/ ]{3,128}$')
+label_re = re.compile('^[\w\.\:\[\]\(\)\/ ]{1,32}$')
 mac_re = re.compile("^([0-9a-f]{2}:){5}[0-9a-f]{2}$")
 geo_re = re.compile("^\d{1,3}\.\d+ \d{1,3}\.\d+$")
+name_re = re.compile("^[\-\^'\w\.\:\[\]\(\)\/ ]{1,32}$")
+community_re = name_re
+firmware_re = name_re
 strings_re = re.compile(r'(?x)(?<!\\)"(.*?)(?<!\\)"')
 
 def isMAC(mac):
@@ -141,6 +144,24 @@ def isLabel(label):
 	else:
 		return False
 
+def isName(name):
+	if isinstance(name, str) and name_re.match(name):
+		return True
+	else:
+		return False
+
+def isCommunity(community):
+	if isinstance(community, str) and community_re.match(community):
+		return True
+	else:
+		return False
+
+def isFirmware(firmware):
+	if isinstance(firmware, str) and firmware_re.match(firmware):
+		return True
+	else:
+		return False
+
 '''
 Convert between locally administered and globally administered MAC address
 '''
@@ -167,13 +188,9 @@ def readAliases(filename):
 	
 	def validateAliasesEntry(mac, key, value):
 		if key == "name":
-			if not isinstance(value, str):
+			if not isName(value):
 				raise Exception(
 					"Entry {}. Invalid type for name.".format(mac)
-				)
-			if len(key) > 30:
-				raise Exception(
-					"Entry {}. Name too long.".format(mac)
 				)
 		elif key == "vpn":
 			if not isinstance(value, bool):
@@ -186,10 +203,6 @@ def readAliases(filename):
 					"Entry {}. Invalid type for gateway.".format(mac)
 				)
 		elif key == "geo":
-			if not isinstance(value, str):
-				raise Exception(
-					"Entry {}. Invalid type for geo.".format(mac)
-				)
 			if not isGeo(value):
 				raise Exception(
 					"Entry {}. Invalid geo format: {}".format(mac, value)
@@ -267,27 +280,27 @@ def readMaps(filename):
 			if key == "geo":
 				if not isGeo(value):
 					raise Exception(
-						"Map Entry {}. Invalid format for geo: {}".format(sender_mac, value)
+						"Map Entry {}. Invalid value for geo: {}".format(sender_mac, value)
 					)
 			elif key == "firmware":
-				if not isinstance(value, str) or len(value) > 32:
+				if not isFirmware(value):
 					raise Exception(
-						"Map entry {}. Invalid value type for firmware.".format(sender_mac)
+						"Map entry {}. Invalid value for firmware.".format(sender_mac)
 					)
 			elif key == "community":
-				if not isinstance(value, str) or len(value) > 32:
+				if not isCommunity(value):
 					raise Exception(
-						"Map entry {}. Invalid value type for community.".format(sender_mac)
+						"Map entry {}. Invalid value for community.".format(sender_mac)
 					)
 			elif key == "name":
-				if not isinstance(value, str) or len(value) > 32:
+				if not isName(value):
 					raise Exception(
-						"Map entry {}. Invalid value type for name.".format(sender_mac)
+						"Map entry {}. Invalid value for name.".format(sender_mac)
 					)
 			elif key == "links":
 				if not isinstance(value, list):
 					raise Exception(
-						"Map entry {}. Invalid value type for links.".format(sender_mac)
+						"Map entry {}. Invalid value for links.".format(sender_mac)
 					)
 
 				for link in value:
