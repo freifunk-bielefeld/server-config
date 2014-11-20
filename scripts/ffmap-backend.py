@@ -48,7 +48,7 @@ The data that was put into alfred by a node looks like this:
 		{ "smac" : "b0:48:7a:f6:85:76", "dmac" : "8c:21:0a:d8:af:2b", "qual" : 251 }, 
 		{ "smac" : "2a:88:01:80:6b:93", "dmac" : "ee:51:43:05:1f:ef", "qual" : 255 }
 	],
-	"clientcount" : 2
+	"clientcount" : 6
 }
 
 Each link in "links" consists of a source MAC ("smac") and a destination MAC ("dmac") addresse.
