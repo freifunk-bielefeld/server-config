@@ -331,7 +331,7 @@ def readMaps(filename):
 
 					#data might be from gzip, let us try that
 					if strings[1].endswith("\\x00"):
-						proc = subprocess.Popen(['gunzip'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+						proc = subprocess.Popen(['ulimit -v 10000; gunzip'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 						node_value = proc.communicate(node_value.encode('latin-1'))[0].decode("utf-8")
 
 					node_value = json.loads(node_value)
@@ -387,7 +387,7 @@ def readServices(filename):
 
 				#data might be from gzip, let us try that
 				if strings[1].endswith("\\x00"):
-					proc = subprocess.Popen(['gunzip'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+					proc = subprocess.Popen(['ulimit -v 10000; gunzip'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 					node_value = proc.communicate(node_value.encode('latin-1'))[0].decode("utf-8")
 
 				node_value = json.loads(node_value)
