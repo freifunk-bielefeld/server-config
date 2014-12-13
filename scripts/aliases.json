@@ -2,7 +2,7 @@
 	"02:16:3c:58:d0:b5" : {
 		"name" : "vpn1",
 		"vpn" : true,
-		"gateway" : true,
+		"gateway" : true
 	},
 	"ee:11:43:15:1f:ef" : {
 		"name" : "Shadow"
