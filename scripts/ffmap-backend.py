@@ -326,8 +326,8 @@ def readMaps(filename):
 			strings = parseStrings(line)
 			if len(strings) == 2:
 				try:
-					node_mac = bytes(strings[0], 'utf-8').decode("unicode_escape")
-					node_value = bytes(strings[1], 'utf-8').decode("unicode_escape")
+					node_mac = bytes(strings[0], 'ascii').decode("unicode_escape").encode('latin-1').decode('utf8')
+					node_value = bytes(strings[1], 'ascii').decode("unicode_escape").encode('latin-1').decode('utf8')
 
 					#data might be from gzip, let us try that
 					if strings[1].endswith("\\x00"):
