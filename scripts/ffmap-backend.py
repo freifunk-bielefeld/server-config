@@ -326,13 +326,15 @@ def readMaps(filename):
 			strings = parseStrings(line)
 			if len(strings) == 2:
 				try:
-					node_mac = bytes(strings[0], 'ascii').decode("unicode_escape").encode('latin-1').decode('utf8')
-					node_value = bytes(strings[1], 'ascii').decode("unicode_escape").encode('latin-1').decode('utf8')
+					node_mac = bytes(strings[0], 'ascii').decode("unicode_escape")
+					node_value = bytes(strings[1], 'ascii').decode("unicode_escape")
 
 					#data might be from gzip, let us try that
 					if strings[1].endswith("\\x00"):
-						proc = subprocess.Popen(['ulimit -v 10000; gunzip'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+						proc = subprocess.Popen(['ulimit -v 10000; gunzip'], shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 						node_value = proc.communicate(node_value.encode('latin-1'))[0].decode("utf-8")
+					else:
+						node_value = node_value.encode('latin-1').decode('utf8')
 
 					node_value = json.loads(node_value)
 					validateMapEntry(node_mac, node_value)
