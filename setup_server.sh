@@ -1,23 +1,43 @@
 #!/bin/sh
 
-#A server setup script (alpha)
-server_num=0
-fastd_secret=""
+#This script sets up a Freifunk server consisting
+#of batman-adv, fastd and a web server for the status site.
+
+fastd_secret="" #the secret key to the public key embedded in the routers firmware
 wan_iface="eth0"
-community_id="" #first part of the default SSID
+community_id="bielefeld" #first part of the default SSID
+ff_prefix="fdef:17a0:ffb1:300::" #internal nework prefix
+run=0 #set to 1 for this script to run
+
+#####################################
 
 #abort script on first error
 set -e
 set -u
 
-echo "Please enter the number of the server: "
-read server_num
-[ $server_num -gt 0 ] || exit 1
+if [ $run -eq 0 ]; then
+	echo "Check the variables in this script and then set run to 1!"
+	exit 1
+fi
 
-echo "Please enter the identifier of the community: "
-read community_id
-[ -z "$community_id" ] || exit 1
+#not used yet
+ula_addr() {
+	local PREFIX6="$1"
+	local mac="$2"
 
+	# translate to local administered mac
+	a=${mac%%:*} #cut out first hex
+	a=$((0x$a ^ 2)) #invert second least significant bit
+	a=`printf '%02x\n' $a` #convert back to hex
+	mac="$a:${mac#*:}" #reassemble mac
+
+	mac=${mac//:/} # remove ':'
+	mac=${mac:0:6}fffe${mac:6:6} # insert ffee
+	mac=`echo $mac | sed 's/..../&:/g'` # insert ':'
+
+	# assemble IPv6 address
+	echo "${PREFIX6%%::*}:${mac%?}"
+}
 
 is_running() {
   pidof "$1" > /dev/null || return $?
@@ -45,16 +65,20 @@ get_mac() {
 	echo "$a:${mac#*:}" #reassemble mac
 }
 
-#we like to have a constant MAC
-#to be able to track a node on the map.
 mac="$(get_mac $wan_iface)"
+addr="$(ula_addr $ff_prefix $mac)"
+
+echo "(I) This server will have the internal IP address: $addr"
+
 
 if [ ! -f /root/scripts/update.sh ]; then
 	echo "(I) Create /root/scripts/"
 	apt-get install --assume-yes python3
 	cp -rf scripts /root/
 
-	sed -i "s/community=\"\"/community=\"$community_id\"/g" /root/scripts/print_map.sh
+	if [ -n "$community_id" ]; then
+		sed -i "s/community=\"\"/community=\"$community_id\"/g" /root/scripts/print_map.sh
+	fi
 fi
 
 if ! is_installed "lighttpd"; then
@@ -65,7 +89,7 @@ fi
 if [ ! -f /etc/lighttpd/lighttpd.conf ]; then
 	echo "(I) Create /etc/lighttpd/lighttpd.conf"
 	cp etc/lighttpd/lighttpd.conf /etc/lighttpd/
-	sed -i "s/fdef:17a0:ffb1:300::1/fdef:17a0:ffb1:300::$server_num/g" /etc/lighttpd/lighttpd.conf
+	sed -i "s/fdef:17a0:ffb1:300::1/$addr/g" /etc/lighttpd/lighttpd.conf
 fi
 
 if ! id www-data >/dev/null 2>&1; then
@@ -107,8 +131,8 @@ if [ -z "$(cat /etc/crontab | grep '/root/scripts/update.sh')" ]; then
 fi
 
 if ! is_installed "alfred"; then
-	echo "(I) Install batman, batctl and alfred."
 	VERSION=2014.3.0
+	echo "(I) Install batman, batctl and alfred ($VERSION)."
 	apt-get install --assume-yes wget build-essential linux-headers-$(uname -r) pkg-config libnl-3-dev
 
 	wget --no-check-certificate http://downloads.open-mesh.org/batman/releases/batman-adv-$VERSION/batman-adv-$VERSION.tar.gz
@@ -147,21 +171,7 @@ fi
 if [ ! -f /etc/radvd.conf ]; then
 	echo "(I) Configure radvd"
 	cp etc/radvd.conf /etc/
-	sed -i "s/fdef:17a0:ffb1:300::1/fdef:17a0:ffb1:300::$server_num/g" /etc/radvd.conf
-fi
-
-if ! is_installed "tayga"; then
-	echo "(I) Install tayga."
-	apt-get install --assume-yes tayga
-
-	echo "(I) Configure tayga"
-	cp -r etc/tayga.conf /etc/
-
-	#enable tayga
-	sed -i 's/RUN="no"/RUN="yes"/g' /etc/default/tayga
-
-	#set dynamic-pool for ICVPN
-	sed -i "s/10.26.0./10.26.$((($server_num - 1) * 8))./g" /etc/tayga.conf
+	sed -i "s/fdef:17a0:ffb1:300::1/$addr/g" /etc/radvd.conf
 fi
 
 if ! is_installed "fastd"; then
@@ -231,11 +241,6 @@ if ! id nobody >/dev/null 2>&1; then
 	useradd --system --no-create-home --shell /bin/false nobody
 fi
 
-if ! is_installed "openvpn"; then
-	echo "(I) Install openvpn."
-	apt-get install --assume-yes openvpn
-fi
-
 if [ $(sysctl -n net.ipv6.conf.all.forwarding) -eq "0" ]; then
 	echo "(I) Enable IPv6 forwarding"
 	sysctl -w net.ipv6.conf.all.forwarding=1
@@ -262,20 +267,14 @@ ip link set bat0 up
 echo "5000" >  /sys/class/net/bat0/mesh/orig_interval
 echo "0" >  /sys/class/net/bat0/mesh/multicast_mode
 
-ip -6 addr add fdef:17a0:ffb1:300::$server_num/64 dev bat0
-#ip -6 addr add 2001:bf7:1320:300::$server_num/64 dev bat0
+ip -6 addr add $addr/64 dev bat0
 
 if ! is_running "radvd"; then
   echo "(I) Start radvd."
   /etc/init.d/radvd start
 fi
 
-if ! is_running "tayga"; then
-  echo "(I) Start tayga."
-  /etc/init.d/tayga start
-fi
-
 if ! is_running "alfred"; then
   echo "(I) Start alfred."
-  alfred -i bat0  -b bat0 -m &> /dev/null &
+  alfred -i bat0 -b bat0 -m &> /dev/null &
 fi
