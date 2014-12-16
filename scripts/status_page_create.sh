@@ -1,7 +1,7 @@
 #!/bin/bash
 
 dst="$1"
-src="/tmp/freifunk_status.tmp"
+src="$(mktemp)"
 
 vpn_if='bat0'
 wan_if='vpnexit'
