@@ -1,15 +1,16 @@
 #!/bin/bash
 
-dst="$1"
-src="$(mktemp)"
-
 vpn_if='bat0'
 wan_if='vpnexit'
 avg_time=5
 
+if [ -n "$1" ]; then
+  dst="$1"
+  src="$(mktemp)"
 
-#write stdout to file
-exec >"$src" 2>&1
+  #write stdout to file
+  exec >"$src" 2>&1
+fi
 
 convert() {
   echo $1 | awk '{
@@ -76,8 +77,13 @@ echo '</table>'
 echo '</body>'
 echo '</html>'
 
-#move to final destination
-mv "$src" "$dst"
+if [ -n "$1" ]; then
+  #change group/owner to webserver
+  chown www-data:www-data "$src"
+
+  #move to final destination
+  mv "$src" "$dst"
+fi
 
 exit 0
 
