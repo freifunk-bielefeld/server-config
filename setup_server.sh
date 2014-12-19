@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #This script sets up a Freifunk server consisting
 #of batman-adv, fastd and a web server for the status site.
@@ -20,7 +20,6 @@ if [ $run -eq 0 ]; then
 	exit 1
 fi
 
-#not used yet
 ula_addr() {
 	local PREFIX6="$1"
 	local mac="$2"

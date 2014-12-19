@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 wan_iface="eth0"
 ff_prefix="fdef:17a0:ffb1:300::" #internal nework prefix
@@ -59,7 +59,10 @@ if ! is_installed "openvpn"; then
 			setup_mullvad "mullvadconfig.zip"
 		;;
 		#apt-get install openvpn resolvconf
-		*) echo "?";;
+		*)
+			echo "Unknown argument"
+			exit 1
+		;;
 	esac
 	#check for /etc/config/openvpn/
 	cp etc/openvpn/
