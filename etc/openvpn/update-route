@@ -1,0 +1,28 @@
+#!/bin/bash
+#script called by OpenVPN to setup routes
+
+vpn_interface="$dev"
+vpn_gateway="$ifconfig_ipv6_remote"
+mesh_interface="bat0"
+
+exec >/var/log/update-route.log 2>&1
+date
+
+echo "(I) vpn_interface: '$vpn_interface'"
+echo "(I) vpn_gateway: '$vpn_gateway'"
+echo "(I) mesh_interface: '$mesh_interface'"
+
+ip -6 rule del table vpn &> /dev/null
+
+ip -6 route flush table vpn
+ip -6 route add fe80::/64 dev tun0 table vpn
+ip -6 route add "$vpn_gateway/64" dev tun0 table vpn
+ip -6 route add 2000::/3 dev tun0 table vpn
+
+ip -6 rule add dev "$mesh_interface" table vpn prio 32565
+
+echo 1 > /proc/sys/net/ipv6/conf/default/forwarding
+echo 1 > /proc/sys/net/ipv6/conf/all/forwarding
+
+ip6tables --append FORWARD --in-interface "$mesh_interface" -j ACCEPT
+ip6tables --table nat --append POSTROUTING --out-interface "$vpn_interface" -j MASQUERADE
