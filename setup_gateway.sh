@@ -68,6 +68,7 @@ if ! is_installed "openvpn"; then
 	cp etc/openvpn/
 fi
 
+#NAT64
 if ! is_installed "tayga"; then
 	echo "(I) Install tayga."
 	apt-get install --assume-yes tayga
@@ -88,3 +89,16 @@ if ! is_running "tayga"; then
   /etc/init.d/tayga start
 fi
 
+#DNS64
+if ! is_installed "bind"; then
+	echo "(I) Install bind."
+	apt-get install --assume-yes bind9
+
+	echo "(I) Configure bind"
+	cp -r etc/bind /etc/
+fi
+
+if ! is_running "named"; then
+  echo "(I) Start bind."
+  /etc/init.d/bind9 start
+fi
