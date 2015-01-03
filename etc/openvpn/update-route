@@ -12,17 +12,36 @@ echo "(I) vpn_interface: '$vpn_interface'"
 echo "(I) vpn_gateway: '$vpn_gateway'"
 echo "(I) mesh_interface: '$mesh_interface'"
 
+#setup table if it does not exist yet
+ip route show table vpn &> /dev/null || echo 100 vpn >> /etc/iproute2/rt_tables
+
 ip -6 rule del table vpn &> /dev/null
 
 ip -6 route flush table vpn
-ip -6 route add fe80::/64 dev tun0 table vpn
+#ip -6 route add fe80::/64 dev tun0 table vpn
 ip -6 route add "$vpn_gateway/64" dev tun0 table vpn
 ip -6 route add 2000::/3 dev tun0 table vpn
 
 ip -6 rule add dev "$mesh_interface" table vpn prio 32565
 
+
+# Always accept loopback traffic
+ip6tables -A INPUT -i lo -j ACCEPT
+
+# Allow established connections, and those not coming from the outside
+ip6tables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+ip6tables -A INPUT -m state --state NEW ! -i "$vpn_interface" -j ACCEPT
+ip6tables -A FORWARD -i "$vpn_interface" -o "$mesh_interface" -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+# Allow outgoing connections from the mesh side.
+ip6tables -A FORWARD -i "$mesh_interface" -o "$vpn_interface" -j ACCEPT
+
+# Masquerade.
+ip6tables --table nat -A POSTROUTING -o "$vpn_interface" -j MASQUERADE
+
+# Don't forward from the outside to the inside.
+ip6tables -A FORWARD -i "$vpn_interface" -o "$vpn_interface" -j REJECT
+
+# Enable routing.
 echo 1 > /proc/sys/net/ipv6/conf/default/forwarding
 echo 1 > /proc/sys/net/ipv6/conf/all/forwarding
-
-ip6tables --append FORWARD --in-interface "$mesh_interface" -j ACCEPT
-ip6tables --table nat --append POSTROUTING --out-interface "$vpn_interface" -j MASQUERADE
