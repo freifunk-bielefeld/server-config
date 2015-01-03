@@ -20,6 +20,22 @@ if [ $run -eq 0 ]; then
 	exit 1
 fi
 
+is_running() {
+  pidof "$1" > /dev/null || return $?
+}
+
+is_installed() {
+  which "$1" > /dev/null || return $?
+}
+
+sha256check() {
+	local file="$1" hash="$2"
+	if [ "$(sha256sum $file | cut -b 1-64)" != "$hash" ]; then
+		echo "(E) Hash mismatch: $file"
+		exit 1
+	fi
+}
+
 ula_addr() {
 	local PREFIX6="$1"
 	local mac="$2"
@@ -36,22 +52,6 @@ ula_addr() {
 
 	# assemble IPv6 address
 	echo "${PREFIX6%%::*}:${mac%?}"
-}
-
-is_running() {
-  pidof "$1" > /dev/null || return $?
-}
-
-is_installed() {
-  which "$1" > /dev/null || return $?
-}
-
-sha256check() {
-	local file="$1" hash="$2"
-	if [ "$(sha256sum $file | cut -b 1-64)" != "$hash" ]; then
-		echo "(E) Hash mismatch: $file"
-		exit 1
-	fi
 }
 
 get_mac() {
