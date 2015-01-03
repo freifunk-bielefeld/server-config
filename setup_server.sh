@@ -255,8 +255,8 @@ if ! is_running "fastd"; then
   fastd --config /etc/fastd/fastd.conf --daemon
 fi
 
-ip addr flush dev fastd_mesh
 ip link set fastd_mesh up
+ip addr flush dev fastd_mesh
 batctl if add fastd_mesh
 
 ip link set bat0 down
