@@ -22,6 +22,38 @@ is_installed() {
   which "$1" > /dev/null || return $?
 }
 
+ula_addr() {
+	local PREFIX6="$1"
+	local mac="$2"
+
+	# translate to local administered mac
+	a=${mac%%:*} #cut out first hex
+	a=$((0x$a ^ 2)) #invert second least significant bit
+	a=`printf '%02x\n' $a` #convert back to hex
+	mac="$a:${mac#*:}" #reassemble mac
+
+	mac=${mac//:/} # remove ':'
+	mac=${mac:0:6}fffe${mac:6:6} # insert ffee
+	mac=`echo $mac | sed 's/..../&:/g'` # insert ':'
+
+	# assemble IPv6 address
+	echo "${PREFIX6%%::*}:${mac%?}"
+}
+
+get_mac() {
+	local mac=`cat /sys/class/net/$1/address`
+
+	# translate to local administered mac
+	a=${mac%%:*} #cut out first hex
+	a=$((0x$a ^ 2)) #invert second least significant bit
+	a=`printf '%02x\n' $a` #convert back to hex
+	echo "$a:${mac#*:}" #reassemble mac
+}
+
+mac="$(get_mac $wan_iface)"
+addr="$(ula_addr $ff_prefix $mac)"
+
+
 setup_mullvad() {
 	local mullvad_zip="$1"
 	local dir="/tmp/mullvadconfig"
@@ -96,6 +128,7 @@ if ! is_installed "bind"; then
 
 	echo "(I) Configure bind"
 	cp -r etc/bind /etc/
+	sed -i "s/fdef:17a0:ffb1:300::1/$addr/g" /etc/named.conf.options
 fi
 
 if ! is_running "named"; then

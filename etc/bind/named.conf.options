@@ -11,6 +11,6 @@ options {
 		clients { any; };
 	};
 
-	listen-on-v6 { any; };
+	listen-on-v6 { fdef:17a0:ffb1:300::1; };
 	auth-nxdomain no;    # conform to RFC1035
 };
