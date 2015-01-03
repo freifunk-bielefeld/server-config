@@ -23,7 +23,7 @@ is_installed() {
 }
 
 ula_addr() {
-	local PREFIX6="$1"
+	local prefix="$1"
 	local mac="$2"
 
 	# translate to local administered mac
@@ -37,7 +37,7 @@ ula_addr() {
 	mac=`echo $mac | sed 's/..../&:/g'` # insert ':'
 
 	# assemble IPv6 address
-	echo "${PREFIX6%%::*}:${mac%?}"
+	echo "${prefix%%::*}:${mac%?}"
 }
 
 get_mac() {
