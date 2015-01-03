@@ -6,6 +6,8 @@ import json
 import re
 import subprocess
 
+community = None
+
 '''
 This script sets the text values for fields labeled
 "node_counter" and "client_counter" of a SVG file.
@@ -60,6 +62,9 @@ def main(argv):
 
 	for element in decoded["nodes"]:
 		if not element["flags"].get("online", False):
+			continue
+
+		if community and community != element.get("community", None):
 			continue
 
 		node_counter += 1
