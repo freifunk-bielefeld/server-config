@@ -4,14 +4,25 @@
  font-family: Arial, sans-serif;
 }
 
+div {
+	margin-top: 1em;
+	margin-bottom: 1em;
+	text-align: center;
+}
+
 table {
- margin-top: 4%;
+ margin-top: 1em;
+ margin-bottom: 1em;
  margin-left: auto;
  margin-right: auto;
 }
 
-h2 {
- text-align: center;
+ul {
+ margin-top: 1em;
+ margin-bottom: 1em;
+ margin-left: auto;
+ margin-right: auto;
+ list-style-type: none;
 }
 
 .schema  {
@@ -33,5 +44,3 @@ h2 {
  width: 20%;
  text-align: center;
 }
-
-//td { border:1px solid black; }
