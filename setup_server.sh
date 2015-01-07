@@ -130,12 +130,12 @@ if [ -z "$(cat /etc/crontab | grep '/root/scripts/update.sh')" ]; then
 fi
 
 if ! is_installed "alfred"; then
-	VERSION=2014.3.0
+	VERSION=2014.4.0
 	echo "(I) Install batman, batctl and alfred ($VERSION)."
 	apt-get install --assume-yes wget build-essential linux-headers-$(uname -r) pkg-config libnl-3-dev
 
 	wget --no-check-certificate http://downloads.open-mesh.org/batman/releases/batman-adv-$VERSION/batman-adv-$VERSION.tar.gz
-	sha256check "batman-adv-$VERSION.tar.gz" "7ffb2bfca558f1078b2bafef8d5304760054567dfe39d2445bf4c25ee72faae7"
+	sha256check "batman-adv-$VERSION.tar.gz" "757b9ddd346680f6fd87dc28fde6da0ddc0423a65fbc88fdbaa7b247fed2c1a8"
 	tar -xzf batman-adv-$VERSION.tar.gz
 	cd batman-adv-$VERSION/
 	make
@@ -144,7 +144,7 @@ if ! is_installed "alfred"; then
 	rm -rf batman-adv-$VERSION*
 
 	wget --no-check-certificate http://downloads.open-mesh.org/batman/releases/batman-adv-$VERSION/batctl-$VERSION.tar.gz
-	sha256check "batctl-2014.3.0.tar.gz" "5885a2376f0bd2a2addb89b9366265d9a9c2ec0e4f5906317b0baa0514983e84"
+	sha256check "batctl-$VERSION.tar.gz" "77509ed70232ebc0b73e2fa9471ae13b12d6547d167dda0a82f7a7fad7252c36"
 	tar -xzf batctl-$VERSION.tar.gz
 	cd batctl-$VERSION/
 	make
@@ -153,7 +153,7 @@ if ! is_installed "alfred"; then
 	rm -rf batctl-$VERSION*
 
 	wget --no-check-certificate http://downloads.open-mesh.org/batman/stable/sources/alfred/alfred-$VERSION.tar.gz
-	sha256check "alfred-2014.3.0.tar.gz" "bc11c17409df13c788bb26180a2d4a23d9ae2430b60d72eedeecf8f148a05f1a"
+	sha256check "alfred-$VERSION.tar.gz" "99e6c64e7069b0b7cb861369d5c198bfc7d74d41509b8edd8a17ba78e7c8d034"
 	tar -xzf alfred-$VERSION.tar.gz
 	cd alfred-$VERSION/
 	make CONFIG_ALFRED_GPSD=n 
