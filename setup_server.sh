@@ -3,11 +3,20 @@
 #This script sets up a Freifunk server consisting
 #of batman-adv, fastd and a web server for the status site.
 
-fastd_secret="" #the secret key to the public key embedded in the routers firmware
+#Secret key for fastd (optional).
+fastd_secret=""
+
+#The servers Internet interface.
 wan_iface="eth0"
-community_id="bielefeld" #first part of the default SSID
-ff_prefix="fdef:17a0:ffb1:300::" #internal nework prefix
-run=0 #set to 1 for this script to run
+
+#The community identifier.
+community_id="bielefeld"
+
+#The internal IPv6 prefix
+ff_prefix="fdef:17a0:ffb1:300::"
+
+#Set to 1 for this script to run. :-)
+run=0
 
 #####################################
 
@@ -131,7 +140,7 @@ fi
 
 if ! is_installed "alfred"; then
 	VERSION=2014.4.0
-	echo "(I) Install batman, batctl and alfred ($VERSION)."
+	echo "(I) Install batman-adv, batctl and alfred ($VERSION)."
 	apt-get install --assume-yes wget build-essential linux-headers-$(uname -r) pkg-config libnl-3-dev
 
 	wget --no-check-certificate http://downloads.open-mesh.org/batman/releases/batman-adv-$VERSION/batman-adv-$VERSION.tar.gz
