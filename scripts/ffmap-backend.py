@@ -20,7 +20,7 @@ import subprocess
 
 '''
 List of firmware version that are not legacy.
-None will set legacy always to false.
+None will set legacy always to False.
 '''
 valid_firmwares = [None, "0.3"]
 
@@ -56,6 +56,7 @@ Each link in "links" consists of a source MAC ("smac") and a destination MAC ("d
 resulting in mutliple MACs that belong to one node.
 "clientcount" is the number of connected (non-batman) clients/nodes.
 The number is idependent of the "links" entries.
+An optional "gateway" entry (true/false) may also be added.
 
 Note:
  - All entries are optional, except for the "smac" and "dmac" in each link.
@@ -190,22 +191,22 @@ def readAliases(filename):
 		if key == "name":
 			if not isName(value):
 				raise Exception(
-					"Entry {}. Invalid type for name.".format(mac)
+					"Entry {}. Invalid value for key name.".format(mac)
 				)
 		elif key == "vpn":
 			if not isinstance(value, bool):
 				raise Exception(
-					"Entry {}. Invalid type for vpn.".format(mac)
+					"Entry {}. Invalid value for key vpn.".format(mac)
 				)
 		elif key == "gateway":
 			if not isinstance(value, bool):
 				raise Exception(
-					"Entry {}. Invalid type for gateway.".format(mac)
+					"Entry {}. Invalid value for key gateway.".format(mac)
 				)
 		elif key == "geo":
 			if not isGeo(value):
 				raise Exception(
-					"Entry {}. Invalid geo format: {}".format(mac, value)
+					"Entry {}. Invalid value for key geo: {}".format(mac, value)
 				)
 		else:
 			raise Exception(
@@ -308,12 +309,17 @@ def readMaps(filename):
 			elif key == "clientcount":
 				if not isinstance(value, int):
 					raise Exception(
-						"Map Entry {}. Invalid type for clientcount: {}".format(sender_mac, value)
+						"Map Entry {}. Invalid value for key clientcount: {}".format(sender_mac, value)
 					)
 
 				if value < 0 or value > 255:
 					raise Exception(
 						"Map Entry {}. Invalid range for clientcount: {}".format(sender_mac, value)
+					)
+			elif key == "gateway":
+				if not isinstance(value, bool):
+					raise Exception(
+						"Map Entry {}. Invalid value for key gateway: {}".format(sender_mac, value)
 					)
 			else:
 				raise Exception(
@@ -451,15 +457,25 @@ def main():
 			new_value = node2[key]
 			if key == "flags":
 				for flag_key, flag_value in value.items():
+					new_flag_value = new_value[flag_key]
+
 					if not flag_key in new_value:
 						sys.stderr.write(
-							"Flag expected to be present in both: {}\n".format(flag_key)
+							"Flag for {} expected to be present in both: {}\n".format(key, flag_key)
 						)
 						continue
-					alt_flag_value = new_value[flag_key]
-					
-					if not flag_value and alt_flag_value:
-						value[flag_key] = True
+
+					if new_flag_value == None:
+						''' Ignore entries with None as value '''
+						continue
+
+					if not isinstance(new_flag_value, bool):
+						sys.stderr.write(
+							"Flag for {} expected to be a boolean: {}\n".format(key, flag_key)
+						)
+						continue
+
+					value[flag_key] = new_flag_value
 			elif key == "macs":
 				if len(value):
 					node1["macs"] = node1["macs"] + " " + value
@@ -491,8 +507,8 @@ def main():
 	#locally stored additional data
 	aliases = readAliases(args.aliases)
 
-	#gateway data from nodes via alfred
-	services = readServices(args.services)
+	#service data from nodes via alfred (not used for now)
+	#services = readServices(args.services)
 
 	#<macs> => <node>
 	nodes = {}
@@ -516,6 +532,7 @@ def main():
 		geo = data.get("geo")
 		community = data.get("community")
 		clientcount = data.get("clientcount", 0)
+		gateway = data.get("gateway")
 
 		if geo:
 			geo = geo.split()
@@ -533,7 +550,7 @@ def main():
 			'links' : data.get("links", []),
 			'firmware': firmware,
 			'clientcount' : clientcount,
-			'flags': {"legacy": False, "gateway": False, "online": True}
+			'flags': {"legacy": False, "gateway": gateway, "online": True}
 		}
 
 		'''add node under all known MACs'''
@@ -542,26 +559,12 @@ def main():
 			addNode(smac, node)
 
 	'''
-	Mark every node as gateway when it also announces
-	a service using a label that contains the word 'gateway'.
-	'''
-	for mac, data in services.items():
-		if "gateway" in data['label'].lower():
-			node = nodes.get(mac)
-			if node:
-				node['flags']['gateway'] = True
-			else:
-				sys.stderr.write(
-					"Warning: Gateway label found for non-existing node {}.\n".format(mac)
-				)
-
-	'''
 	Add nodes from aliases database
 	'''
 	for mac, data in aliases.items():
 		name = data.get("name", mac)
 		geo = data.get("geo")
-		gateway = data.get("gateway", False)
+		gateway = data.get("gateway")
 
 		if geo:
 			geo = geo.split()
