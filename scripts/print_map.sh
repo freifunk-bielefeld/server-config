@@ -2,10 +2,11 @@
 
 #Print out local connection data for map creation
 
-geo=""
+geo="" #e.g. "52.02513078 8.55887"
 name="$(hostname)"
 firmware=""
 community=""
+gateway="" #e.g. true / false
 
 echo -n "{"
 
@@ -13,6 +14,7 @@ echo -n "{"
 [ -n "$name" ] && echo -n "\"name\" : \"$name\", "
 [ -n "$firmware" ] && echo -n "\"firmware\" : \"$firmware\", "
 [ -n "$community" ] && echo -n "\"community\" : \"$community\", "
+[ -n "$gateway" ] && echo -n "\"gateway\" : $gateway, "
 
 echo -n "\"links\" : ["
 
