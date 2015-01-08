@@ -219,16 +219,16 @@ if ! is_installed "fastd"; then
 	ldconfig
 
 	#install fastd
-	wget --no-check-certificate http://projects.universe-factory.net/attachments/download/75 -O fastd-14.tar.xz
-	sha256check "fastd-14.tar.xz" "16a49102115f4b164433e04dc14bbce43bd247a4def3a189723013f22b4fbcb2"
-	tar xf fastd-14.tar.xz
+	wget --no-check-certificate http://projects.universe-factory.net/attachments/download/78 -O fastd-16.tar.xz
+	sha256check "fastd-16.tar.xz" "0d1e103b75377ad1b9936f08a291b92e0b2b3ea7a70c982fb21dc166ff9a7070"
+	tar xf fastd-16.tar.xz
 	mkdir fastd_build
 	cd fastd_build
-	cmake ../fastd-14
+	cmake ../fastd-16
 	make
 	make install
 	cd ..
-	rm -rf fastd_build fastd-14*
+	rm -rf fastd_build fastd-16*
 fi
 
 if [ ! -f /etc/fastd/fastd.conf ]; then
