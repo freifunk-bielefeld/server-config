@@ -1,8 +1,16 @@
 #!/bin/bash
 
+#This script configures a Freifunk gateway on top
+#of the configured Freifunk server.
+
+#The servers Internet interface.
 wan_iface="eth0"
-ff_prefix="fdef:17a0:ffb1:300::" #internal nework prefix
-run=0 #set to 1 for this script to run
+
+#The internal IPv6 prefix
+ff_prefix="fdef:17a0:ffb1:300::"
+
+#Set to 1 for this script to run. :-)
+run=0
 
 #####################################
 
@@ -96,8 +104,8 @@ if ! is_installed "openvpn"; then
 			exit 1
 		;;
 	esac
-	#check for /etc/config/openvpn/
-	cp etc/openvpn/
+
+	cp etc/openvpn/update-route /etc/openvpn/
 fi
 
 #NAT64
@@ -107,18 +115,12 @@ if ! is_installed "tayga"; then
 
 	echo "(I) Configure tayga"
 	cp -r etc/tayga.conf /etc/
-
-	#enable tayga
-	sed -i 's/RUN="no"/RUN="yes"/g' /etc/default/tayga
-
-	#set dynamic-pool for ICVPN
-	server_num=3 #hm...
-	sed -i "s/10.26.0./10.26.$((($server_num - 1) * 8))./g" /etc/tayga.conf
+	cp -r etc/defaults/tayga /etc/defaults/
 fi
 
 if ! is_running "tayga"; then
-  echo "(I) Start tayga."
-  /etc/init.d/tayga start
+	echo "(I) Start tayga."
+	/etc/init.d/tayga start
 fi
 
 #DNS64
@@ -132,6 +134,23 @@ if ! is_installed "bind"; then
 fi
 
 if ! is_running "named"; then
-  echo "(I) Start bind."
-  /etc/init.d/bind9 start
+	echo "(I) Start bind."
+	/etc/init.d/bind9 start
+fi
+
+#IPv6 Router Advertisments
+if ! is_installed "radvd"; then
+	echo "(I) Install radvd."
+	apt-get install --assume-yes radvd
+fi
+
+if [ ! -f /etc/radvd.conf ]; then
+	echo "(I) Configure radvd"
+	cp etc/radvd.conf /etc/
+	sed -i "s/fdef:17a0:ffb1:300::1/$addr/g" /etc/radvd.conf
+fi
+
+if ! is_running "radvd"; then
+  echo "(I) Start radvd."
+  /etc/init.d/radvd start
 fi

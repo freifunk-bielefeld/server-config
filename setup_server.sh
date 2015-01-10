@@ -140,6 +140,7 @@ fi
 
 if ! is_installed "alfred"; then
 	VERSION=2014.4.0
+
 	echo "(I) Install batman-adv, batctl and alfred ($VERSION)."
 	apt-get install --assume-yes wget build-essential linux-headers-$(uname -r) pkg-config libnl-3-dev
 
@@ -171,25 +172,8 @@ if ! is_installed "alfred"; then
 	rm -rf alfred-$VERSION*
 fi
 
-if ! is_installed "radvd"; then
-	echo "(I) Install radvd."
-	apt-get install --assume-yes radvd
-fi
-
-if [ ! -f /etc/radvd.conf ]; then
-	echo "(I) Configure radvd"
-	cp etc/radvd.conf /etc/
-	sed -i "s/fdef:17a0:ffb1:300::1/$addr/g" /etc/radvd.conf
-fi
-
 if ! is_installed "fastd"; then
 	echo "(I) Install fastd."
-#	wget http://repo.universe-factory.net/debian/pool/main/libu/libuecc/libuecc0_4-1_amd64.deb
-#	wget http://repo.universe-factory.net/debian/pool/main/f/fastd/fastd_14-1_amd64.deb
-#	dpkg -i libuecc0_4-1_amd64.deb
-#	dpkg -i fastd_14-1_amd64.deb
-#	rm libuecc0_4-1_amd64.deb
-#	rm fastd_14-1_amd64.deb
 
 	apt-get install --assume-yes git cmake-curses-gui libnacl-dev flex bison libcap-dev pkg-config zip
 
@@ -249,11 +233,6 @@ if ! id nobody >/dev/null 2>&1; then
 	useradd --system --no-create-home --shell /bin/false nobody
 fi
 
-if [ $(sysctl -n net.ipv6.conf.all.forwarding) -eq "0" ]; then
-	echo "(I) Enable IPv6 forwarding"
-	sysctl -w net.ipv6.conf.all.forwarding=1
-fi
-
 if ! lsmod | grep -v grep | grep "batman_adv" > /dev/null; then
   echo "(I) Start batman-adv."
   modprobe batman_adv
@@ -264,24 +243,22 @@ if ! is_running "fastd"; then
   fastd --config /etc/fastd/fastd.conf --daemon
 fi
 
+echo "(I) Add fastd interface to batman-adv."
 ip link set fastd_mesh up
 ip addr flush dev fastd_mesh
 batctl if add fastd_mesh
 
+echo "(I) Set MAC address for bat0."
 ip link set bat0 down
 ip link set bat0 address "$mac"
 ip link set bat0 up
 
+echo "(I) Configure batman-adv."
 echo "5000" >  /sys/class/net/bat0/mesh/orig_interval
 echo "0" >  /sys/class/net/bat0/mesh/distributed_arp_table
 echo "0" >  /sys/class/net/bat0/mesh/multicast_mode
 
 ip -6 addr add $addr/64 dev bat0
-
-if ! is_running "radvd"; then
-  echo "(I) Start radvd."
-  /etc/init.d/radvd start
-fi
 
 if ! is_running "alfred"; then
   echo "(I) Start alfred."
