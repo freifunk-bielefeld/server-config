@@ -113,14 +113,28 @@ if ! is_installed "tayga"; then
 	echo "(I) Install tayga."
 	apt-get install --assume-yes tayga
 
+	#enable tayga
+	sed -i 's/RUN="no"/RUN="yes"/g' /etc/default/tayga
+
 	echo "(I) Configure tayga"
 	cp -r etc/tayga.conf /etc/
-	cp -r etc/defaults/tayga /etc/defaults/
+fi
+
+if ! ip show link dev "nat64" >/dev/null 2>&1; then
+	echo "(I) Setup tayga."
+	tayga --mktun
+	ip link set nat64 up
+
+	ip addr add 10.26.0.1 dev nat64
+	ip route add 10.26.0.0/20 dev nat64
+
+	ip addr add $addr dev nat64
+	ip route add fdef:17a0:ffb1:1337::/96 dev nat64
 fi
 
 if ! is_running "tayga"; then
 	echo "(I) Start tayga."
-	/etc/init.d/tayga start
+	tayga -d
 fi
 
 #DNS64
