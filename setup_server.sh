@@ -175,7 +175,7 @@ fi
 if ! is_installed "fastd"; then
 	echo "(I) Install fastd."
 
-	apt-get install --assume-yes git cmake-curses-gui libnacl-dev flex bison libcap-dev pkg-config zip
+	apt-get install --assume-yes git cmake-curses-gui libnacl-dev flex bison libcap-dev pkg-config zip libjson-c-dev
 
 	#install libsodium
 	wget --no-check-certificate http://github.com/jedisct1/libsodium/releases/download/1.0.0/libsodium-1.0.0.tar.gz
@@ -255,7 +255,7 @@ ip link set bat0 up
 
 echo "(I) Configure batman-adv."
 echo "5000" >  /sys/class/net/bat0/mesh/orig_interval
-echo "0" >  /sys/class/net/bat0/mesh/distributed_arp_table
+echo "1" >  /sys/class/net/bat0/mesh/distributed_arp_table
 echo "0" >  /sys/class/net/bat0/mesh/multicast_mode
 
 ip -6 addr add $addr/64 dev bat0
