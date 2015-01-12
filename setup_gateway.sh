@@ -120,21 +120,9 @@ if ! is_installed "tayga"; then
 	cp -r etc/tayga.conf /etc/
 fi
 
-if ! ip show link dev "nat64" >/dev/null 2>&1; then
-	echo "(I) Setup tayga."
-	tayga --mktun
-	ip link set nat64 up
-
-	ip addr add 10.26.0.1 dev nat64
-	ip route add 10.26.0.0/20 dev nat64
-
-	ip addr add $addr dev nat64
-	ip route add fdef:17a0:ffb1:1337::/96 dev nat64
-fi
-
 if ! is_running "tayga"; then
 	echo "(I) Start tayga."
-	tayga -d
+	tayga
 fi
 
 #DNS64
