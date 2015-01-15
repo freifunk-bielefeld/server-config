@@ -12,24 +12,6 @@ if [ -n "$1" ]; then
   exec >"$src" 2>&1
 fi
 
-ula_addr() {
-	local prefix=$1
-	local mac=$2
-
-	# translate to local administered mac
-	a=${mac%%:*} #cut out first hex
-	a=$((0x$a ^ 2)) #invert second least significant bit
-	a=`printf '%02x\n' $a` #convert back to hex
-	mac="$a:${mac#*:}" #reassemble mac
-
-	mac=${mac//:/} # remove ':'
-	mac=${mac:0:6}fffe${mac:6:6} # insert ffee
-	mac=`echo $mac | sed 's/..../&:/g'` # insert ':'
-
-	# assemble IPv6 address
-	echo "${prefix%%::*}:${mac%?}"
-}
-
 convert() {
   echo $1 | awk '{
   split("B,KiB,MiB,GiB,TiB,EiB,PiB,YiB,ZiB", s, ",")
@@ -92,17 +74,6 @@ echo '<td id="middle_bottom"><b>HDD:</b> '$hdd'<br><a href="vnstat/">Traffic Sta
 echo '<td id="right_bottom">'$vpn_tx_str'</td>'
 echo '</tr>'
 echo '</table>'
-
-echo '<h3>Liste der Nachbarknoten:</h3>'
-prefix="fdef:17a0:ffb1:300::/64"
-echo '<ul>'
-IFS="
-"
-for mac in $(batctl o -H | grep 'No' -v | cut -b 37-53 | sort | uniq); do
-	addr="$(ula_addr $prefix $mac)"
-	echo "  <li><a href=\"http://[$addr]\">$mac</a></li>"
-done
-echo '</ul>'
 
 echo '</div>'
 echo '</body>'
