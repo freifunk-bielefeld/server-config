@@ -106,6 +106,11 @@ if ! is_installed "openvpn"; then
 	cp etc/openvpn/update-route /etc/openvpn/
 fi
 
+if ! is_running "openvpn"; then
+	echo "(I) Start openvpn."
+	/etc/init.d/openvpn start
+fi
+
 #NAT64
 if ! is_installed "tayga"; then
 	echo "(I) Install tayga."
