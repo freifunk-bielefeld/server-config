@@ -2,46 +2,63 @@
 #script called by OpenVPN to setup routes
 
 vpn_interface="$dev"
-vpn_gateway="$ifconfig_ipv6_remote"
+vpn_gateway_v4="$ifconfig_remote"
+vpn_gateway_v6="$ifconfig_ipv6_remote"
 mesh_interface="bat0"
 
+set -x
 exec >/var/log/update-route.log 2>&1
 date
 
 echo "(I) vpn_interface: '$vpn_interface'"
-echo "(I) vpn_gateway: '$vpn_gateway'"
+echo "(I) vpn_gateway (v6): '$vpn_gateway_v6'"
+echo "(I) vpn_gateway (v4): '$vpn_gateway_v4'"
 echo "(I) mesh_interface: '$mesh_interface'"
 
-#setup table if it does not exist yet
+# create table if it does not exist yet
 ip route show table vpn &> /dev/null || echo 100 vpn >> /etc/iproute2/rt_tables
 
+# setup table (v6)
 ip -6 rule del table vpn &> /dev/null
-
 ip -6 route flush table vpn
 #ip -6 route add fe80::/64 dev tun0 table vpn
-ip -6 route add "$vpn_gateway/64" dev tun0 table vpn
+ip -6 route add "$vpn_gateway_v6/64" dev tun0 table vpn
 ip -6 route add 2000::/3 dev tun0 table vpn
-
 ip -6 rule add dev "$mesh_interface" table vpn prio 32565
 
+# setup table (v4)
+ip rule del table vpn &> /dev/null
+ip route flush table vpn
+ip route add "$vpn_gateway_v4" dev tun0 table vpn
+ip route add default dev tun0 table vpn
+ip rule add dev "nat64" table vpn prio 32565
 
 # Always accept loopback traffic
 ip6tables -A INPUT -i lo -j ACCEPT
+iptables -A INPUT -i lo -j ACCEPT
 
 # Allow established connections, and those not coming from the outside
 ip6tables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 ip6tables -A INPUT -m state --state NEW ! -i "$vpn_interface" -j ACCEPT
 ip6tables -A FORWARD -i "$vpn_interface" -o "$mesh_interface" -m state --state ESTABLISHED,RELATED -j ACCEPT
+iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+iptables -A INPUT -m state --state NEW ! -i "$vpn_interface" -j ACCEPT
+iptables -A FORWARD -i "$vpn_interface" -o "$mesh_interface" -m state --state ESTABLISHED,RELATED -j ACCEPT
 
 # Allow outgoing connections from the mesh side.
 ip6tables -A FORWARD -i "$mesh_interface" -o "$vpn_interface" -j ACCEPT
+iptables -A FORWARD -i "$mesh_interface" -o "$vpn_interface" -j ACCEPT
 
 # Masquerade.
 ip6tables --table nat -A POSTROUTING -o "$vpn_interface" -j MASQUERADE
+iptables --table nat -A POSTROUTING -o "$vpn_interface" -j MASQUERADE
 
 # Don't forward from the outside to the inside.
 ip6tables -A FORWARD -i "$vpn_interface" -o "$vpn_interface" -j REJECT
+iptables -A FORWARD -i "$vpn_interface" -o "$vpn_interface" -j REJECT
 
 # Enable routing.
 echo 1 > /proc/sys/net/ipv6/conf/default/forwarding
 echo 1 > /proc/sys/net/ipv6/conf/all/forwarding
+echo 1 > /proc/sys/net/ipv4/conf/default/forwarding
+echo 1 > /proc/sys/net/ipv4/conf/all/forwarding

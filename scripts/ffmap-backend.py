@@ -22,7 +22,7 @@ import subprocess
 List of firmware version that are not legacy.
 None will set legacy always to False.
 '''
-valid_firmwares = [None, "0.3"]
+valid_firmwares = [None, "ffbi-0.4-dev"]
 
 
 '''

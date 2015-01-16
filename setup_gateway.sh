@@ -14,9 +14,6 @@ run=0
 
 #####################################
 
-echo "This script is not complete yet."
-exit 1
-
 if [ $run -eq 0 ]; then
 	echo "Check the variables in this script and then set run to 1!"
 	exit 1
@@ -73,7 +70,8 @@ setup_mullvad() {
 
 	#unzip and copy files to OpenVPN
 	rm -rf $dir
-	unzip $mullvad_zip -d $dir/etc/openvpn
+	mkdir -p $dir
+	unzip $mullvad_zip -d $dir
 	cp $dir/*/mullvad_linux.conf /etc/openvpn
 	cp $dir/*/mullvad.key /etc/openvpn
 	cp $dir/*/mullvad.crt /etc/openvpn
@@ -108,6 +106,11 @@ if ! is_installed "openvpn"; then
 	cp etc/openvpn/update-route /etc/openvpn/
 fi
 
+if ! is_running "openvpn"; then
+	echo "(I) Start openvpn."
+	/etc/init.d/openvpn start
+fi
+
 #NAT64
 if ! is_installed "tayga"; then
 	echo "(I) Install tayga."
@@ -126,13 +129,13 @@ if ! is_running "tayga"; then
 fi
 
 #DNS64
-if ! is_installed "bind"; then
+if ! is_installed "named"; then
 	echo "(I) Install bind."
 	apt-get install --assume-yes bind9
 
 	echo "(I) Configure bind"
 	cp -r etc/bind /etc/
-	sed -i "s/fdef:17a0:ffb1:300::1/$addr/g" /etc/named.conf.options
+	sed -i "s/fdef:17a0:ffb1:300::1/$addr/g" /etc/bind/named.conf.options
 fi
 
 if ! is_running "named"; then
