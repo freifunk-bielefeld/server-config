@@ -10,7 +10,7 @@ wan_iface="eth0"
 ff_prefix="fdef:17a0:ffb1:300::"
 
 #Set to 1 for this script to run. :-)
-run=1
+run=0
 
 #####################################
 
