@@ -130,7 +130,7 @@ if ! is_installed "named"; then
 
 	echo "(I) Configure bind"
 	cp -r etc/bind /etc/
-	sed -i "s/fdef:17a0:ffb1:300::1/$addr/g" /etc/named.conf.options
+	sed -i "s/fdef:17a0:ffb1:300::1/$addr/g" /etc/bind/named.conf.options
 fi
 
 if ! is_running "named"; then
