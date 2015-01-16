@@ -42,7 +42,7 @@ The data that was put into alfred by a node looks like this:
 {
 	"name" : "foobar",
 	"firmware" : "ffbi-0.3",
-	"community" : "bielefeld",
+	"community" : "ulm",
 	"geo" : "52.02513078 8.55887",
 	"links" : [
 		{ "smac" : "b0:48:7a:f6:85:76", "dmac" : "8c:21:0a:d8:af:2b", "qual" : 251 }, 
