@@ -1,7 +1,7 @@
-Freifunk-Bielefeld Server
+Freifunk-Ulm Server
 ===============
 
-server_setup.sh richtet einen Server ein, der Teil des Bielefeld Freifunk Netzes ist.
+server_setup.sh richtet einen Server ein, der Teil des Ulmer Freifunk Netzes ist.
 Es werden folgende wesentlichen Programme installiert und konfiguriert:
 
  * Routingprotokoll: [batman-adv](http://www.open-mesh.org/projects/batman-adv/wiki)
@@ -10,7 +10,7 @@ Es werden folgende wesentlichen Programme installiert und konfiguriert:
  * Karte: [ffmap](https://github.com/ffnord/ffmap-d3)
 
 setup_gateway.sh richtet einen mit server_setup.sh eingerichteten Server so ein,
-das er als Gateway im Bielefelder Freifunk-Netz dient. Das Script erwartet die Accountdaten
+das er als Gateway im Ulmer Freifunk-Netz dient. Das Script erwartet die Accountdaten
 von mullvad.net oder ipredator.se im gleichen Verzeichnis.
 Es werden folgende wesentlichen Programme installiert und konfiguriert:
 
