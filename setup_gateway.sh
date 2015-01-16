@@ -10,12 +10,9 @@ wan_iface="eth0"
 ff_prefix="fdef:17a0:ffb1:300::"
 
 #Set to 1 for this script to run. :-)
-run=0
+run=1
 
 #####################################
-
-echo "This script is not complete yet."
-exit 1
 
 if [ $run -eq 0 ]; then
 	echo "Check the variables in this script and then set run to 1!"
@@ -73,7 +70,8 @@ setup_mullvad() {
 
 	#unzip and copy files to OpenVPN
 	rm -rf $dir
-	unzip $mullvad_zip -d $dir/etc/openvpn
+	mkdir -p $dir
+	unzip $mullvad_zip -d $dir
 	cp $dir/*/mullvad_linux.conf /etc/openvpn
 	cp $dir/*/mullvad.key /etc/openvpn
 	cp $dir/*/mullvad.crt /etc/openvpn
