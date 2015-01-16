@@ -124,7 +124,7 @@ if ! is_running "tayga"; then
 fi
 
 #DNS64
-if ! is_installed "bind"; then
+if ! is_installed "named"; then
 	echo "(I) Install bind."
 	apt-get install --assume-yes bind9
 
