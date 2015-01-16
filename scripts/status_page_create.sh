@@ -1,7 +1,7 @@
 #!/bin/bash
 
 vpn_if='bat0'
-wan_if='vpnexit'
+wan_if='tun0'
 avg_time=5
 
 if [ -n "$1" ]; then
