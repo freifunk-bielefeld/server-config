@@ -48,7 +48,7 @@ u=`uptime`
 load="${u##*:}"
 u="${u%%,*}"
 uptime="${u##*up}"
-hdd=`df -h | grep '/$' | cut -d' ' -f 20`
+hdd=`df -h | awk  '{ if($6=="/") { print($5); exit; } }' 2> /dev/null`
 
 echo '<html>'
 echo '<head>'
