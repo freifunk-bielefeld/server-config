@@ -144,6 +144,7 @@ if ! is_installed "alfred"; then
 	echo "(I) Install batman-adv, batctl and alfred ($VERSION)."
 	apt-get install --assume-yes wget build-essential linux-headers-$(uname -r) pkg-config libnl-3-dev libjson-c-dev
 
+	#install batman-adv
 	wget --no-check-certificate http://downloads.open-mesh.org/batman/releases/batman-adv-$VERSION/batman-adv-$VERSION.tar.gz
 	sha256check "batman-adv-$VERSION.tar.gz" "757b9ddd346680f6fd87dc28fde6da0ddc0423a65fbc88fdbaa7b247fed2c1a8"
 	tar -xzf batman-adv-$VERSION.tar.gz
@@ -153,6 +154,7 @@ if ! is_installed "alfred"; then
 	cd ..
 	rm -rf batman-adv-$VERSION*
 
+	#install batctl
 	wget --no-check-certificate http://downloads.open-mesh.org/batman/releases/batman-adv-$VERSION/batctl-$VERSION.tar.gz
 	sha256check "batctl-$VERSION.tar.gz" "77509ed70232ebc0b73e2fa9471ae13b12d6547d167dda0a82f7a7fad7252c36"
 	tar -xzf batctl-$VERSION.tar.gz
@@ -162,6 +164,7 @@ if ! is_installed "alfred"; then
 	cd ..
 	rm -rf batctl-$VERSION*
 
+	#install alfred
 	wget --no-check-certificate http://downloads.open-mesh.org/batman/stable/sources/alfred/alfred-$VERSION.tar.gz
 	sha256check "alfred-$VERSION.tar.gz" "99e6c64e7069b0b7cb861369d5c198bfc7d74d41509b8edd8a17ba78e7c8d034"
 	tar -xzf alfred-$VERSION.tar.gz
