@@ -91,18 +91,6 @@ as part of the "smac".
 
 Note:
  - All entries are optional and will overwrite values from maps.
-
-#### Services Data File #####
-
-The services file is similar to the maps data file as the output comes from Alfred.
-A formatted value may look like this:
-{
-	"link" : "http://10.20.30.40/",
-	"label" : "My Public Gateway"
-}
-
-This is useful to announce services. Currently limited to one entry per router.
-Note: The data is not yet used as ffmap does not support to display the data yet.
 '''
 
 link_re = re.compile('^[#\w\.\:\[\]\/ ]{3,128}$')
@@ -354,67 +342,11 @@ def readMaps(filename):
 
 	return maps
 
-def readServices(filename):
-
-	if not filename:
-		return {}
-
-	def validateServiceEntry(sender_mac, json_value):
-		if not isinstance(json_value, dict):
-			raise Exception(
-				"Service entry {}. Invalid value type.".format(sender_mac)
-			)
-
-		if not "link" in json_value:
-			raise Exception(
-				"Service entry {}. Addr not found.".format(sender_mac)
-			)
-
-		if not "label" in json_value:
-			raise Exception(
-				"Service entry {}. type not found.".format(sender_mac)
-			)
-
-		if not isLink(json_value["link"]):
-			raise Exception(
-				"Service entry {}. Invalid link format: {}".format(sender_mac, json_value["link"])
-			)
-
-		if not isLabel(json_value["label"]):
-			raise Exception(
-				"Service entry {}. Invalid label format: {}".format(sender_mac, json_value["label"])
-			)
-
-	services = {}
-	with open(filename) as f:
-		for line in f.readlines():
-			strings = parseStrings(line)
-			if len(strings) == 2:
-				node_mac = bytes(strings[0], 'utf-8').decode("unicode_escape")
-				node_value = bytes(strings[1], 'utf-8').decode("unicode_escape")
-
-				#data might be from gzip, let us try that
-				if strings[1].endswith("\\x00"):
-					proc = subprocess.Popen(['ulimit -v 10000; gunzip'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-					node_value = proc.communicate(node_value.encode('latin-1'))[0].decode("utf-8")
-
-				node_value = json.loads(node_value)
-				try:
-					validateServiceEntry(node_mac, node_value)
-					services[node_mac] = node_value
-				except Exception as e:
-					sys.stderr.write(str(e)+"\n")
-
-	return services
-
 def main():
 	parser = argparse.ArgumentParser()
 
 	parser.add_argument('-a', '--aliases',
 		help='read aliases from FILE')
-
-	parser.add_argument('-s', '--services', 
-		help='read services from FILE')
 
 	parser.add_argument('-m', '--maps',
 		help='read maps from FILE')
@@ -435,12 +367,6 @@ def main():
 	if args.aliases and not os.path.isfile(args.aliases):
 		sys.stderr.write(
 			"{}: File does not exist: {}\n".format(parser.prog, args.aliases)
-		)
-		return 1
-
-	if args.services and not os.path.isfile(args.services):
-		sys.stderr.write(
-			"{}: File does not exist: {}\n".format(parser.prog, args.services)
 		)
 		return 1
 
@@ -506,9 +432,6 @@ def main():
 
 	#locally stored additional data
 	aliases = readAliases(args.aliases)
-
-	#service data from nodes via alfred (not used for now)
-	#services = readServices(args.services)
 
 	#<macs> => <node>
 	nodes = {}
