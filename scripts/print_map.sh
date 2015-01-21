@@ -4,9 +4,10 @@
 
 geo="" #e.g. "52.02513078 8.55887"
 name="$(hostname)"
-firmware=""
+firmware="server"
 community=""
 gateway="" #e.g. true / false
+vpn="true" 
 
 echo -n "{"
 
@@ -15,6 +16,7 @@ echo -n "{"
 [ -n "$firmware" ] && echo -n "\"firmware\" : \"$firmware\", "
 [ -n "$community" ] && echo -n "\"community\" : \"$community\", "
 [ -n "$gateway" ] && echo -n "\"gateway\" : $gateway, "
+[ -n "$vpn" ] && echo -n "\"vpn\" : $vpn, "
 
 echo -n "\"links\" : ["
 

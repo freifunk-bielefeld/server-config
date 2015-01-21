@@ -17,7 +17,7 @@ alfred -r 64 > /tmp/maps.txt
 alfred -r 91 > /tmp/services.txt
 
 #create map data
-./ffmap-backend.py -m /tmp/maps.txt -s /tmp/services.txt -a ./aliases.json > /var/www/map/nodes.json
+./ffmap-backend.py -m /tmp/maps.txt -a ./aliases.json > /var/www/map/nodes.json
 
 #update nodes/clients/gateways counter
 ./counter_update.py '/var/www/map/nodes.json' '/var/www/counter/counter_image.svg'
