@@ -3,6 +3,7 @@
 mesh_ifname='bat0' #fastd mesh
 wan_ifname='tun0' #vpn uplink
 avg_time=5 #seconds
+name=`hostname`
 
 if [ -n "$1" ]; then
   dst="$1"
@@ -77,7 +78,7 @@ echo '</head>'
 echo '<body>'
 echo '<div>'
 
-echo '<h2>Statusseite des Gateways '`hostname`'</h2>'
+echo '<h2>Statusseite des Gateways '$name'</h2>'
 echo '<center>('`date`')</center>'
 echo '<table>'
 echo '<tr style="vertical-align:bottom;">'
