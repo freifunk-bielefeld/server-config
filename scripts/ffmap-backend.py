@@ -7,6 +7,15 @@ Typical call::
     alfred -r 64 > maps.txt
     ./ffmap-backend.py -m maps.txt -a aliases.json > nodes.json
 
+.. note::
+
+    To extend the list of fields which are reported by nodes, it is usually
+    sufficient to adapt the ``ALFRED_NODE_SCHEMA`` and add some defaults in
+    :meth:`AlfredParser.parse_node`.
+
+    To change the output for ffmap, it is usually sufficient to adapt
+    :meth:`Node.ffmap` and :meth:`Link.ffmap`.
+
 License: CC0 1.0
 Author: Moritz Warning
 Author: Julian Rueth (julian.rueth@fsfe.org)
