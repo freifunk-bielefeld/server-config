@@ -154,7 +154,9 @@ class AlfredParser:
         properties = AlfredParser._parse_string(properties.strip())
         import zlib
         try:
-            properties = zlib.decompress(properties.encode('raw-unicode-escape'),zlib.MAX_WBITS|32).decode('utf-8')
+            decompress = zlib.decompressobj(zlib.MAX_WBITS|32)
+            # ignores any output beyond 64k (protection from zip bombs)
+            properties = decompress.decompress(properties.encode('raw-unicode-escape'),64*1024).decode('utf-8')
         except zlib.error:
             pass
         properties = json.loads(properties)
