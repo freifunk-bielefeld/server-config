@@ -7,6 +7,10 @@ options {
 	//========================================================================
 	dnssec-validation no;
 
+	rate-limit {
+		responses-per-second 40;
+	};
+
 	dns64 fdef:17a0:ffb1:1337::/96 {
 		clients { any; };
 	};
