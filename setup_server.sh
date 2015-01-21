@@ -110,7 +110,7 @@ if [ ! -d /var/www/status ]; then
 	mkdir -p /var/www/status
 	cp -r var/www/status /var/www/
 
-	chown -R www-data:www-data var/www/status
+	chown -R www-data:www-data var/www
 fi
 
 if [ ! -d /var/www/map ]; then
@@ -123,14 +123,14 @@ if [ ! -d /var/www/map ]; then
 	cp -r www/* /var/www/map/
 	cd ..
 	rm -rf ffmap-d3
-	chown -R www-data:www-data /var/www/map
+	chown -R www-data:www-data /var/www
 fi
 
 if [ ! -d /var/www/counter ]; then
 	echo "(I) Create /var/www/counter"
 	mkdir -p /var/www/counter
 	cp -r var/www/counter /var/www/
-	chown -R www-data:www-data var/www/counter
+	chown -R www-data:www-data var/www
 fi
 
 if [ -z "$(cat /etc/crontab | grep '/root/scripts/update.sh')" ]; then
