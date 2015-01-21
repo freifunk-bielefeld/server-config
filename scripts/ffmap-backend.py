@@ -59,7 +59,6 @@ resulting in mutliple MACs that belong to one node.
 "clientcount" is the number of connected (non-batman) clients/nodes.
 "vpn" will hide all connections on the map. 
 The number is idependent of the "links" entries.
-An optional "gateway" entry (true/false) may also be added.
 
 Note:
  - All entries are optional, except for the "smac" and "dmac" in each link.
@@ -251,11 +250,6 @@ def readMaps(filename):
 				if value < 0 or value > 255:
 					raise Exception(
 						"Map Entry {}. Invalid range for link quality: {}".format(sender_mac, value)
-					)
-			elif key == "type":
-				if not value in [None, "vpn"]:
-					raise Exception(
-						"Map Entry {}. Invalid value for link type: {}".format(sender_mac, value)
 					)
 			else:
 				raise Exception(
@@ -540,7 +534,6 @@ def main():
 			smac1 = link1["smac"]
 			dmac1 = link1["dmac"]
 			qual1 = link1.get("qual", 1)
-			type1 = link1.get("type", None)
 
 			#prevent the same link from being listed twice 
 			if (smac1 + dmac1) in done_links:
@@ -562,8 +555,7 @@ def main():
 				smac2 = link2["smac"]
 				dmac2 = link2["dmac"]
 				qual2 = link2.get("qual", 1)
-				type2 = link2.get("type", None)
-				
+
 				#check if we have found the
 				#same link from both sides
 				if not (smac1 == dmac2 and dmac1 == smac2):
