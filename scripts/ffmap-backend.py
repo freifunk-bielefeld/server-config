@@ -1,613 +1,446 @@
 #!/usr/bin/env python3
-
 '''
-Convert data received from alfred to
-a format accepted by ffmap-d3 format.
+Convert data received from alfred to a format accepted by ffmap-d3.
+
+Typical call::
+
+    alfred -r 64 > maps.txt
+    ./ffmap-backend.py -m maps.txt -a aliases.json > nodes.json
 
 License: CC0 1.0
 Author: Moritz Warning
+Author: Julian Rueth (julian.rueth@fsfe.org)
 '''
 
-import os
 import sys
-import time
-import datetime
-import re
-import json
-import argparse
-import subprocess
 
+if sys.version_info[0] < 3:
+    raise Exception("ffmap-backend.py must be executed with Python 3.")
 
-'''
-List of firmware version that are not legacy.
-None will set legacy always to False.
-'''
-valid_firmwares = [None, "ffbi-0.4-dev"]
+from pprint import pprint, pformat
 
+# list of firmware version that are not legacy.
+RECENT_FIRMWARES = ["ffbi-0.4-rc.2", "server"]
 
-'''
-Typical call:
+class AlfredParser:
+    r'''
+    A class providing static methods to parse and validate data reported by
+    nodes via alfred.
 
-./build_ffmap.py -m maps.txt -a aliases.json > nodes.json
+    >>> AlfredParser.parse_node(r'{ "ca:ff:ee:ca:ff:ee", "{\"community\": \"bielefeld\", \"name\":\"MyNode\"}" },')
+    Node('ca:ff:ee:ca:ff:ee', {'clientcount': 0,
+     'community': 'bielefeld',
+     'firmware': None,
+     'gateway': False,
+     'geo': None,
+     'name': 'MyNode',
+     'vpn': False}, online=True)
 
-The output is for ffmap-d3.
+    The data is mostly JSON. However, alfred wraps it in a strange format which
+    requires some manual parsing.
+    The validation of the JSON entries is done through a `JSON Schema
+    <http://json-schema.org/>`_.
+    '''
+    MAC_RE = "^([0-9a-f]{2}:){5}[0-9a-f]{2}$"
+    GEO_RE = "^\d{1,3}\.\d+ \d{1,3}\.\d+$"
+    NAME_RE = "^[\-\^'\w\.\:\[\]\(\)\/ ]*$"
+    MAC_SCHEMA = { "type": "string", "pattern": MAC_RE }
+    ALFRED_NODE_SCHEMA = {
+        "type": "object",
+        "required": [ "community" ],
+        "additionalProperties": False,
+        "properties": {
+            "geo": { "type": "string", "pattern": GEO_RE },
+            "name": { "type": "string", "pattern": NAME_RE },
+            "firmware": { "type": "string", "pattern": NAME_RE },
+            "community": { "type": "string", "pattern": NAME_RE },
+            "clientcount": { "type": "integer", "minimum": 0, "maximum": 255 },
+            "gateway": { "type": "boolean" },
+            "vpn": { "type": "boolean" },
+            "links": {
+                "type": "array",
+                "items": { "$ref": "#/definitions/link" }
+            }
+        },
+        "definitions": {
+            "MAC": MAC_SCHEMA,
+            "link": {
+                "type": "object",
+                "properties": {
+                    "smac": { "$ref": "#/definitions/MAC" },
+                    "dmac": { "$ref": "#/definitions/MAC" },
+                    "qual": { "type": "integer", "minimum": 0, "maximum": 255 },
+                    "type": { "enum": [ "vpn" ] },
+                },
+                "required": ["smac", "dmac"],
+                "additionalProperties": False
+            }
+        } 
+    }
 
-#### Maps Data File #####
+    @staticmethod
+    def _parse_string(s):
+        r'''
+        Strip an escaped string which is enclosed in double quotes and
+        unescape. 
 
-The maps file (-m) contains the output from alfred.
-Each line has one entry containing a MAC and a string value:
-{ "b2:48:7a:f6:85:76", "{ \"links\" : [{ \"smac\" : \"b0:48:7a:f6:85:76\", \"dmac\" : \"8c:21:0a:d8:af:2b\", \"qual\" : 251 }, { \"smac\" : \"2a:88:01:80:6b:93\", \"dmac\" : \"ee:51:43:05:1f:ef\", \"qual\" : 255 }], \"clientcount\" : 2}\x0a" },
+        >>> AlfredParser._parse_string(r'""')
+        ''
+        >>> AlfredParser._parse_string(r'"\""')
+        '"'
+        >>> AlfredParser._parse_string(r'"\"geo\""')
+        '"geo"'
+        '''
+        if s[0] != '"' or s[-1] != '"':
+            raise ValueError("malformatted string: {0:r}".format(s))
+        return bytes(s[1:-1], 'ascii').decode('unicode-escape')
 
-The data that was put into alfred by a node looks like this:
-{
-	"name" : "foobar",
-	"firmware" : "ffbi-0.3",
-	"community" : "bielefeld",
-	"geo" : "52.02513078 8.55887",
-	"links" : [
-		{ "smac" : "b0:48:7a:f6:85:76", "dmac" : "8c:21:0a:d8:af:2b", "qual" : 251 }, 
-		{ "smac" : "2a:88:01:80:6b:93", "dmac" : "ee:51:43:05:1f:ef", "qual" : 255 }
-	],
-	"clientcount" : 6
-	"gateway" : false,
-	"vpn" : false
-}
+    @staticmethod
+    def parse_node(item):
+        r'''
+        Parse and validate a line as returned by alfred.
 
-Each link in "links" consists of a source MAC ("smac") and a destination MAC ("dmac") addresse.
-"qual" refers to link quality (0-255). A node may have several network devices,
-resulting in mutliple MACs that belong to one node.
-"clientcount" is the number of connected (non-batman) clients/nodes.
-"vpn" will hide all connections on the map. 
-The number is idependent of the "links" entries.
+        Such lines consist of a nodes MAC address and an escaped string of JSON
+        encoded data. Note that most missing fields are populated with
+        reasonable defaults.
 
-Note:
- - All entries are optional, except for the "smac" and "dmac" in each link.
- - The data may be passed through gzip before it is passed to alfred:
-    echo "hello" | gzip | alfred -s 64
+        >>> AlfredParser.parse_node(r'{ "fa:d1:11:79:38:32", "{\"community\": \"bielefeld\"}" },')
+        Node('fa:d1:11:79:38:32', {'clientcount': 0,
+         'community': 'bielefeld',
+         'firmware': None,
+         'gateway': False,
+         'geo': None,
+         'name': 'fa:d1:11:79:38:32',
+         'vpn': False}, online=True)
 
-#### Aliases Data File #####
+        >>> AlfredParser.parse_node(r'{ "fa:d1:11:79:38:32", "{\"community\": \"bielefeld\", \"invalid\": \"property\"}" },') # doctest: +ELLIPSIS
+        Traceback (most recent call last):
+        ...
+        jsonschema.exceptions.ValidationError: Additional properties are not allowed ('invalid' was unexpected)
+        ...
 
-The aliases file (-a) contains additional data about nodes,
-like names, GPS coordinates and information if the node
-is an uplink node ("vpn" : true).
+        .. todo::
 
-{
-	"02:16:3c:58:d0:b5" : {
-		"name" : "vpn1",
-		"vpn" : true,
-		"gateway" : true,
-	},
-	"ee:11:43:15:1f:ef" : {
-		"name" : "Shadow"
-	},
-	"12:fe:ed:7e:86:00" : {
-		"name" : "Cool Node",
-		"geo" : "52.02513078 8.55887"
-	}
-}
+            Does not supported GZIP compressed entries yet.
 
-The identifier MAC can be any MAC used by the node
-as part of the "smac".
-"vpn" : true forces every connection to be displayed as uplink.
-"gateway" : true displays a node as gateway.
+        '''
+        import json, jsonschema
+        #TODO: Handle gzipped entries
 
-Note:
- - All entries are optional and will overwrite values from maps.
-'''
+        # parse the strange output produced by alfred { MAC, JSON },
+        if item[-2:] != "}," or item[0] != "{":
+            raise ValueError("malformatted line: {0}".format(item))
+        mac, properties = item[1:-2].split(',',1)
 
-link_re = re.compile('^[#\w\.\:\[\]\/ ]{3,128}$')
-label_re = re.compile('^[\w\.\:\[\]\(\)\/ ]{1,32}$')
-mac_re = re.compile("^([0-9a-f]{2}:){5}[0-9a-f]{2}$")
-geo_re = re.compile("^\d{1,3}\.\d+ \d{1,3}\.\d+$")
-name_re = re.compile("^[\-\^'\w\.\:\[\]\(\)\/ ]{1,32}$")
-community_re = name_re
-firmware_re = name_re
-strings_re = re.compile(r'(?x)(?<!\\)"(.*?)(?<!\\)"')
+        # the first part must be a valid MAC
+        mac = AlfredParser._parse_string(mac.strip())
+        jsonschema.validate(mac, AlfredParser.MAC_SCHEMA)
 
-def isMAC(mac):
-	if isinstance(mac, str) and mac_re.match(mac):
-		return True
-	else:
-		return False
+        # the second part must conform to ALFRED_NODE_SCHEMA
+        properties = AlfredParser._parse_string(properties.strip())
+        properties = json.loads(properties)
+        jsonschema.validate(properties, AlfredParser.ALFRED_NODE_SCHEMA)
 
-def isGeo(geo):
-	if isinstance(geo, str) and geo_re.match(geo):
-		return True
-	else:
-		return False
+        # set some defaults for unspecified fields
+        properties.setdefault('name', mac)
+        properties['geo'] = properties.get('geo','').split() or None
+        properties.setdefault('firmware', None)
+        properties.setdefault('clientcount', 0)
+        properties.setdefault('gateway', False)
+        properties.setdefault('vpn', False)
+        properties.setdefault('links', [])
+        links = properties['links']
+        del properties['links']
 
-def parseStrings(line):
-	m = strings_re.findall(line)
-	if m:
-		return m
-	else:
-		return []
+        # create a Node and its Links from the data
+        ret = Node(mac, properties, True)
+        ret.update_links([Link(ret, link['smac'], link['dmac'], link.get('qual',0)/255.) for link in links])
+        return ret
 
-def isLink(link):
-	if isinstance(link, str) and link_re.match(link):
-		return True
-	else:
-		return False
+class Node:
+    r'''
+    A node in the freifunk network, identified by its primary MAC.
 
-def isLabel(label):
-	if isinstance(label, str) and label_re.match(label):
-		return True
-	else:
-		return False
+    >>> Node('fa:d1:11:79:38:32', { 'community': 'bielefeld' }, online=True)
+    Node('fa:d1:11:79:38:32', {'community': 'bielefeld'}, online=True)
 
-def isName(name):
-	if isinstance(name, str) and name_re.match(name):
-		return True
-	else:
-		return False
+    The second parameter is a dictionary of attributes (e.g. as reported
+    through alfred.)
+    Links can be added to a node through :meth:`update_links`.
+    '''
+    def __init__(self, mac, properties, online):
+        self.mac = mac
+        self.properties = properties
+        self.links = []
+        self.online = online
+        self.index = None # the index of this node in the list produced for ffmap
 
-def isCommunity(community):
-	if isinstance(community, str) and community_re.match(community):
-		return True
-	else:
-		return False
+    def update_properties(self, properties):
+        r'''
+        Replace any properties with their respective values in ``properties``.
 
-def isFirmware(firmware):
-	if isinstance(firmware, str) and firmware_re.match(firmware):
-		return True
-	else:
-		return False
+        >>> node = Node('fa:d1:11:79:38:32', { 'community': 'bielefeld' }, online=True)
+        >>> node.update_properties({'community': 'ulm'})
+        >>> node
+        Node('fa:d1:11:79:38:32', {'community': 'ulm'}, online=True)
 
-'''
-Convert between locally administered and globally administered MAC address
-'''
-def flip_mac(mac):
-	return "{:02x}{}".format(int(mac[0:2], 16) ^ 2, mac[2:])
+        '''
+        self.properties.update(properties)
 
-'''
-Read and validate aliases file
-'''
-def readAliases(filename):
-	aliases = None
-	
-	if not filename:
-		return {}
-	
-	with open(filename) as f:
-		aliases = json.load(f)
+    def update_links(self, links):
+        r'''
+        Extend the list of links of this node with `links`.
 
-	#start validation
-	if not isinstance(aliases, dict):
-		raise Exception(
-			"Invalid type for aliases."
-		)
-	
-	def validateAliasesEntry(mac, key, value):
-		if key == "name":
-			if not isName(value):
-				raise Exception(
-					"Entry {}. Invalid value for key name.".format(mac)
-				)
-		elif key == "vpn":
-			if not isinstance(value, bool):
-				raise Exception(
-					"Entry {}. Invalid value for key vpn.".format(mac)
-				)
-		elif key == "gateway":
-			if not isinstance(value, bool):
-				raise Exception(
-					"Entry {}. Invalid value for key gateway.".format(mac)
-				)
-		elif key == "geo":
-			if not isGeo(value):
-				raise Exception(
-					"Entry {}. Invalid value for key geo: {}".format(mac, value)
-				)
-		else:
-			raise Exception(
-				"Entry {}. Unexpected key: {}".format(mac, key)
-			)
+        >>> node = Node('fa:d1:11:79:38:32', { 'community': 'bielefeld' }, online=True)
+        >>> node.links
+        []
+        >>> node.update_links([Link(node, 'fa:d1:11:79:38:32', 'af:d1:11:79:38:32', .5)])
+        >>> node.links
+        [fa:d1:11:79:38:32 (of fa:d1:11:79:38:32) -> af:d1:11:79:38:32 (of ?)]
 
-	for mac, value in aliases.items():
-		if not isMAC(mac):
-			raise Exception(
-				"Invalid MAC address: {}".format(mac)
-			)
+        '''
+        self.links.extend(links)
 
-		if not isinstance(value, dict):
-			raise Exception(
-				"Invalid value type for {}".format(mac)
-			)
+    def ffmap(self):
+        r'''
+        Render this node (without its links) to a dictionary in a format
+        understood by ffmap.
 
-		for k, v in value.items():
-			validateAliasesEntry(mac, k, v)
+        >>> node = AlfredParser.parse_node(r'{ "fa:d1:11:79:38:32", "{\"community\":\"bielefeld\"}" },')
+        >>> pprint(node.ffmap())
+        {'clientcount': 0,
+         'clients': [],
+         'community': 'bielefeld',
+         'firmware': None,
+         'flags': {'gateway': False, 'legacy': True, 'online': True, 'vpn': False},
+         'geo': None,
+         'id': 'fa:d1:11:79:38:32',
+         'name': 'fa:d1:11:79:38:32'}
 
-	return aliases
+        This method requires some properties to be set::
 
-def readMaps(filename):
+        >>> del(node.properties['geo'])
+        >>> node.ffmap()
+        Traceback (most recent call last):
+        ...
+        ValueError: node is missing required property 'geo'.
 
-	if not filename:
-		return {}
+        '''
+        properties = self.properties
+        try:
+            return {
+                'id': self.mac,
+                'name': properties['name'],
+                'geo': properties['geo'],
+                'community': properties['community'],
+                'firmware': properties['firmware'],
+                'clientcount': properties['clientcount'],
+                'clients': [None]*properties['clientcount'],
+                'flags': {
+                    "legacy": properties['firmware'] not in RECENT_FIRMWARES,
+                    "gateway": properties['gateway'],
+                    "vpn": properties["vpn"],
+                    "online": self.online
+                }
+            }
+        except KeyError as e:
+            raise ValueError("node is missing required property '{0}'.".format(e.args[0]))
 
-	def validateMapLink(sender_mac, link):
-		if not isinstance(link, dict):
-			raise Exception(
-				"Map entry {}. Invalid value type for links element.".format(sender_mac)
-			)
+    # a printable representation (which is missing the links)
+    def __repr__(self): return r'Node({0!r}, {1!s}, online={2!r})'.format(self.mac, pformat(self.properties), self.online)
 
-		if not ("smac" in link and "dmac" in link):
-			raise Exception(
-				"Map entry {}. \"smac\" and \"dmac\" missing in links element.".format(sender_mac)
-			)
+class Link:
+    r'''
+    A link between two nodes.
 
-		for key, value in link.items():
-			if key == "smac" or key == "dmac":
-				if not isMAC(value):
-					raise Exception(
-						"Map entry {}. Invalid format for link MAC: {}".format(sender_mac, value)
-					)
-			elif key == "qual":
-				if not isinstance(value, int):
-					raise Exception(
-						"Map Entry {}. Invalid format for link quality: {}".format(sender_mac, value)
-					)
-	
-				if value < 0 or value > 255:
-					raise Exception(
-						"Map Entry {}. Invalid range for link quality: {}".format(sender_mac, value)
-					)
-			else:
-				raise Exception(
-					"Map entry {}. Unknown key in links: {}".format(sender_mac, ekey)
-				)
+    A Link is associated to one :class:`Node`, the node which is the source of
+    the link. It has attributes ``smac`` and ``dmac`` which are MACs of the
+    interfaces which this link connects. (These are usually not the primary
+    MACs of the nodes which this link connects, i.e., ``link.smac !=
+    link.source.mac``.)
 
-	def validateMapEntry(sender_mac, json_value):
-		if not isinstance(json_value, dict):
-			raise Exception(
-				"Map entry {}. Invalid value type.".format(sender_mac)
-			)
+    Typically, links come in pairs. There is a symmetric link with ``smac`` and
+    ``dmac`` interchanged. Once that symmetric link has been discovered, an
+    attribute ``reverse`` holds a reference to the symmetric link.
 
-		for key, value in json_value.items():
-			if key == "geo":
-				if not isGeo(value):
-					raise Exception(
-						"Map Entry {}. Invalid value for geo: {}".format(sender_mac, value)
-					)
-			elif key == "firmware":
-				if not isFirmware(value):
-					raise Exception(
-						"Map entry {}. Invalid value for firmware.".format(sender_mac)
-					)
-			elif key == "community":
-				if not isCommunity(value):
-					raise Exception(
-						"Map entry {}. Invalid value for community.".format(sender_mac)
-					)
-			elif key == "name":
-				if not isName(value):
-					raise Exception(
-						"Map entry {}. Invalid value for name.".format(sender_mac)
-					)
-			elif key == "links":
-				if not isinstance(value, list):
-					raise Exception(
-						"Map entry {}. Invalid value for links.".format(sender_mac)
-					)
+    Additionally each link specifies a connection quality in the range `[0,1]`.
 
-				for link in value:
-					validateMapLink(sender_mac, link)
-			elif key == "clientcount":
-				if not isinstance(value, int):
-					raise Exception(
-						"Map Entry {}. Invalid value for key clientcount: {}".format(sender_mac, value)
-					)
+    >>> node1 = Node('fa:d1:11:79:38:32', { 'community': 'bielefeld' }, online=True)
+    >>> node2 = Node('fb:d1:11:79:38:32', { 'community': 'bielefeld' }, online=True)
+    >>> l12 = Link(node1, 'fa:d2:11:79:38:32', 'fb:d2:11:79:38:32', 1.0)
+    >>> l12
+    fa:d2:11:79:38:32 (of fa:d1:11:79:38:32) -> fb:d2:11:79:38:32 (of ?)
+    >>> l21 = Link(node2, 'fb:d2:11:79:38:32', 'fa:d2:11:79:38:32',  .5)
+    >>> l21.reverse = l12
+    >>> l12.reverse = l21
+    >>> l12
+    fa:d2:11:79:38:32 (of fa:d1:11:79:38:32) -> fb:d2:11:79:38:32 (of fb:d1:11:79:38:32)
 
-				if value < 0 or value > 255:
-					raise Exception(
-						"Map Entry {}. Invalid range for clientcount: {}".format(sender_mac, value)
-					)
-			elif key == "gateway":
-				if not isinstance(value, bool):
-					raise Exception(
-						"Map Entry {}. Invalid value for key gateway: {}".format(sender_mac, value)
-					)
-			elif key == "vpn":
-				if not isinstance(value, bool):
-					raise Exception(
-						"Map Entry {}. Invalid value for key vpn: {}".format(sender_mac, value)
-					)
-			else:
-				raise Exception(
-					"Map entry {}. Unknown key: {}".format(sender_mac, key)
-				)
+    '''
+    def __init__(self, source, smac, dmac, quality):
+        self.source = source
+        self.smac = smac
+        self.dmac = dmac
+        self.quality = quality
+        self.reverse = None
 
-	maps = {}
-	with open(filename) as f:
-		for line in f.readlines():
-			strings = parseStrings(line)
-			if len(strings) == 2:
-				try:
-					node_mac = bytes(strings[0], 'ascii').decode("unicode_escape")
-					node_value = bytes(strings[1], 'ascii').decode("unicode_escape")
+    def ffmap(self):
+        r'''
+        Render this link to a dictionary in a format understood by ffmap.
 
-					#data might be from gzip, let us try that
-					if strings[1].endswith("\\x00"):
-						proc = subprocess.Popen(['ulimit -v 10000; gunzip'], shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-						node_value = proc.communicate(node_value.encode('latin-1'))[0].decode("utf-8")
-					else:
-						node_value = node_value.encode('latin-1').decode('utf8')
+        >>> node1 = Node('fa:d1:11:79:38:32', { 'community': 'bielefeld', 'vpn': True }, online=True)
+        >>> node2 = Node('fb:d1:11:79:38:32', { 'community': 'bielefeld', 'vpn': False }, online=True)
+        >>> l12 = Link(node1, 'fa:d2:11:79:38:32', 'fb:d2:11:79:38:32', 1.0)
+        >>> l21 = Link(node2, 'fb:d2:11:79:38:32', 'fa:d2:11:79:38:32',  .5)
+        
+        A link does not render until its ``reverse`` and ``index`` has been set
+        (this is done automatically by :meth:`render_ffmap`.)
 
-					node_value = json.loads(node_value)
-					validateMapEntry(node_mac, node_value)
-					maps[node_mac] = node_value
+        >>> l12.ffmap()
+        Traceback (most recent call last):
+        ...
+        ValueError: link must have 'reverse' set to render to ffmap
+        >>> l21.reverse = l12
+        >>> l12.reverse = l21
+        >>> l12.ffmap()
+        Traceback (most recent call last):
+        ...
+        ValueError: link's source and target must have their 'index' set to render to ffmap
 
-				except Exception as e:
-					sys.stderr.write(str(e)+"\n")
+        >>> node1.index = 0
+        >>> node2.index = 1
+        >>> pprint(l12.ffmap())
+        {'id': 'fa:d2:11:79:38:32-fb:d2:11:79:38:32',
+         'quality': '1.000, 0.500',
+         'source': 0,
+         'target': 1,
+         'type': 'vpn'}
 
-	#pretty print json for debuging
-	#print(json.dumps(maps, indent=4, sort_keys=True))
+        '''
+        if not self.reverse:
+            raise ValueError("link must have 'reverse' set to render to ffmap")
+        if self.source.index is None or self.reverse.source.index is None:
+            raise ValueError("link's source and target must have their 'index' set to render to ffmap")
+        return { 
+            'id': '{}-{}'.format(self.smac,self.dmac),
+            'source': self.source.index,
+            'target': self.reverse.source.index,
+            'quality': '{:.3f}, {:.3f}'.format(self.quality, self.reverse.quality),
+            'type': 'vpn' if self.source.properties['vpn'] or self.reverse.source.properties['vpn'] else None
+        }
 
-	return maps
+    # a printable representation
+    def __repr__(self): return r'{0} (of {1}) -> {2} (of {3})'.format(self.smac, self.source.mac, self.dmac, self.reverse.source.mac if self.reverse else '?')
+
+def render_ffmap(nodes):
+    r'''
+    Return a JSON representation of ``nodes`` which is understood by ffmap.
+
+    >>> node1 = AlfredParser.parse_node(r'{ "fa:d1:11:79:38:32", "{\"community\": \"bielefeld\"}" },')
+    >>> node2 = AlfredParser.parse_node(r'{ "fb:d1:11:79:38:32", "{\"community\": \"bielefeld\"}" },')
+    >>> l12 = Link(node1, 'fa:d2:11:79:38:32', 'fb:d2:11:79:38:32', 1.0)
+    >>> l21 = Link(node2, 'fb:d2:11:79:38:32', 'fa:d2:11:79:38:32',  .5)
+    >>> node1.update_links([l12])
+    >>> node2.update_links([l21])
+    >>> pprint(render_ffmap([node1, node2])) # doctest: +ELLIPSIS
+    {'links': [{'id': 'fa:d2:11:79:38:32-fb:d2:11:79:38:32',
+                'quality': '1.000, 0.500',
+                'source': 0,
+                'target': 1,
+                'type': None}],
+     'meta': {'timestamp': '...'},
+     'nodes': [{'clientcount': 0,
+                'clients': [],
+                'community': 'bielefeld',
+                'firmware': None,
+                'flags': {'gateway': False,
+                          'legacy': True,
+                          'online': True,
+                          'vpn': False},
+                'geo': None,
+                'id': 'fa:d1:11:79:38:32',
+                'name': 'fa:d1:11:79:38:32'},
+               {'clientcount': 0,
+                'clients': [],
+                'community': 'bielefeld',
+                'firmware': None,
+                'flags': {'gateway': False,
+                          'legacy': True,
+                          'online': True,
+                          'vpn': False},
+                'geo': None,
+                'id': 'fb:d1:11:79:38:32',
+                'name': 'fb:d1:11:79:38:32'}]}
+
+    '''
+    ret = {}
+
+    # render a timestamp
+    import datetime
+    ret['meta'] = { 'timestamp': datetime.datetime.utcnow().replace(microsecond=0).isoformat() }
+
+    # render a list of nodes (without links)
+    ret['nodes'] = []
+    for i, node in enumerate(nodes):
+        node.index = i
+        ret['nodes'].append(node.ffmap())
+
+    # a dictionary (smac,dmac)->link which is used to discover the reverse of
+    # each link
+    links = {}
+    for node in nodes:
+        for link in node.links:
+            links[(link.smac, link.dmac)] = link
+
+    # render a list of links
+    ret['links'] = []
+    for link in links.values():
+        if link.reverse:
+            continue
+
+        try:
+            reverse = links[(link.dmac, link.smac)]
+        except KeyError:
+            import traceback
+            traceback.print_exc(0, sys.stderr)
+            continue
+
+        link.reverse = reverse
+        link.reverse.reverse = link
+
+        ret['links'].append(link.ffmap())
+
+    return ret
 
 def main():
-	parser = argparse.ArgumentParser()
+    import argparse, sys, json
+    parser = argparse.ArgumentParser('Convert data received from alfred to a format accepted by ffmap-d3')
+    parser.add_argument('-a', '--aliases', type=argparse.FileType('r'), help=r'a dictionary of overwrites to replace (offending) properties of some nodes')
+    parser.add_argument('-m', '--maps', required=True, type=argparse.FileType('r'), help=r'input file containing data collected by alfred')
+    parser.add_argument('-o', '--output', type=argparse.FileType('w'), default=sys.stdout,help=r'output file (default: stdout)')
+    args = parser.parse_args()
 
-	parser.add_argument('-a', '--aliases',
-		help='read aliases from FILE')
+    nodes = {}
+    for line in args.maps.readlines():
+        try:
+            node = AlfredParser.parse_node(line.strip())
+        except:
+            import traceback
+            traceback.print_exc()
+            continue
+        if node.mac in nodes:
+            nodes[node.mac].update_properties(node.properties)
+            nodes[node.mac].update_links(node.links)
+        else:
+            nodes[node.mac] = node
 
-	parser.add_argument('-m', '--maps',
-		help='read maps from FILE')
+    if args.aliases:
+        aliases = json.loads(args.aliases.read())
+        for mac, properties in aliases.items():
+            if mac in nodes:
+                nodes[mac].update_properties(properties)
 
-	args = parser.parse_args()
-	if not args.maps:
-		sys.stderr.write(
-			"{}: Input file for --maps expected.\n".format(parser.prog)
-		)
-		return 1
-
-	if args.maps and not os.path.isfile(args.maps):
-		sys.stderr.write(
-			"{}: File does not exist: {}\n".format(parser.prog, args.maps)
-		)
-		return 1
-
-	if args.aliases and not os.path.isfile(args.aliases):
-		sys.stderr.write(
-			"{}: File does not exist: {}\n".format(parser.prog, args.aliases)
-		)
-		return 1
-
-	#update node using the update data
-	#no new keys will be introduced
-	def mergeNodes(node1, node2):
-		for key, value in node1.items():
-			if not key in node2:
-				sys.stderr.write(
-					"Key expected to be present in both: {}\n".format(key)
-				)
-				continue
-
-			new_value = node2[key]
-			if key == "flags":
-				for flag_key, flag_value in value.items():
-					new_flag_value = new_value[flag_key]
-
-					if not flag_key in new_value:
-						sys.stderr.write(
-							"Flag for {} expected to be present in both: {}\n".format(key, flag_key)
-						)
-						continue
-
-					if new_flag_value == None:
-						''' Ignore entries with None as value '''
-						continue
-
-					if not isinstance(new_flag_value, bool):
-						sys.stderr.write(
-							"Flag for {} expected to be a boolean: {}\n".format(key, flag_key)
-						)
-						continue
-
-					value[flag_key] = new_flag_value
-			elif key == "macs":
-				if len(value):
-					node1["macs"] = node1["macs"] + " " + value
-			elif key == "links":
-				if len(value):
-					node1["links"].extend(value)
-			elif key == "name":
-				if new_value and not isMAC(new_value):
-					node1["name"] = new_value
-			elif key == "geo":
-				if new_value:
-					node1["geo"] = new_value
-			elif key == "clientcount":
-				node1["clientcount"] += new_value
-			elif key == "firmware":
-				if new_value:
-					node1["firmware"] = new_value
-			elif key == "community":
-				if new_value:
-					node1["community"] = new_value
-			elif key == "vpn":
-				if new_value:
-					node1["vpn"] = new_value
-			elif key == "id":
-				pass
-			else:
-				sys.stderr.write("Ingnored unknown key: {}\n".format(key))
-	
-	#map data from nodes via alfred
-	maps = readMaps(args.maps)
-
-	#locally stored additional data
-	aliases = readAliases(args.aliases)
-
-	#<macs> => <node>
-	nodes = {}
-	
-	def addNode(mac, node):
-		old_node = nodes.get(mac, None)
-		if old_node:
-			if old_node == node:
-				pass
-			else:
-				mergeNodes(old_node, node)
-		else:
-			nodes[mac] = node
-
-	'''
-	Add nodes we got from via alfred
-	'''
-	for mac, data in maps.items():
-		firmware = data.get("firmware")
-		name = data.get("name", mac)
-		geo = data.get("geo")
-		vpn = data.get("vpn", False)
-		community = data.get("community")
-		clientcount = data.get("clientcount", 0)
-		gateway = data.get("gateway", False)
-
-		if geo:
-			geo = geo.split()
-
-		macs = [ mac ]
-		for link in data.get("links", []):
-			macs.append(link["smac"])
-
-		node = {
-			'id': mac,
-			'name': name,
-			'geo': geo,
-			'vpn' : vpn,
-			'community' : community,
-			'macs' : ' '.join(macs),
-			'links' : data.get("links", []),
-			'firmware': firmware,
-			'clientcount' : clientcount,
-			'flags': {"legacy": False, "gateway": gateway, "online": True}
-		}
-
-		'''add node under all known MACs'''
-		addNode(flip_mac(mac), node)
-		for smac in macs:
-			addNode(smac, node)
-
-	'''
-	Add nodes from aliases database
-	'''
-	for mac, data in aliases.items():
-		name = data.get("name", mac)
-		geo = data.get("geo")
-		vpn = data.get("vpn", False)
-		gateway = data.get("gateway", False)
-
-		if geo:
-			geo = geo.split()
-
-		addNode(mac, {
-			'id': mac,
-			'name': name,
-			'geo': geo,
-			'vpn' : vpn,
-			'community' : None,
-			'macs' : mac,
-			'links' : [],
-			'firmware': None,
-			'clientcount' : 0,
-			'flags': {"legacy": False, "gateway": gateway, "online": False}
-		})
-
-	'''
-	Create a unique list of nodes by "id".
-	'''
-	nodes_list = list({v['id']:v for v in nodes.values()}.values())
-
-	'''
-	Add "index" and set "legacy".
-	'''
-	for idx, node in enumerate(nodes_list):
-		node["index"] = idx
-		
-		if not (node.get("firmware") in valid_firmwares):
-			node["flags"]["legacy"] = True
-
-	links_list = []
-	done_links = set()
-	for node1 in nodes_list:
-		for link1 in node1["links"]:
-			smac1 = link1["smac"]
-			dmac1 = link1["dmac"]
-			qual1 = link1.get("qual", 1)
-
-			#prevent the same link from being listed twice 
-			if (smac1 + dmac1) in done_links:
-				continue
-			
-			done_links.add(dmac1+ smac1)
-			done_links.add(smac1+dmac1)
-			
-			node2 = nodes.get(dmac1, None)
-			if not node2:
-				sys.stderr.write(
-					"Warning: Cannot find node {} referenced by {}.\n".format(dmac1, smac1)
-				)
-				continue
-
-			#check other direction
-			found = False
-			for link2 in node2["links"]:
-				smac2 = link2["smac"]
-				dmac2 = link2["dmac"]
-				qual2 = link2.get("qual", 1)
-
-				#check if we have found the
-				#same link from both sides
-				if not (smac1 == dmac2 and dmac1 == smac2):
-					continue
-
-				found = True
-				type = None
-				quality = "{:.3f}, {:.3f}".format(
-					255.0/max([qual1, 1]),
-					255.0/max([qual2, 1]),
-				)
-
-				#display as uplink if any side of the link is marked as vpn
-				for m in (node1["macs"] + node2["macs"]).split():
-					if m in aliases and aliases[m].get("vpn", False):
-						type = "vpn"
-
-				links_list.append({
-					"id": "{}-{}".format(smac1, smac2),
-					"source": node1["index"],
-					"target": node2["index"],
-					"quality": quality,
-					"type": type
-				})
-
-				break
-
-			if not found:
-				sys.stderr.write(
-					"Warning: Unidirectional link found {} => {}.\n".format(smac1, dmac1)
-				)
-
-	'''
-	Remove some temporary entries not intended for output.
-	'''
-	for node in nodes_list:
-		del node["links"]
-		del node["index"]
-		del node["macs"]
-
-	now = datetime.datetime.utcnow().replace(microsecond=0)
-
-	output = {}
-	output['nodes'] = nodes_list
-	output['links'] = links_list
-	output['meta'] = { 'timestamp': now.isoformat() }
-
-	'''Print results to console'''
-	print(json.dumps(output))
-
-	return 0
-
+    args.output.write(json.dumps(render_ffmap(nodes.values())))
 
 if __name__ == '__main__':
-	main()
+    main()
