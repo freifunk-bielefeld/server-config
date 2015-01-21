@@ -81,7 +81,7 @@ echo "(I) This server will have the internal IP address: $addr"
 
 if [ ! -f /root/scripts/update.sh ]; then
 	echo "(I) Create /root/scripts/"
-	apt-get install --assume-yes python3
+	apt-get install --assume-yes python3 python3-jsonschema
 	cp -rf scripts /root/
 
 	if [ -n "$community_id" ]; then
