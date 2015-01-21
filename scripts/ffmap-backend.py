@@ -49,12 +49,15 @@ The data that was put into alfred by a node looks like this:
 		{ "smac" : "2a:88:01:80:6b:93", "dmac" : "ee:51:43:05:1f:ef", "qual" : 255 }
 	],
 	"clientcount" : 6
+	"gateway" : false,
+	"vpn" : false
 }
 
 Each link in "links" consists of a source MAC ("smac") and a destination MAC ("dmac") addresse.
 "qual" refers to link quality (0-255). A node may have several network devices,
 resulting in mutliple MACs that belong to one node.
 "clientcount" is the number of connected (non-batman) clients/nodes.
+"vpn" will hide all connections on the map. 
 The number is idependent of the "links" entries.
 An optional "gateway" entry (true/false) may also be added.
 
@@ -309,6 +312,11 @@ def readMaps(filename):
 					raise Exception(
 						"Map Entry {}. Invalid value for key gateway: {}".format(sender_mac, value)
 					)
+			elif key == "vpn":
+				if not isinstance(value, bool):
+					raise Exception(
+						"Map Entry {}. Invalid value for key vpn: {}".format(sender_mac, value)
+					)
 			else:
 				raise Exception(
 					"Map entry {}. Unknown key: {}".format(sender_mac, key)
@@ -422,6 +430,9 @@ def main():
 			elif key == "community":
 				if new_value:
 					node1["community"] = new_value
+			elif key == "vpn":
+				if new_value:
+					node1["vpn"] = new_value
 			elif key == "id":
 				pass
 			else:
@@ -453,6 +464,7 @@ def main():
 		firmware = data.get("firmware")
 		name = data.get("name", mac)
 		geo = data.get("geo")
+		vpn = data.get("vpn", false)
 		community = data.get("community")
 		clientcount = data.get("clientcount", 0)
 		gateway = data.get("gateway")
@@ -468,6 +480,7 @@ def main():
 			'id': mac,
 			'name': name,
 			'geo': geo,
+			'vpn' : vpn,
 			'community' : community,
 			'macs' : ' '.join(macs),
 			'links' : data.get("links", []),
@@ -487,6 +500,7 @@ def main():
 	for mac, data in aliases.items():
 		name = data.get("name", mac)
 		geo = data.get("geo")
+		vpn = data.get("vpn", false)
 		gateway = data.get("gateway")
 
 		if geo:
@@ -496,6 +510,7 @@ def main():
 			'id': mac,
 			'name': name,
 			'geo': geo,
+			'vpn' : vpn,
 			'community' : None,
 			'macs' : mac,
 			'links' : [],
