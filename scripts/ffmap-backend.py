@@ -255,6 +255,10 @@ class Node:
                 'community': properties['community'],
                 'firmware': properties['firmware'],
                 'clientcount': properties['clientcount'],
+                # ffmap looks at 'clients' to compute the number of clients for
+                # its list view. We do not collect any information on the clients
+                # (other than a count). So we need a list of 'null' values for
+                # ffmap to be happy.
                 'clients': [None]*properties['clientcount'],
                 'flags': {
                     "legacy": properties['firmware'] not in RECENT_FIRMWARES,
