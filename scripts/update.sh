@@ -5,7 +5,7 @@
 cd /root/scripts/
 
 #announce own piece of map information
-./print_map.sh | alfred -s 64
+./print_map.sh | gzip -c - | alfred -s 64
 
 #announce own gateway service
 ./print_service.sh | alfred -s 91
