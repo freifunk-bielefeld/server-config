@@ -128,13 +128,19 @@ class AlfredParser:
         jsonschema.exceptions.ValidationError: Additional properties are not allowed ('invalid' was unexpected)
         ...
 
-        .. todo::
+        The second entry might by gzipped.
 
-            Does not supported GZIP compressed entries yet.
+        >>> AlfredParser.parse_node(r'{ "02:16:3c:03:35:e0", "\x1f\x8b\x08\x00S\xcb\xbfT\x00\x03\x95\x90A\x0e\xc2 \x14D\xafBXwA\x91j;W1.\x08\xfd\x98\xc6\x82J\xa1\xc6\x98\xde\xdd\x821\xd1\xb8r\xf7\xe7M\xe6-\xfe\x83{\xed\x8830>_\xbc\xe4\x15\xe3v\x08\xee\xa6\xc3\x0bN\x14f\x0a\x19\x9b\xb3s\xc9\x0f\xf1^x\x1a]\x86G\x1d\xe9\xa6\x0b\x8a!QU,\x1fi\x1c\xfci\xcay\xffX]N\x9b2\x96\x1au\x07c\xd1\x13L\x87]\x9bU\xfd\xbb\x15\x12\xaa\x83\xdd@\xb5h-\x1a\x95\xdbk\xd2cne#\xd9R\xb1\xbfl\xb5\x86R\x905:\xb1\x1e\xdf\xb6\xe6o\x1b\x11z\x81z\x0b\xb5\x83\xb0?\xb6C~\xd58\x90\x8f\xe6\x9c|\xcc\\,O\xa3\xcb\xb1Af\x01\x00\x00" },')
+        Node('02:16:3c:03:35:e0', {'clientcount': 0,
+         'community': 'ulm',
+         'firmware': 'server',
+         'gateway': True,
+         'geo': None,
+         'name': 'vpn2',
+         'vpn': True}, online=True)
 
         '''
         import json, jsonschema
-        #TODO: Handle gzipped entries
 
         # parse the strange output produced by alfred { MAC, JSON },
         if item[-2:] != "}," or item[0] != "{":
@@ -147,6 +153,11 @@ class AlfredParser:
 
         # the second part must conform to ALFRED_NODE_SCHEMA
         properties = AlfredParser._parse_string(properties.strip())
+        import zlib
+        try:
+            properties = zlib.decompress(properties.encode('raw-unicode-escape'),zlib.MAX_WBITS|32).decode('utf-8')
+        except zlib.error:
+            pass
         properties = json.loads(properties)
         jsonschema.validate(properties, AlfredParser.ALFRED_NODE_SCHEMA)
 
