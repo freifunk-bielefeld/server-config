@@ -458,7 +458,7 @@ def main():
 		firmware = data.get("firmware")
 		name = data.get("name", mac)
 		geo = data.get("geo")
-		vpn = data.get("vpn", false)
+		vpn = data.get("vpn", False)
 		community = data.get("community")
 		clientcount = data.get("clientcount", 0)
 		gateway = data.get("gateway")
@@ -494,7 +494,7 @@ def main():
 	for mac, data in aliases.items():
 		name = data.get("name", mac)
 		geo = data.get("geo")
-		vpn = data.get("vpn", false)
+		vpn = data.get("vpn", False)
 		gateway = data.get("gateway")
 
 		if geo:
