@@ -461,7 +461,7 @@ def main():
 		vpn = data.get("vpn", False)
 		community = data.get("community")
 		clientcount = data.get("clientcount", 0)
-		gateway = data.get("gateway")
+		gateway = data.get("gateway", False)
 
 		if geo:
 			geo = geo.split()
@@ -495,7 +495,7 @@ def main():
 		name = data.get("name", mac)
 		geo = data.get("geo")
 		vpn = data.get("vpn", False)
-		gateway = data.get("gateway")
+		gateway = data.get("gateway", False)
 
 		if geo:
 			geo = geo.split()
