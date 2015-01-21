@@ -106,11 +106,6 @@ if ! is_installed "openvpn"; then
 	cp etc/openvpn/update-route /etc/openvpn/
 fi
 
-if ! is_running "openvpn"; then
-	echo "(I) Start openvpn."
-	/etc/init.d/openvpn start
-fi
-
 #NAT64
 if ! is_installed "tayga"; then
 	echo "(I) Install tayga."
@@ -123,11 +118,6 @@ if ! is_installed "tayga"; then
 	cp -r etc/tayga.conf /etc/
 fi
 
-if ! is_running "tayga"; then
-	echo "(I) Start tayga."
-	tayga
-fi
-
 #DNS64
 if ! is_installed "named"; then
 	echo "(I) Install bind."
@@ -136,11 +126,6 @@ if ! is_installed "named"; then
 	echo "(I) Configure bind"
 	cp -r etc/bind /etc/
 	sed -i "s/fdef:17a0:ffb1:300::1/$addr/g" /etc/bind/named.conf.options
-fi
-
-if ! is_running "named"; then
-	echo "(I) Start bind."
-	/etc/init.d/bind9 start
 fi
 
 #IPv6 Router Advertisments
@@ -153,6 +138,21 @@ if [ ! -f /etc/radvd.conf ]; then
 	echo "(I) Configure radvd"
 	cp etc/radvd.conf /etc/
 	sed -i "s/fdef:17a0:ffb1:300::1/$addr/g" /etc/radvd.conf
+fi
+
+if ! is_running "openvpn"; then
+	echo "(I) Start openvpn."
+	/etc/init.d/openvpn start
+fi
+
+if ! is_running "tayga"; then
+	echo "(I) Start tayga."
+	tayga
+fi
+
+if ! is_running "named"; then
+	echo "(I) Start bind."
+	/etc/init.d/bind9 start
 fi
 
 if ! is_running "radvd"; then

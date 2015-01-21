@@ -1,8 +1,9 @@
 #!/bin/bash
 
-vpn_if='bat0'
-wan_if='tun0'
-avg_time=5
+mesh_ifname='bat0' #fastd mesh
+wan_ifname='tun0' #vpn uplink
+avg_time=5 #seconds
+name=`hostname`
 
 if [ -n "$1" ]; then
   dst="$1"
@@ -22,56 +23,79 @@ convert() {
   }'
 }
 
-vpn_tx1_bytes=`cat "/sys/class/net/$vpn_if/statistics/tx_bytes"`
-vpn_rx1_bytes=`cat "/sys/class/net/$vpn_if/statistics/rx_bytes"`
-wan_tx1_bytes=`cat "/sys/class/net/$wan_if/statistics/tx_bytes"`
-wan_rx1_bytes=`cat "/sys/class/net/$wan_if/statistics/rx_bytes"`
+if [ -e /sys/class/net/$mesh_ifname/address ]; then
+	mesh_tx1_bytes=`cat "/sys/class/net/$mesh_ifname/statistics/tx_bytes"`
+	mesh_rx1_bytes=`cat "/sys/class/net/$mesh_ifname/statistics/rx_bytes"`
+fi
+
+if [ -e /sys/class/net/$wan_ifname/address ]; then
+	wan_tx1_bytes=`cat "/sys/class/net/$wan_ifname/statistics/tx_bytes"`
+	wan_rx1_bytes=`cat "/sys/class/net/$wan_ifname/statistics/rx_bytes"`
+fi
 
 sleep $avg_time
 
-vpn_tx2_bytes=`cat "/sys/class/net/$vpn_if/statistics/tx_bytes"`
-vpn_rx2_bytes=`cat "/sys/class/net/$vpn_if/statistics/rx_bytes"`
-wan_tx2_bytes=`cat "/sys/class/net/$wan_if/statistics/tx_bytes"`
-wan_rx2_bytes=`cat "/sys/class/net/$wan_if/statistics/rx_bytes"`
+if [ -e /sys/class/net/$mesh_ifname/address ]; then
+	mesh_tx2_bytes=`cat "/sys/class/net/$mesh_ifname/statistics/tx_bytes"`
+	mesh_rx2_bytes=`cat "/sys/class/net/$mesh_ifname/statistics/rx_bytes"`
 
-wan_tx_speed=$((($wan_tx2_bytes-$wan_tx1_bytes)/$avg_time))
-wan_rx_speed=$((($wan_rx2_bytes-$wan_rx1_bytes)/$avg_time))
-vpn_tx_speed=$((($vpn_tx2_bytes-$vpn_tx1_bytes)/$avg_time))
-vpn_rx_speed=$((($vpn_rx2_bytes-$vpn_rx1_bytes)/$avg_time))
+	mesh_tx_speed=$((($mesh_tx2_bytes-$mesh_tx1_bytes)/$avg_time))
+	mesh_rx_speed=$((($mesh_rx2_bytes-$mesh_rx1_bytes)/$avg_time))
 
-wan_tx_str="`convert $wan_tx2_bytes` (`convert $wan_tx_speed`/s)"
-wan_rx_str="`convert $wan_rx2_bytes` (`convert $wan_rx_speed`/s)"
-vpn_tx_str="`convert $vpn_tx2_bytes` (`convert $vpn_tx_speed`/s)"
-vpn_rx_str="`convert $vpn_rx2_bytes` (`convert $vpn_rx_speed`/s)"
+	mesh_tx_str="`convert $mesh_tx2_bytes` (`convert $mesh_tx_speed`/s)"
+	mesh_rx_str="`convert $mesh_rx2_bytes` (`convert $mesh_rx_speed`/s)"
+else
+	mesh_tx_str="-"
+	mesh_rx_str="-"
+fi
+
+if [ -e /sys/class/net/$wan_ifname/address ]; then
+	wan_tx2_bytes=`cat "/sys/class/net/$wan_ifname/statistics/tx_bytes"`
+	wan_rx2_bytes=`cat "/sys/class/net/$wan_ifname/statistics/rx_bytes"`
+
+	wan_tx_speed=$((($wan_tx2_bytes-$wan_tx1_bytes)/$avg_time))
+	wan_rx_speed=$((($wan_rx2_bytes-$wan_rx1_bytes)/$avg_time))
+
+	wan_tx_str="`convert $wan_tx2_bytes` (`convert $wan_tx_speed`/s)"
+	wan_rx_str="`convert $wan_rx2_bytes` (`convert $wan_rx_speed`/s)"
+else
+	wan_tx_str="-"
+	wan_rx_str="-"
+fi
+
 
 u=`uptime`
 load="${u##*:}"
 u="${u%%,*}"
 uptime="${u##*up}"
-hdd=`df -h | grep '/$' | cut -d' ' -f 20`
+hdd=`df -h | awk  '{ if($6=="/") { print($5); exit; } }' 2> /dev/null`
 
 echo '<html>'
 echo '<head>'
 echo '<title>Gateway-Status</title>'
-echo '<link rel="stylesheet" type="text/css" href="status_page_style.css">'
+echo '<link rel="stylesheet" type="text/css" href="status/status_page_style.css">'
 echo '</head>'
 echo '<body>'
 echo '<div>'
 
-echo '<h2>Statusseite des Gateways '`hostname`'</h2>'
+echo '<h2>Statusseite des Gateways '$name'</h2>'
 echo '<center>('`date`')</center>'
 echo '<table>'
 echo '<tr style="vertical-align:bottom;">'
 echo '<td id="left_top">'$wan_tx_str'</td>'
 echo '<td id="middle_top"><b>Load:</b>'$load'<br><b>Uptime:</b>'$uptime'</td>'
-echo '<td id="right_top">'$vpn_rx_str'</td>'
+echo '<td id="right_top">'$mesh_rx_str'</td>'
 echo '</tr>'
 echo '<tr>'
-echo '<td colspan=3><img src="status_page_background.png" class="schema"></td></tr>'
+echo '<td colspan=3><img src="status/status_page_background.png" class="schema"></td></tr>'
 echo '<tr style="vertical-align:top;">'
 echo '<td id="left_bottom">'$wan_rx_str'</td>'
-echo '<td id="middle_bottom"><b>HDD:</b> '$hdd'<br><a href="vnstat/">Traffic Statistics</a></td>'
-echo '<td id="right_bottom">'$vpn_tx_str'</td>'
+echo '<td id="middle_bottom">'
+echo '  <b>HDD:</b> '$hdd'<br />'
+echo '  <a href="/map/graph.html">Graph</a> / <a href="/map/geomap.html">Karte</a> / <a href="/map/list.html">Liste</a><br />'
+echo '  <a href="counter/counter_image.svg">Counter</a>'
+echo '</td>'
+echo '<td id="right_bottom">'$mesh_tx_str'</td>'
 echo '</tr>'
 echo '</table>'
 
@@ -86,6 +110,3 @@ if [ -n "$1" ]; then
   #move to final destination
   mv "$src" "$dst"
 fi
-
-exit 0
-

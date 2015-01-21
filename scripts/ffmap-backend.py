@@ -49,14 +49,16 @@ The data that was put into alfred by a node looks like this:
 		{ "smac" : "2a:88:01:80:6b:93", "dmac" : "ee:51:43:05:1f:ef", "qual" : 255 }
 	],
 	"clientcount" : 6
+	"gateway" : false,
+	"vpn" : false
 }
 
 Each link in "links" consists of a source MAC ("smac") and a destination MAC ("dmac") addresse.
 "qual" refers to link quality (0-255). A node may have several network devices,
 resulting in mutliple MACs that belong to one node.
 "clientcount" is the number of connected (non-batman) clients/nodes.
+"vpn" will hide all connections on the map. 
 The number is idependent of the "links" entries.
-An optional "gateway" entry (true/false) may also be added.
 
 Note:
  - All entries are optional, except for the "smac" and "dmac" in each link.
@@ -91,18 +93,6 @@ as part of the "smac".
 
 Note:
  - All entries are optional and will overwrite values from maps.
-
-#### Services Data File #####
-
-The services file is similar to the maps data file as the output comes from Alfred.
-A formatted value may look like this:
-{
-	"link" : "http://10.20.30.40/",
-	"label" : "My Public Gateway"
-}
-
-This is useful to announce services. Currently limited to one entry per router.
-Note: The data is not yet used as ffmap does not support to display the data yet.
 '''
 
 link_re = re.compile('^[#\w\.\:\[\]\/ ]{3,128}$')
@@ -261,11 +251,6 @@ def readMaps(filename):
 					raise Exception(
 						"Map Entry {}. Invalid range for link quality: {}".format(sender_mac, value)
 					)
-			elif key == "type":
-				if not value in [None, "vpn"]:
-					raise Exception(
-						"Map Entry {}. Invalid value for link type: {}".format(sender_mac, value)
-					)
 			else:
 				raise Exception(
 					"Map entry {}. Unknown key in links: {}".format(sender_mac, ekey)
@@ -321,6 +306,11 @@ def readMaps(filename):
 					raise Exception(
 						"Map Entry {}. Invalid value for key gateway: {}".format(sender_mac, value)
 					)
+			elif key == "vpn":
+				if not isinstance(value, bool):
+					raise Exception(
+						"Map Entry {}. Invalid value for key vpn: {}".format(sender_mac, value)
+					)
 			else:
 				raise Exception(
 					"Map entry {}. Unknown key: {}".format(sender_mac, key)
@@ -354,67 +344,11 @@ def readMaps(filename):
 
 	return maps
 
-def readServices(filename):
-
-	if not filename:
-		return {}
-
-	def validateServiceEntry(sender_mac, json_value):
-		if not isinstance(json_value, dict):
-			raise Exception(
-				"Service entry {}. Invalid value type.".format(sender_mac)
-			)
-
-		if not "link" in json_value:
-			raise Exception(
-				"Service entry {}. Addr not found.".format(sender_mac)
-			)
-
-		if not "label" in json_value:
-			raise Exception(
-				"Service entry {}. type not found.".format(sender_mac)
-			)
-
-		if not isLink(json_value["link"]):
-			raise Exception(
-				"Service entry {}. Invalid link format: {}".format(sender_mac, json_value["link"])
-			)
-
-		if not isLabel(json_value["label"]):
-			raise Exception(
-				"Service entry {}. Invalid label format: {}".format(sender_mac, json_value["label"])
-			)
-
-	services = {}
-	with open(filename) as f:
-		for line in f.readlines():
-			strings = parseStrings(line)
-			if len(strings) == 2:
-				node_mac = bytes(strings[0], 'utf-8').decode("unicode_escape")
-				node_value = bytes(strings[1], 'utf-8').decode("unicode_escape")
-
-				#data might be from gzip, let us try that
-				if strings[1].endswith("\\x00"):
-					proc = subprocess.Popen(['ulimit -v 10000; gunzip'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-					node_value = proc.communicate(node_value.encode('latin-1'))[0].decode("utf-8")
-
-				node_value = json.loads(node_value)
-				try:
-					validateServiceEntry(node_mac, node_value)
-					services[node_mac] = node_value
-				except Exception as e:
-					sys.stderr.write(str(e)+"\n")
-
-	return services
-
 def main():
 	parser = argparse.ArgumentParser()
 
 	parser.add_argument('-a', '--aliases',
 		help='read aliases from FILE')
-
-	parser.add_argument('-s', '--services', 
-		help='read services from FILE')
 
 	parser.add_argument('-m', '--maps',
 		help='read maps from FILE')
@@ -435,12 +369,6 @@ def main():
 	if args.aliases and not os.path.isfile(args.aliases):
 		sys.stderr.write(
 			"{}: File does not exist: {}\n".format(parser.prog, args.aliases)
-		)
-		return 1
-
-	if args.services and not os.path.isfile(args.services):
-		sys.stderr.write(
-			"{}: File does not exist: {}\n".format(parser.prog, args.services)
 		)
 		return 1
 
@@ -496,6 +424,9 @@ def main():
 			elif key == "community":
 				if new_value:
 					node1["community"] = new_value
+			elif key == "vpn":
+				if new_value:
+					node1["vpn"] = new_value
 			elif key == "id":
 				pass
 			else:
@@ -506,9 +437,6 @@ def main():
 
 	#locally stored additional data
 	aliases = readAliases(args.aliases)
-
-	#service data from nodes via alfred (not used for now)
-	#services = readServices(args.services)
 
 	#<macs> => <node>
 	nodes = {}
@@ -530,9 +458,10 @@ def main():
 		firmware = data.get("firmware")
 		name = data.get("name", mac)
 		geo = data.get("geo")
+		vpn = data.get("vpn", False)
 		community = data.get("community")
 		clientcount = data.get("clientcount", 0)
-		gateway = data.get("gateway")
+		gateway = data.get("gateway", False)
 
 		if geo:
 			geo = geo.split()
@@ -545,6 +474,7 @@ def main():
 			'id': mac,
 			'name': name,
 			'geo': geo,
+			'vpn' : vpn,
 			'community' : community,
 			'macs' : ' '.join(macs),
 			'links' : data.get("links", []),
@@ -564,7 +494,8 @@ def main():
 	for mac, data in aliases.items():
 		name = data.get("name", mac)
 		geo = data.get("geo")
-		gateway = data.get("gateway")
+		vpn = data.get("vpn", False)
+		gateway = data.get("gateway", False)
 
 		if geo:
 			geo = geo.split()
@@ -573,6 +504,7 @@ def main():
 			'id': mac,
 			'name': name,
 			'geo': geo,
+			'vpn' : vpn,
 			'community' : None,
 			'macs' : mac,
 			'links' : [],
@@ -602,7 +534,6 @@ def main():
 			smac1 = link1["smac"]
 			dmac1 = link1["dmac"]
 			qual1 = link1.get("qual", 1)
-			type1 = link1.get("type", None)
 
 			#prevent the same link from being listed twice 
 			if (smac1 + dmac1) in done_links:
@@ -624,8 +555,7 @@ def main():
 				smac2 = link2["smac"]
 				dmac2 = link2["dmac"]
 				qual2 = link2.get("qual", 1)
-				type2 = link2.get("type", None)
-				
+
 				#check if we have found the
 				#same link from both sides
 				if not (smac1 == dmac2 and dmac1 == smac2):
