@@ -38,10 +38,10 @@ ip6tables -A FORWARD -i "$vpn_interface" -o "$mesh_interface" -m state --state E
 ip6tables -A FORWARD -i "$mesh_interface" -o "$vpn_interface" -j ACCEPT
 
 # allow DNS queries through the VPN
-ip6tables -A INPUT -i "$vpn_interface" -p tcp -m tcp --dport 53 -m state --state ESTABLISHED -j ACCEPT
-ip6tables -A INPUT -i "$vpn_interface" -p udp -m udp --dport 53 -m state --state ESTABLISHED -j ACCEPT
-iptables -A INPUT -i "$vpn_interface" -p tcp -m tcp --dport 53 -m state --state ESTABLISHED -j ACCEPT
-iptables -A INPUT -i "$vpn_interface" -p udp -m udp --dport 53 -m state --state ESTABLISHED -j ACCEPT
+ip6tables -A INPUT -i "$vpn_interface" -p tcp -m tcp --dport domain -m state --state ESTABLISHED -j ACCEPT
+ip6tables -A INPUT -i "$vpn_interface" -p udp -m udp --dport domain -m state --state ESTABLISHED -j ACCEPT
+iptables -A INPUT -i "$vpn_interface" -p tcp -m tcp --dport domain -m state --state ESTABLISHED -j ACCEPT
+iptables -A INPUT -i "$vpn_interface" -p udp -m udp --dport domain -m state --state ESTABLISHED -j ACCEPT
 
 # resolve NAT64 through the VPN
 iptables -A FORWARD -i nat64 -o "$vpn_interface" -j ACCEPT
