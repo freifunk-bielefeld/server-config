@@ -268,5 +268,5 @@ ip -6 addr add $addr/64 dev bat0
 
 if ! is_running "alfred"; then
   echo "(I) Start alfred."
-  alfred -i bat0 -b bat0 -m &> /dev/null &
+  start-stop-daemon --start --background --exec `which alfred` -- -i bat0 -m
 fi
