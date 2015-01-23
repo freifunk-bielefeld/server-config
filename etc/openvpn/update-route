@@ -2,8 +2,8 @@
 #script called by OpenVPN to setup routes
 
 vpn_interface="$dev"
-vpn_gateway_v4="$ifconfig_remote"
-vpn_gateway_v6="$ifconfig_ipv6_remote"
+vpn_gateway_v4="$route_vpn_gateway"
+vpn_gateway_v6="$route_ipv6_gateway_1"
 mesh_interface="bat0"
 
 set -x
