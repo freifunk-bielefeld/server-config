@@ -91,6 +91,14 @@ if [ ! -f /root/scripts/update.sh ]; then
 	fi
 fi
 
+if [ ! -d /etc/iptables ]; then
+	echo "(I) Installing persistent iptables"
+	apt-get install --assume-yes iptables-persistent
+	cp -rf etc/iptables /etc/
+
+	/etc/init.d/netfilter-persistent restart
+fi
+
 if ! is_installed "lighttpd"; then
 	echo "(I) Install lighttpd"
 	apt-get install --assume-yes lighttpd

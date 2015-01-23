@@ -1,0 +1,24 @@
+*filter
+:INPUT DROP [0:0]
+:FORWARD DROP [0:0]
+:OUTPUT ACCEPT [1216:88995]
+-A INPUT -i lo -j ACCEPT
+-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+# allow SSH, ICMP, HTTP, and fastd
+-A INPUT -p tcp -m tcp --dport 22 -j ACCEPT
+-A INPUT -p icmp -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 80 -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 1244 -j ACCEPT
+-A INPUT -p udp -m udp --dport 1244 -j ACCEPT
+
+# allow connections from freifunk if they originated here
+-A INPUT -i bat0 -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+COMMIT
+*nat
+:PREROUTING ACCEPT [5937:390086]
+:INPUT ACCEPT [5235:337093]
+:OUTPUT ACCEPT [2619:167605]
+:POSTROUTING ACCEPT [2619:167605]
+COMMIT

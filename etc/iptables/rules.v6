@@ -1,0 +1,34 @@
+*filter
+:INPUT DROP [0:0]
+:FORWARD DROP [0:0]
+:OUTPUT ACCEPT [18:932]
+-A INPUT -i lo -j ACCEPT
+-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+# allow SSH, ICMP, and HTTP
+-A INPUT -p tcp -m tcp --dport 22 -j ACCEPT
+-A INPUT -p icmp -j ACCEPT
+-A INPUT -p icmpv6 -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 80 -j ACCEPT
+
+# allow established connections from freifunk
+-A INPUT -i bat0 -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+# allow DNS from freifunk
+-A INPUT -i bat0 -p tcp --dport domain -j ACCEPT
+-A INPUT -i bat0 -p udp --dport domain -j ACCEPT
+
+# allow ALFRED from freifunk
+-A INPUT -i bat0 -p udp --dport 16962 -j ACCEPT
+
+# allow NAT64
+-A FORWARD -i bat0 -o nat64 -j ACCEPT
+-A FORWARD -i nat64 -o bat0 -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+COMMIT
+*nat
+:PREROUTING ACCEPT [22:5968]
+:INPUT ACCEPT [22:5968]
+:OUTPUT ACCEPT [1:52]
+:POSTROUTING ACCEPT [1:52]
+COMMIT
