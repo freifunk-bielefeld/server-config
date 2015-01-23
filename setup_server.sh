@@ -246,6 +246,7 @@ fi
 if ! is_running "fastd"; then
   echo "(I) Start fastd."
   fastd --config /etc/fastd/fastd.conf --daemon
+  sleep 1
 fi
 
 echo "(I) Add fastd interface to batman-adv."
