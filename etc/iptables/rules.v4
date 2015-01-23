@@ -12,9 +12,6 @@
 -A INPUT -p tcp -m tcp --dport 1244 -j ACCEPT
 -A INPUT -p udp -m udp --dport 1244 -j ACCEPT
 
-# allow connections from freifunk if they originated here
--A INPUT -i bat0 -m state --state ESTABLISHED,RELATED -j ACCEPT
-
 COMMIT
 *nat
 :PREROUTING ACCEPT [5937:390086]
