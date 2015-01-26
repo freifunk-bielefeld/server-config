@@ -16,6 +16,10 @@ export PATH=$PATH:/usr/local/sbin:/usr/local/bin
 
 #####################################
 
+#abort script on first error
+set -e
+set -u
+
 if [ $run -eq 0 ]; then
 	echo "Check the variables in this script and then set run to 1!"
 	echo "Also be sure to have executed setup_server.sh once before."
