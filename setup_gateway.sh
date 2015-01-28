@@ -26,11 +26,6 @@ if [ $run -eq 0 ]; then
 	exit 1
 fi
 
-if dpkg --compare-versions "$(cat /etc/debian_version 2> /dev/null)" lt 8.0; then
-	echo "(E) Debian version >= 8.0 expected"
-	exit 1
-fi
-
 is_running() {
   pidof "$1" > /dev/null || return $?
 }
