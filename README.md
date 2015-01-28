@@ -1,6 +1,9 @@
 Freifunk-Bielefeld Server
 ===============
 
+Scripte und Konfigurationsdateien zum schnellen Einrichten eines Freifunk-Servers.
+Vorausgesetzt wird mindestens Debian Wheezy (mit wheezy-backports) oder neuer.
+
 server_setup.sh richtet einen Server ein, der Teil des Bielefeld Freifunk Netzes ist.
 Es werden folgende wesentlichen Programme installiert und konfiguriert:
 
