@@ -278,3 +278,8 @@ if ! is_running "alfred"; then
   echo "(I) Start alfred."
   start-stop-daemon --start --background --exec `which alfred` -- -i bat0 -m
 fi
+
+if ! is_running "lighttpd"; then
+  echo "(I) Start lighttpd."
+  /etc/init.d/lighttpd start
+fi
