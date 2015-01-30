@@ -203,29 +203,29 @@ if ! is_installed "fastd"; then
 	ldconfig
 
 	#install libuecc
-	wget --no-check-certificate http://projects.universe-factory.net/attachments/download/71 -O libuecc-4.tar.xz
-	sha256check "libuecc-4.tar.xz" "8662e3e5223f17211930d7e43fefedf60492280dad32595a5b234964153bc086"
-	tar xf libuecc-4.tar.xz
+	wget --no-check-certificate https://projects.universe-factory.net/attachments/download/80 -O libuecc-5.tar.xz
+	sha256check "libuecc-5.tar.xz" "a9a4bc485019410a0fbd484c70a5f727bb924b7a4fe24e6224e8ec1e9a9037e7"
+	tar xf libuecc-5.tar.xz
 	mkdir libuecc_build
 	cd libuecc_build
-	cmake ../libuecc-4
+	cmake ../libuecc-5
 	make
 	make install
 	cd ..
-	rm -rf libuecc_build libuecc-4*
+	rm -rf libuecc_build libuecc-5*
 	ldconfig
 
 	#install fastd
-	wget --no-check-certificate http://projects.universe-factory.net/attachments/download/78 -O fastd-16.tar.xz
-	sha256check "fastd-16.tar.xz" "0d1e103b75377ad1b9936f08a291b92e0b2b3ea7a70c982fb21dc166ff9a7070"
-	tar xf fastd-16.tar.xz
+	wget --no-check-certificate https://projects.universe-factory.net/attachments/download/81 -O fastd-17.tar.xz
+	sha256check "fastd-17.tar.xz" "26d4a8bf2f8cc52872f836f6dba55f3b759f8c723699b4e4decaa9340d3e5a2d"
+	tar xf fastd-17.tar.xz
 	mkdir fastd_build
 	cd fastd_build
-	cmake ../fastd-16
+	cmake ../fastd-17
 	make
 	make install
 	cd ..
-	rm -rf fastd_build fastd-16*
+	rm -rf fastd_build fastd-17*
 fi
 
 if [ ! -f /etc/fastd/fastd.conf ]; then
