@@ -93,10 +93,10 @@ fi
 
 if [ ! -d /etc/iptables ]; then
 	echo "(I) Installing persistent iptables"
-	apt-get install --assume-yes iptables-persistent
+	apt-get install --assume-yes netfilter-persistent
 	cp -rf etc/iptables /etc/
 
-	/etc/init.d/iptables-persistent restart
+	/etc/init.d/netfilter-persistent restart
 fi
 
 if ! is_installed "lighttpd"; then
