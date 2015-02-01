@@ -56,7 +56,6 @@ class AlfredParser:
     MAC_SCHEMA = { "type": "string", "pattern": MAC_RE }
     ALFRED_NODE_SCHEMA = {
         "type": "object",
-        "required": [ "community" ],
         "additionalProperties": False,
         "properties": {
             "geo": { "type": "string", "pattern": GEO_RE },
@@ -169,6 +168,7 @@ class AlfredParser:
         properties.setdefault('firmware', None)
         properties.setdefault('clientcount', 0)
         properties.setdefault('gateway', False)
+        properties.setdefault('community', None)
         properties.setdefault('vpn', False)
         properties.setdefault('links', [])
         links = properties['links']
