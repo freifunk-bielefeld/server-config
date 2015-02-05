@@ -5,10 +5,9 @@
 geo="" #e.g. "52.02513078 8.55887"
 name="$(hostname)"
 firmware="server"
-community=""
-vpn="" #e.g. true / false
-gateway="" #e.g. true / false
+community="bielefeld"
 vpn="true" 
+gateway="false"
 
 echo -n "{"
 
