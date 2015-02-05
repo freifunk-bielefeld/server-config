@@ -29,7 +29,7 @@ if sys.version_info[0] < 3:
 from pprint import pprint, pformat
 
 # list of firmware version that are not legacy.
-RECENT_FIRMWARES = ["ffbi-0.4-rc.2", "server"]
+RECENT_FIRMWARES = ["ffbi-0.4", "server", None]
 
 class AlfredParser:
     r'''
