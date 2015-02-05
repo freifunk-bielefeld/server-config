@@ -87,7 +87,7 @@ if [ ! -f /root/scripts/update.sh ]; then
 	cp -rf scripts /root/
 
 	if [ -n "$community_id" ]; then
-		sed -i "s/community=\"\"/community=\"$community_id\"/g" /root/scripts/print_map.sh
+		sed -i "s/community=\".*\"/community=\"$community_id\"/g" /root/scripts/print_map.sh
 	fi
 fi
 
