@@ -94,8 +94,8 @@ fi
 if [ ! -d /etc/iptables ]; then
 	echo "(I) Installing persistent iptables"
 	apt-get install --assume-yes netfilter-persistent
-	cp -rf etc/iptables /etc/
 
+	cp -rf etc/iptables/* /etc/iptables/
 	/etc/init.d/netfilter-persistent restart
 fi
 
