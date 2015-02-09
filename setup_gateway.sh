@@ -7,7 +7,7 @@
 wan_iface="eth0"
 
 #The internal IPv6 prefix
-ff_prefix="fdef:17a0:ffb1:300::"
+ff_prefix="fdef:17a0:ffb1:301::"
 
 #Set to 1 for this script to run. :-)
 run=0
