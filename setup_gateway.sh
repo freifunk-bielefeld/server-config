@@ -145,6 +145,7 @@ if [ ! -f /etc/radvd.conf ]; then
 	echo "(I) Configure radvd"
 	cp etc/radvd.conf /etc/
 	sed -i "s/fdef:17a0:ffb1:300::1/$addr/g" /etc/radvd.conf
+	sed -i "s/fdef:17a0:ffb1:300::/$ff_prefix/g" /etc/radvd.conf
 fi
 
 if ! is_running "openvpn"; then
