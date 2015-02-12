@@ -18,9 +18,9 @@ ff_prefix="fdef:17a0:ffb1:301::"
 #Set to 1 for this script to run. :-)
 run=0
 
-export PATH=$PATH:/usr/local/sbin:/usr/local/bin
-
 #####################################
+
+export PATH=$PATH:/usr/local/sbin:/usr/local/bin
 
 #abort script on first error
 set -e
