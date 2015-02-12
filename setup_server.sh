@@ -80,6 +80,11 @@ addr="$(ula_addr $ff_prefix $mac)"
 
 echo "(I) This server will have the internal IP address: $addr"
 
+repo="deb http://http.debian.net/debian wheezy-backports main"
+if grep -Fxq "$repo" /etc/apt/sources.list; then
+	echo "$repo" >> /etc/apt/sources.list
+	apt-get update
+fi
 
 if [ ! -f /root/scripts/update.sh ]; then
 	echo "(I) Create /root/scripts/"
