@@ -251,10 +251,8 @@ if ! id nobody >/dev/null 2>&1; then
 	useradd --system --no-create-home --shell /bin/false nobody
 fi
 
-if ! lsmod | grep -v grep | grep "batman_adv" > /dev/null; then
-  echo "(I) Start batman-adv."
-  modprobe batman_adv
-fi
+echo "(I) Start batman-adv."
+modprobe batman_adv
 
 if ! is_running "fastd"; then
   echo "(I) Start fastd."
