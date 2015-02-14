@@ -6,7 +6,6 @@ import json
 import re
 import subprocess
 
-community = None
 
 '''
 This script sets the text values for fields labeled
@@ -19,13 +18,18 @@ def execute(args):
 
 def main(argv):
 
-	if len(argv) != 3:
-		print("Usage: {} <json-file> <svg-file>".format(argv[0]))
+	if not (len(argv) == 3 or len(argv) == 4):
+		print("Usage: {} <json-file> <svg-file> [<community>]".format(argv[0]))
 		return 0
 
 	prog = argv[0]
 	json_path = argv[1]
 	svg_path = argv[2]
+
+	if len(argv) == 4:
+		community = argv[3]
+	else:
+		community = None
 
 	def readSVG(path):
 		content = ""
