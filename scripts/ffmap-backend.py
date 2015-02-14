@@ -51,17 +51,16 @@ class AlfredParser:
     <http://json-schema.org/>`_.
     '''
     MAC_RE = "^([0-9a-f]{2}:){5}[0-9a-f]{2}$"
-    GEO_RE = "^\d{1,3}\.\d+ \d{1,3}\.\d+$"
-    NAME_RE = "^[\-\^'\w\.\:\[\]\(\)\/ ]*$"
+    GEO_RE = "^\d{1,3}\.\d{1,8} \d{1,3}\.\d{1,8}$"
     MAC_SCHEMA = { "type": "string", "pattern": MAC_RE }
     ALFRED_NODE_SCHEMA = {
         "type": "object",
         "additionalProperties": False,
         "properties": {
             "geo": { "type": "string", "pattern": GEO_RE },
-            "name": { "type": "string", "pattern": NAME_RE },
-            "firmware": { "type": "string", "pattern": NAME_RE },
-            "community": { "type": "string", "pattern": NAME_RE },
+            "name": { "type": "string", "maxLength": 30 },
+            "firmware": { "type": "string", "maxLength": 30 },
+            "community": { "type": "string", "maxLength": 30 },
             "clientcount": { "type": "integer", "minimum": 0, "maximum": 255 },
             "gateway": { "type": "boolean" },
             "vpn": { "type": "boolean" },
@@ -158,7 +157,9 @@ class AlfredParser:
             # ignores any output beyond 64k (protection from zip bombs)
             properties = decompress.decompress(properties.encode('raw-unicode-escape'),64*1024).decode('utf-8')
         except zlib.error:
+            properties = properties.encode('latin-1').decode('utf8')
             pass
+
         properties = json.loads(properties)
         jsonschema.validate(properties, AlfredParser.ALFRED_NODE_SCHEMA)
 
