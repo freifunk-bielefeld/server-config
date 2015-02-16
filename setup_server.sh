@@ -244,6 +244,8 @@ if [ ! -f /etc/fastd/fastd.conf ]; then
 	echo "secret \"$fastd_secret\";" >> /etc/fastd/fastd.conf
 	fastd_key=$(echo "secret \"$fastd_secret\";" | fastd --config - --show-key --machine-readable)
 	echo "#key \"$fastd_key\";" >> /etc/fastd/fastd.conf
+
+	sed -i "s/eth0/$wan_iface/g" /etc/fastd/fastd.conf
 fi
 
 if ! id nobody >/dev/null 2>&1; then
