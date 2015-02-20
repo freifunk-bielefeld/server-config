@@ -15,6 +15,9 @@ community_id="bielefeld"
 #The internal IPv6 prefix
 ff_prefix="fdef:17a0:ffb1:301::"
 
+#setup a gateway with mullvad
+setup_gateway="false"
+
 #Set to 1 for this script to run. :-)
 run=0
 
@@ -31,12 +34,8 @@ if [ $run -eq 0 ]; then
 	exit 1
 fi
 
-is_running() {
-  pidof "$1" > /dev/null || return $?
-}
-
 is_installed() {
-  which "$1" > /dev/null || return $?
+	which "$1" > /dev/null || return $?
 }
 
 sha256check() {
@@ -75,10 +74,8 @@ get_mac() {
 	echo "$a:${mac#*:}" #reassemble mac
 }
 
-mac="$(get_mac $wan_iface)"
-addr="$(ula_addr $ff_prefix $mac)"
-
-echo "(I) This server will have the internal IP address: $addr"
+mac_addr="$(get_mac $wan_iface)"
+ip_addr="$(ula_addr $ff_prefix $mac)"
 
 repo="deb http://http.debian.net/debian wheezy-backports main"
 if grep -Fxq "$repo" /etc/apt/sources.list; then
@@ -91,9 +88,10 @@ if [ ! -f /root/scripts/update.sh ]; then
 	apt-get install --assume-yes python3 python3-jsonschema
 	cp -rf scripts /root/
 
-	if [ -n "$community_id" ]; then
-		sed -i "s/community=\".*\"/community=\"$community_id\"/g" /root/scripts/print_map.sh
-	fi
+	sed -i "s/ip_addr=\".*\"/ip_addr=\"$ip_addr\"/g" /root/scripts/update.sh
+	sed -i "s/mac_addr=\".*\"/mac_addr=\"$mac_addr\"/g" /root/scripts/update.sh
+	sed -i "s/community=\".*\"/community=\"$community_id\"/g" /root/scripts/update.sh
+	sed -i "s/ff_prefix=\".*\"/ff_prefix=\"$ff_prefix\"/g" /root/scripts/update.sh
 fi
 
 if [ ! -d /etc/iptables ]; then
@@ -112,7 +110,7 @@ fi
 if [ ! -f /etc/lighttpd/lighttpd.conf ]; then
 	echo "(I) Create /etc/lighttpd/lighttpd.conf"
 	cp etc/lighttpd/lighttpd.conf /etc/lighttpd/
-	sed -i "s/fdef:17a0:ffb1:300::1/$addr/g" /etc/lighttpd/lighttpd.conf
+	sed -i "s/fdef:17a0:ffb1:300::1/$ip_addr/g" /etc/lighttpd/lighttpd.conf
 fi
 
 if ! id www-data >/dev/null 2>&1; then
@@ -253,38 +251,89 @@ if ! id nobody >/dev/null 2>&1; then
 	useradd --system --no-create-home --shell /bin/false nobody
 fi
 
-echo "(I) Start batman-adv."
-modprobe batman_adv
+### setup gateway ###
 
-if ! is_running "fastd"; then
-  echo "(I) Start fastd."
-  fastd --config /etc/fastd/fastd.conf --daemon
-  sleep 1
-fi
+if [ "$setup_gateway" = "true" ]; then
 
-echo "(I) Add fastd interface to batman-adv."
-ip link set fastd_mesh up
-ip addr flush dev fastd_mesh
-batctl if add fastd_mesh
+	setup_mullvad() {
+		local mullvad_zip="$1"
+		local tmp_dir="/tmp/mullvadconfig"
 
-echo "(I) Set MAC address for bat0."
-ip link set bat0 down
-ip link set bat0 address "$mac"
-ip link set bat0 up
+		if [ ! -f "$mullvad_zip" ]; then
+			echo "Mullvad zip file missing: $mullvad_zip"
+			exit 1
+		fi
 
-echo "(I) Configure batman-adv."
-echo "5000" >  /sys/class/net/bat0/mesh/orig_interval
-echo "1" >  /sys/class/net/bat0/mesh/distributed_arp_table
-echo "0" >  /sys/class/net/bat0/mesh/multicast_mode
+		#unzip and copy files to OpenVPN
+		rm -rf $tmp_dir
+		mkdir -p $tmp_dir
+		unzip $mullvad_zip -d $tmp_dir
+		cp $tmp_dir/*/mullvad_linux.conf /etc/openvpn
+		cp $tmp_dir/*/mullvad.key /etc/openvpn
+		cp $tmp_dir/*/mullvad.crt /etc/openvpn
+		cp $tmp_dir/*/ca.crt /etc/openvpn
+		cp $tmp_dir/*/crl.pem /etc/openvpn
+		rm -rf $tmp_dir
 
-ip -6 addr add $addr/64 dev bat0
+		#prevent OpenVPN from setting routes
+		echo "route-noexec" >> /etc/openvpn/mullvad_linux.conf
 
-if ! is_running "alfred"; then
-  echo "(I) Start alfred."
-  start-stop-daemon --start --background --exec `which alfred` -- -i bat0 -m
-fi
+		#set a script that will set routes
+		echo "route-up /etc/openvpn/update-route" >> /etc/openvpn/mullvad_linux.conf
+	}
 
-if ! is_running "lighttpd"; then
-  echo "(I) Start lighttpd."
-  /etc/init.d/lighttpd start
+	if ! is_installed "openvpn"; then
+		echo "(I) Install OpenVPN."
+		apt-get install --assume-yes openvpn resolvconf zip
+
+		echo "(I) Configure OpenVPN"
+		#mullvad "tun-ipv6" to their OpenVPN configuration file.
+		case "mullvad" in
+			"mullvad")
+				setup_mullvad "mullvadconfig.zip"
+			;;
+			#apt-get install openvpn resolvconf
+			*)
+				echo "Unknown argument"
+				exit 1
+			;;
+		esac
+
+		cp etc/openvpn/update-route /etc/openvpn/
+	fi
+
+	#NAT64
+	if ! is_installed "tayga"; then
+		echo "(I) Install tayga."
+		apt-get install --assume-yes tayga
+
+		#enable tayga
+		sed -i 's/RUN="no"/RUN="yes"/g' /etc/default/tayga
+
+		echo "(I) Configure tayga"
+		cp -r etc/tayga.conf /etc/
+	fi
+
+	#DNS64
+	if ! is_installed "named"; then
+		echo "(I) Install bind."
+		apt-get install --assume-yes bind9
+
+		echo "(I) Configure bind"
+		cp -r etc/bind /etc/
+		sed -i "s/fdef:17a0:ffb1:300::1/$addr/g" /etc/bind/named.conf.options
+	fi
+
+	#IPv6 Router Advertisments
+	if ! is_installed "radvd"; then
+		echo "(I) Install radvd."
+		apt-get install --assume-yes radvd
+	fi
+
+	if [ ! -f /etc/radvd.conf ]; then
+		echo "(I) Configure radvd"
+		cp etc/radvd.conf /etc/
+		sed -i "s/fdef:17a0:ffb1:300::1/$addr/g" /etc/radvd.conf
+		sed -i "s/fdef:17a0:ffb1:300::/$ff_prefix/g" /etc/radvd.conf
+	fi
 fi
