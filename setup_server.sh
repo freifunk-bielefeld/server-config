@@ -336,4 +336,6 @@ if [ "$setup_gateway" = "true" ]; then
 		sed -i "s/fdef:17a0:ffb1:300::1/$ip_addr/g" /etc/radvd.conf
 		sed -i "s/fdef:17a0:ffb1:300::/$ff_prefix/g" /etc/radvd.conf
 	fi
+
+	sed -i "s/gateway=\".*\"/gateway=\"true\"/g" /root/scripts/update.sh
 fi
