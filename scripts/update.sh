@@ -17,18 +17,18 @@ gateway="false"
 
 ##############
 
-[ -n "$ff_prefix" ] || { echo "(E) ff_prefix not set!"; exit 1; }
-[ -n "$ip_addr" ] || { echo "(E) ip_addr not set!"; exit 1; }
-[ -n "$mac_addr" ] || { echo "(E) mac_addr not set!"; exit 1; }
+#abort script on first error
+set -e
+set -u
+
+export PATH=$PATH:/usr/local/sbin:/usr/local/bin
 
 #switch script directory
 cd "$(dirname $0)"
 
-export PATH=$PATH:/usr/local/sbin:/usr/local/bin
-
-#abort script on first error
-set -e
-set -u
+[ -n "$ff_prefix" ] || { echo "(E) ff_prefix not set!"; exit 1; }
+[ -n "$ip_addr" ] || { echo "(E) ip_addr not set!"; exit 1; }
+[ -n "$mac_addr" ] || { echo "(E) mac_addr not set!"; exit 1; }
 
 is_running() {
 	pidof "$1" > /dev/null || return $?
