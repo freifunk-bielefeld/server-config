@@ -321,7 +321,7 @@ if [ "$setup_gateway" = "true" ]; then
 
 		echo "(I) Configure bind"
 		cp -r etc/bind /etc/
-		sed -i "s/fdef:17a0:ffb1:300::1/$addr/g" /etc/bind/named.conf.options
+		sed -i "s/fdef:17a0:ffb1:300::1/$ip_addr/g" /etc/bind/named.conf.options
 	fi
 
 	#IPv6 Router Advertisments
@@ -333,7 +333,7 @@ if [ "$setup_gateway" = "true" ]; then
 	if [ ! -f /etc/radvd.conf ]; then
 		echo "(I) Configure radvd"
 		cp etc/radvd.conf /etc/
-		sed -i "s/fdef:17a0:ffb1:300::1/$addr/g" /etc/radvd.conf
+		sed -i "s/fdef:17a0:ffb1:300::1/$ip_addr/g" /etc/radvd.conf
 		sed -i "s/fdef:17a0:ffb1:300::/$ff_prefix/g" /etc/radvd.conf
 	fi
 fi
