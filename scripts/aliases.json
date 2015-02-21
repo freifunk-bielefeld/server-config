@@ -1,14 +1,14 @@
 {
 	"02:16:3c:58:d0:b5" : {
-		"name" : "vpn1",
+		"name" : "vpn1 (example node)",
 		"vpn" : true,
 		"gateway" : true
 	},
 	"ee:11:43:15:1f:ef" : {
-		"name" : "Shadow"
+		"name" : "Shadow (example node)"
 	},
 	"12:fe:ed:7e:86:00" : {
-		"name" : "Cool Node",
+		"name" : "Cool Node (example node)",
 		"geo" : ["52.02513078", "8.55887"]
 	}
 }

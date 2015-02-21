@@ -121,7 +121,7 @@ fi
 if [ ! -f /var/www/index.html ]; then
 	echo "(I) Create /var/www/status"
 	mkdir -p /var/www/
-	cp -r var/www/status* /var/www/
+	cp -r var/www/status_* /var/www/
 
 	chown -R www-data:www-data var/www
 fi
