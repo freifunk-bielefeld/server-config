@@ -146,7 +146,7 @@ alfred -r 64 > /tmp/maps.txt
 ./ffmap-backend.py -m /tmp/maps.txt -a ./aliases.json > /var/www/map/nodes.json
 
 #update FF-Internal status page
-./status_page_create.sh '/var/www/status/index.html'
+./status_page_create.sh '/var/www/index.html'
 
 #update nodes/clients/gateways counter
 ./counter_update.py '/var/www/map/nodes.json' '/var/www/counter/counter_image.svg'

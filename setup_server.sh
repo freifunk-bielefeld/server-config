@@ -118,10 +118,10 @@ if ! id www-data >/dev/null 2>&1; then
 	useradd --system --no-create-home --user-group --shell /bin/false www-data
 fi
 
-if [ ! -d /var/www/status ]; then
+if [ ! -f /var/www/index.html ]; then
 	echo "(I) Create /var/www/status"
-	mkdir -p /var/www/status
-	cp -r var/www/status /var/www/
+	mkdir -p /var/www/
+	cp -r var/www/status* /var/www/
 
 	chown -R www-data:www-data var/www
 fi
