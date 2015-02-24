@@ -16,12 +16,12 @@ echo "(I) vpn_gateway (v4): '$vpn_gateway_v4'"
 echo "(I) mesh_interface: '$mesh_interface'"
 
 #make sure the rule is only applied once
-iptables_c() {
-	iptables $@ --check || iptables $@
+iptables_a() {
+	iptables -C $@ || iptables -A $@
 }
 
-ip6tables_c() {
-	ip6tables $@ --check || ip6tables $@
+ip6tables_a() {
+	ip6tables -C $@ || ip6tables -A $@
 }
 
 # create table if it does not exist yet
@@ -43,21 +43,21 @@ ip route add default dev tun0 table vpn
 ip rule add dev nat64 table vpn prio 32565
 
 # forward traffic between freifunk and the VPN (if the connection originated in freifunk)
-ip6tables_c -A FORWARD -i "$vpn_interface" -o "$mesh_interface" -m state --state ESTABLISHED,RELATED -j ACCEPT
-ip6tables_c -A FORWARD -i "$mesh_interface" -o "$vpn_interface" -j ACCEPT
+ip6tables_a FORWARD -i "$vpn_interface" -o "$mesh_interface" -m state --state ESTABLISHED,RELATED -j ACCEPT
+ip6tables_a FORWARD -i "$mesh_interface" -o "$vpn_interface" -j ACCEPT
 
 # allow DNS queries through the VPN
-ip6tables_c -A INPUT -i "$vpn_interface" -p tcp -m tcp --dport domain -m state --state ESTABLISHED -j ACCEPT
-ip6tables_c -A INPUT -i "$vpn_interface" -p udp -m udp --dport domain -m state --state ESTABLISHED -j ACCEPT
-iptables_c -A INPUT -i "$vpn_interface" -p tcp -m tcp --dport domain -m state --state ESTABLISHED -j ACCEPT
-iptables_c -A INPUT -i "$vpn_interface" -p udp -m udp --dport domain -m state --state ESTABLISHED -j ACCEPT
+ip6tables_a INPUT -i "$vpn_interface" -p tcp -m tcp --dport domain -m state --state ESTABLISHED -j ACCEPT
+ip6tables_a INPUT -i "$vpn_interface" -p udp -m udp --dport domain -m state --state ESTABLISHED -j ACCEPT
+iptables_a INPUT -i "$vpn_interface" -p tcp -m tcp --dport domain -m state --state ESTABLISHED -j ACCEPT
+iptables_a INPUT -i "$vpn_interface" -p udp -m udp --dport domain -m state --state ESTABLISHED -j ACCEPT
 
 # resolve NAT64 through the VPN
-iptables_c -A FORWARD -i nat64 -o "$vpn_interface" -j ACCEPT
-iptables_c -A FORWARD -i "$vpn_interface" -o nat64 -m state --state ESTABLISHED,RELATED -j ACCEPT
+iptables_a FORWARD -i nat64 -o "$vpn_interface" -j ACCEPT
+iptables_a FORWARD -i "$vpn_interface" -o nat64 -m state --state ESTABLISHED,RELATED -j ACCEPT
 
 # NAT66 all freifunk traffic
-ip6tables_c --table nat -A POSTROUTING -o "$vpn_interface" -j MASQUERADE
+ip6tables_a POSTROUTING --table nat -o "$vpn_interface" -j MASQUERADE
 
 # Enable routing
 echo 1 > /proc/sys/net/ipv6/conf/default/forwarding
