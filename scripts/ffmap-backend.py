@@ -59,6 +59,7 @@ class AlfredParser:
         "properties": {
             "geo": { "type": "string", "pattern": GEO_RE },
             "name": { "type": "string", "maxLength": 30 },
+            "contact": { "type": "string", "maxLength": 30 },
             "firmware": { "type": "string", "maxLength": 30 },
             "community": { "type": "string", "maxLength": 30 },
             "clientcount": { "type": "integer", "minimum": 0, "maximum": 255 },
@@ -166,6 +167,7 @@ class AlfredParser:
         # set some defaults for unspecified fields
         properties.setdefault('name', mac)
         properties['geo'] = properties.get('geo','').split() or None
+        properties.setdefault('contact', None)
         properties.setdefault('firmware', None)
         properties.setdefault('clientcount', 0)
         properties.setdefault('gateway', False)
@@ -255,6 +257,7 @@ class Node:
                 'id': self.mac,
                 'name': properties['name'],
                 'geo': properties['geo'],
+                'contact': properties['contact'],
                 'community': properties['community'],
                 'firmware': properties['firmware'],
                 'clientcount': properties['clientcount'],
