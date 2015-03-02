@@ -15,6 +15,9 @@ community="bielefeld"
 vpn="true"
 gateway="false"
 
+#start/stop OpenVPN, bind, tayga, radvd
+handle_gateway_tools="true"
+
 ##############
 
 #abort script on first error
@@ -81,25 +84,47 @@ if ! is_running "lighttpd"; then
 	/etc/init.d/lighttpd start
 fi
 
-if [ "$gateway" = "true" ]; then
-	if ! is_running "openvpn"; then
-		echo "(I) Start openvpn."
-		/etc/init.d/openvpn start
-	fi
+if [ "$handle_gateway_tools" = "true" ]; then
+	if [ "$gateway" = "true" ]; then
+		if ! is_running "openvpn"; then
+			echo "(I) Start openvpn."
+			/etc/init.d/openvpn start
+		fi
 
-	if ! is_running "tayga"; then
-		echo "(I) Start tayga."
-		tayga
-	fi
+		if ! is_running "tayga"; then
+			echo "(I) Start tayga."
+			tayga
+		fi
 
-	if ! is_running "named"; then
-		echo "(I) Start bind."
-		/etc/init.d/bind9 start
-	fi
+		if ! is_running "named"; then
+			echo "(I) Start bind."
+			/etc/init.d/bind9 start
+		fi
 
-	if ! is_running "radvd"; then
-		echo "(I) Start radvd."
-		/etc/init.d/radvd start
+		if ! is_running "radvd"; then
+			echo "(I) Start radvd."
+			/etc/init.d/radvd start
+		fi
+	else
+		if is_running "openvpn"; then
+			echo "(I) Stop openvpn."
+			/etc/init.d/openvpn stop
+		fi
+
+		if is_running "tayga"; then
+			echo "(I) Stop tayga."
+			killall tayga
+		fi
+
+		if is_running "named"; then
+			echo "(I) Stop bind."
+			/etc/init.d/bind9 stop
+		fi
+
+		if is_running "radvd"; then
+			echo "(I) Stop radvd."
+			/etc/init.d/radvd stop
+		fi
 	fi
 fi
 
