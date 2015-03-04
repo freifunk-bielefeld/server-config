@@ -65,7 +65,7 @@ if [ "$(cat /sys/class/net/bat0/address 2> /dev/null)" != "$mac_addr" ]; then
 
 	echo "(I) Configure batman-adv."
 	echo "5000" >  /sys/class/net/bat0/mesh/orig_interval
-	echo "1" >  /sys/class/net/bat0/mesh/distributed_arp_table
+	echo "0" >  /sys/class/net/bat0/mesh/distributed_arp_table
 	echo "0" >  /sys/class/net/bat0/mesh/multicast_mode
 fi
 
