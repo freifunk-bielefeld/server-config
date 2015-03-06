@@ -166,7 +166,12 @@ class AlfredParser:
 
         # set some defaults for unspecified fields
         properties.setdefault('name', mac)
-        properties['geo'] = properties.get('geo','').split() or None
+        if 'geo' in properties:
+            geo = properties['geo'].split()
+            properties['geo'] = [ float(geo[0]), float(geo[1]) ]
+        else:
+            properties['geo'] = None
+
         properties.setdefault('contact', None)
         properties.setdefault('firmware', None)
         properties.setdefault('clientcount', 0)
