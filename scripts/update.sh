@@ -174,6 +174,6 @@ alfred -r 64 > /tmp/maps.txt
 ./status_page_create.sh '/var/www/index.html'
 
 #update nodes/clients/gateways counter
-./counter_update.py '/var/www/map/nodes.json' '/var/www/counter/counter_image.svg'
+./counter_update.py '/var/www/map/nodes.json' '/var/www/counter/counter.svg'
 
 echo "done"
