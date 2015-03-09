@@ -50,7 +50,7 @@ if ! is_running "fastd"; then
 	sleep 1
 fi
 
-if [ ! -d /sys/class/net/fastd_mesh/batman_adv/ ]; then
+if [ $(batctl if | grep fastd_mesh -c) = 0 ]; then
 	echo "(I) Add fastd interface to batman-adv."
 	ip link set fastd_mesh up
 	ip addr flush dev fastd_mesh
