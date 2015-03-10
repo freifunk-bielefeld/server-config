@@ -30,3 +30,7 @@ git clone https://github.com/freifunk-bielefeld/server-config.git
 cd server-config
 ./setup_server.sh
 </pre>
+
+Danach wird das Script /root/scripts/update.sh alle 5 Minuten  von crond aufgerufen.
+Dadurch wird die Karte regelmäßig aktualisiert und z.B. nach einem Neustart die
+notwendigen Programme neu gestartet.
