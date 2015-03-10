@@ -15,7 +15,7 @@ community_id="bielefeld"
 #The internal IPv6 prefix
 ff_prefix="fdef:17a0:ffb1:301::"
 
-#setup a gateway with mullvad
+#setup a gateway with http://mullvad.net
 setup_gateway="false"
 
 #Set to 1 for this script to run. :-)
