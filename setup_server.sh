@@ -73,6 +73,11 @@ get_mac() {
 	echo "$a:${mac#*:}" #reassemble mac
 }
 
+if ! ip addr list dev $wan_iface &> /dev/null; then
+	echo "(E) Interface $wan_iface does not exist."
+	exit
+fi
+
 mac_addr="$(get_mac $wan_iface)"
 ip_addr="$(ula_addr $ff_prefix $mac_addr)"
 
