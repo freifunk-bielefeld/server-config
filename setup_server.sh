@@ -47,8 +47,7 @@ sha256check() {
 }
 
 ula_addr() {
-	local prefix="$1"
-	local mac="$2"
+	local prefix="$1" mac="$2" a
 
 	# translate to local administered mac
 	a=${mac%%:*} #cut out first hex
@@ -65,7 +64,7 @@ ula_addr() {
 }
 
 get_mac() {
-	local mac=`cat /sys/class/net/$1/address`
+	local mac="$(cat /sys/class/net/$1/address)" a
 
 	# translate to local administered mac
 	a=${mac%%:*} #cut out first hex
@@ -75,7 +74,7 @@ get_mac() {
 }
 
 mac_addr="$(get_mac $wan_iface)"
-ip_addr="$(ula_addr $ff_prefix $mac)"
+ip_addr="$(ula_addr $ff_prefix $mac_addr)"
 
 repo="deb http://http.debian.net/debian wheezy-backports main"
 if grep -Fxq "$repo" /etc/apt/sources.list; then
