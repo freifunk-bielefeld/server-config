@@ -348,3 +348,5 @@ if [ "$setup_gateway" = "true" ]; then
 
 	sed -i "s/gateway=\".*\"/gateway=\"true\"/g" /root/scripts/update.sh
 fi
+
+echo "done"
