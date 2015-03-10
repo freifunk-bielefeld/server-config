@@ -77,7 +77,7 @@ mac_addr="$(get_mac $wan_iface)"
 ip_addr="$(ula_addr $ff_prefix $mac_addr)"
 
 repo="deb http://http.debian.net/debian wheezy-backports main"
-if grep -Fxq "$repo" /etc/apt/sources.list; then
+if ! grep -Fxq "$repo" /etc/apt/sources.list; then
 	echo "$repo" >> /etc/apt/sources.list
 	apt-get update
 fi
