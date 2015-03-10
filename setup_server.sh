@@ -81,6 +81,11 @@ fi
 mac_addr="$(get_mac $wan_iface)"
 ip_addr="$(ula_addr $ff_prefix $mac_addr)"
 
+if [ -z "$mac_addr" -o -z "$ip_addr" ]; then
+	echo "(E) MAC or IP address no set."
+	exit
+fi
+
 repo="deb http://http.debian.net/debian wheezy-backports main"
 if ! grep -Fxq "$repo" /etc/apt/sources.list; then
 	echo "$repo" >> /etc/apt/sources.list
