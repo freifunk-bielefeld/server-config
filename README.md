@@ -1,36 +1,35 @@
 Freifunk-Bielefeld Server
 ===============
 
-Scripte und Konfigurationsdateien zum schnellen Einrichten eines Freifunk-Servers.
-Vorausgesetzt wird Debian Wheezy mit wheezy-backports.
+Scripte und Konfigurationsdateien zum schnellen Einrichten eines Servers für Freifunk-Bielefeld.
+Vorausgesetzt wird Debian Wheezy mit wheezy-backports (wird automatisch hinzugefügt).
+Um einen Server einzurichten, reicht es, das Script setup_server.sh als Benutzer 'root' auszuführen:
 
-server_setup.sh richtet einen Server ein, der Teil des Bielefeld Freifunk Netzes ist.
-Es werden folgende wesentlichen Programme installiert und konfiguriert:
+```
+git clone https://github.com/freifunk-bielefeld/server-config.git
+cd server-config
+./setup_server.sh
+```
+
+Nach erfolgreichem Einrichten wird das Script /root/scripts/update.sh alle 5 Minuten
+von crond aufgerufen. Dadurch wird die Karte regelmäßig aktualisiert und z.B. nach
+einem Neustart notwendige Programme neu gestartet.
+
+Für die Serverfunktion werden folgende Programme installiert und konfiguriert:
 
  * Routingprotokoll: [batman-adv](http://www.open-mesh.org/projects/batman-adv/wiki)
  * FF-VPN: [fastd](https://projects.universe-factory.net/projects/fastd/wiki)
  * Webserver: lighttpd
  * Karte: [ffmap](https://github.com/ffnord/ffmap-d3)
 
-setup_gateway.sh richtet einen mit server_setup.sh eingerichteten Server so ein,
-das er als Gateway im Bielefelder Freifunk-Netz dient. Das Script erwartet die Accountdaten
-von mullvad.net oder ipredator.se im gleichen Verzeichnis.
-Es werden folgende wesentlichen Programme installiert und konfiguriert:
+Wir die Variable im Setup-Script entsprechend gesetzt, wird der Server gleich auch
+als Gateway eingerichtet. Das Script erwartet dann eine ZIP-Datei mit den Accountdaten
+von mullvad.net im gleichen Verzeichnis. Zum Testen eignet sich ein anonymer Testaccount
+für drei Stunden.
+
+Ansonsten werden für die Gatewayfunktion folgende Programme installiert und konfiguriert:
 
  * NAT64: [tayga](http://www.litech.org/tayga/)
  * DNS64: bind
  * IPv6 Router Advertisment: radvd
  * Auslands-VPN: OpenVPN
-
-
-Zu Ausführen einfach als Benutzer 'root' die Scripte ausführen:
-
-<pre>
-git clone https://github.com/freifunk-bielefeld/server-config.git
-cd server-config
-./setup_server.sh
-</pre>
-
-Danach wird das Script /root/scripts/update.sh alle 5 Minuten  von crond aufgerufen.
-Dadurch wird die Karte regelmäßig aktualisiert und z.B. nach einem Neustart die
-notwendigen Programme neu gestartet.
