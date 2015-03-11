@@ -13,7 +13,7 @@ wan_iface="eth0"
 community_id="bielefeld"
 
 #The internal IPv6 prefix
-ff_prefix="fdef:17a0:ffb1:301::"
+ff_prefix="fdef:17a0:ffb1:300::"
 
 #setup a gateway with http://mullvad.net
 setup_gateway="false"
