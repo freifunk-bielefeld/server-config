@@ -130,7 +130,7 @@ fi
 
 #announce status website via alfred
 {
-	echo -n "{\"link\" : \"http://[$(addr 6 bat0)]/index.html\", \"label\" : \"Freifunk Gateway $(hostname -s)\"}"
+	echo -n "{\"link\" : \"http://[$(addr 6 bat0)]/index.html\", \"label\" : \"Freifunk Gateway $name\"}"
 } | alfred -s 91
 
 
