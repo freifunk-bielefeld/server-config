@@ -116,7 +116,7 @@ if [ "$handle_gateway_tools" = "true" ]; then
 
 		if is_running "tayga"; then
 			echo "(I) Stop tayga."
-			killall tayga
+			pkill tayga
 		fi
 
 		if is_running "named"; then
