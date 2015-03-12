@@ -63,6 +63,9 @@ if [ "$(cat /sys/class/net/bat0/address 2> /dev/null)" != "$mac_addr" ]; then
 	ip link set bat0 address "$mac_addr"
 	ip link set bat0 up
 
+	# we do not accept a default gateway through bat0
+	sysctl net.ipv6.conf.bat0.accept_ra=0
+
 	echo "(I) Configure batman-adv."
 	echo "5000" >  /sys/class/net/bat0/mesh/orig_interval
 	echo "0" >  /sys/class/net/bat0/mesh/distributed_arp_table
