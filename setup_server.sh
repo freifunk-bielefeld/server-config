@@ -127,32 +127,21 @@ if ! id www-data >/dev/null 2>&1; then
 	useradd --system --no-create-home --user-group --shell /bin/false www-data
 fi
 
-if [ ! -f /var/www/index.html ]; then
-	echo "(I) Create /var/www/status"
+if [ ! -f /var/www/counter.svg ]; then
+	echo "(I) Populate /var/www"
 	mkdir -p /var/www/
-	cp -r var/www/status_* /var/www/
+	cp -r var/www/* /var/www/
 
-	chown -R www-data:www-data var/www
-fi
-
-if [ ! -d /var/www/map ]; then
-	echo "(I) Create /var/www/map"
+	echo "(I) Add ffmap-d3"
 	apt-get install --assume-yes make
 	git clone https://github.com/freifunk-bielefeld/ffmap-d3.git
 	cd ffmap-d3
 	make
-	mkdir -p /var/www/map
-	cp -r www/* /var/www/map/
+	cp -r www/* /var/www/
 	cd ..
 	rm -rf ffmap-d3
-	chown -R www-data:www-data /var/www
-fi
 
-if [ ! -d /var/www/counter ]; then
-	echo "(I) Create /var/www/counter"
-	mkdir -p /var/www/counter
-	cp -r var/www/counter /var/www/
-	chown -R www-data:www-data var/www
+	chown -R www-data:www-data /var/www
 fi
 
 if [ -z "$(cat /etc/crontab | grep '/root/scripts/update.sh')" ]; then
