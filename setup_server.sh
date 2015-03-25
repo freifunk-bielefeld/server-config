@@ -103,14 +103,6 @@ if [ ! -f /root/scripts/update.sh ]; then
 	sed -i "s/ff_prefix=\".*\"/ff_prefix=\"$ff_prefix\"/g" /root/scripts/update.sh
 fi
 
-if [ ! -d /etc/iptables ]; then
-	echo "(I) Installing persistent iptables"
-	apt-get install --assume-yes iptables-persistent
-
-	cp -rf etc/iptables/* /etc/iptables/
-	/etc/init.d/iptables-persistent restart
-fi
-
 if ! is_installed "lighttpd"; then
 	echo "(I) Install lighttpd"
 	apt-get install --assume-yes lighttpd
@@ -252,6 +244,14 @@ fi
 ### setup gateway ###
 
 if [ "$setup_gateway" = "true" ]; then
+
+	if [ ! -d /etc/iptables ]; then
+		echo "(I) Installing persistent iptables"
+		apt-get install --assume-yes iptables-persistent
+
+		cp -rf etc/iptables/* /etc/iptables/
+		/etc/init.d/iptables-persistent restart
+	fi
 
 	setup_mullvad() {
 		local mullvad_zip="$1"
