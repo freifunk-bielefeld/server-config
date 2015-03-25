@@ -70,9 +70,8 @@ if [ "$(cat /sys/class/net/bat0/address 2> /dev/null)" != "$mac_addr" ]; then
 	echo "0" >  /sys/class/net/bat0/mesh/multicast_mode
 fi
 
-if [ "$(ip -6 addr list dev bat0 | grep -c $ip_addr)" = "0" ]; then
+if ip -6 addr add "$ip_addr/64" dev bat0 2> /dev/null; then
 	echo "(I) Set IP-Address of bat0 to $ip_addr"
-	ip -6 addr add "$ip_addr/64" dev bat0
 fi
 
 if ! is_running "alfred"; then
