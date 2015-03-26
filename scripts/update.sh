@@ -27,6 +27,9 @@ export PATH=$PATH:/usr/local/sbin:/usr/local/bin
 #switch script directory
 cd "$(dirname $0)"
 
+#limit name length
+name="$(echo $name | cut -c 1-31)"
+
 [ -n "$ff_prefix" ] || { echo "(E) ff_prefix not set!"; exit 1; }
 [ -n "$ip_addr" ] || { echo "(E) ip_addr not set!"; exit 1; }
 [ -n "$mac_addr" ] || { echo "(E) mac_addr not set!"; exit 1; }
