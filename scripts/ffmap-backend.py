@@ -51,7 +51,7 @@ class AlfredParser:
     <http://json-schema.org/>`_.
     '''
     MAC_RE = "^([0-9a-f]{2}:){5}[0-9a-f]{2}$"
-    GEO_RE = "^\d{1,3}\.\d{1,8} \d{1,3}\.\d{1,8}$"
+    GEO_RE = "^\d{1,3}\.\d{1,8} {1,3}\d{1,3}\.\d{1,8}$"
     MAC_SCHEMA = { "type": "string", "pattern": MAC_RE }
     ALFRED_NODE_SCHEMA = {
         "type": "object",
