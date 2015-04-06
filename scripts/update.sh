@@ -68,9 +68,9 @@ if [ "$(cat /sys/class/net/bat0/address 2> /dev/null)" != "$mac_addr" ]; then
 	sysctl net.ipv6.conf.bat0.accept_ra=0
 
 	echo "(I) Configure batman-adv."
-	echo "5000" >  /sys/class/net/bat0/mesh/orig_interval
+	echo "10000" >  /sys/class/net/bat0/mesh/orig_interval
 	echo "0" >  /sys/class/net/bat0/mesh/distributed_arp_table
-	echo "0" >  /sys/class/net/bat0/mesh/multicast_mode
+	echo "1" >  /sys/class/net/bat0/mesh/multicast_mode
 fi
 
 if ip -6 addr add "$ip_addr/64" dev bat0 2> /dev/null; then
