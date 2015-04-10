@@ -45,6 +45,17 @@ addr() {
 #make sure batman-adv is loaded
 modprobe batman_adv
 
+#enable forwarding
+echo 1 > /proc/sys/net/ipv6/conf/default/forwarding
+echo 1 > /proc/sys/net/ipv6/conf/all/forwarding
+echo 1 > /proc/sys/net/ipv4/conf/default/forwarding
+echo 1 > /proc/sys/net/ipv4/conf/all/forwarding
+
+#set neighbor table times to ten times the default
+echo 600 > /proc/sys/net/ipv6/neigh/bat0/gc_stale_time
+echo 300000 > /proc/sys/net/ipv6/neigh/bat0/base_reachable_time_ms
+
+
 if ! is_running "fastd"; then
 	echo "(I) Start fastd."
 	fastd --config /etc/fastd/fastd.conf --daemon
