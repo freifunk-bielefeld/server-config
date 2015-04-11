@@ -453,6 +453,7 @@ def main():
     parser.add_argument('-a', '--aliases', type=argparse.FileType('r'), help=r'a dictionary of overwrites to replace (offending) properties of some nodes')
     parser.add_argument('-m', '--maps', required=True, type=argparse.FileType('r'), help=r'input file containing data collected by alfred')
     parser.add_argument('-o', '--output', type=argparse.FileType('w'), default=sys.stdout,help=r'output file (default: stdout)')
+    parser.add_argument('-c', '--communities', nargs='+', help=r'Communities we want to filter for. Show all if none defined.')
     args = parser.parse_args()
 
     nodes = {}
@@ -463,6 +464,11 @@ def main():
             import traceback
             traceback.print_exc()
             continue
+
+        #filter out unknown communities
+        if args.communities and node.properties.get('community') not in args.communities:
+            continue
+
         if node.mac in nodes:
             nodes[node.mac].update_properties(node.properties)
             nodes[node.mac].update_links(node.links)
