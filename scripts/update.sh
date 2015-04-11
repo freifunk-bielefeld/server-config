@@ -51,10 +51,6 @@ echo 1 > /proc/sys/net/ipv6/conf/all/forwarding
 echo 1 > /proc/sys/net/ipv4/conf/default/forwarding
 echo 1 > /proc/sys/net/ipv4/conf/all/forwarding
 
-#set neighbor table times to ten times the default
-echo 600 > /proc/sys/net/ipv6/neigh/bat0/gc_stale_time
-echo 300000 > /proc/sys/net/ipv6/neigh/bat0/base_reachable_time_ms
-
 
 if ! is_running "fastd"; then
 	echo "(I) Start fastd."
@@ -77,6 +73,10 @@ if [ "$(cat /sys/class/net/bat0/address 2> /dev/null)" != "$mac_addr" ]; then
 
 	# we do not accept a default gateway through bat0
 	sysctl net.ipv6.conf.bat0.accept_ra=0
+
+	#set neighbor table times to ten times the default
+	echo 600 > /proc/sys/net/ipv6/neigh/bat0/gc_stale_time
+	echo 300000 > /proc/sys/net/ipv6/neigh/bat0/base_reachable_time_ms
 
 	echo "(I) Configure batman-adv."
 	echo "10000" >  /sys/class/net/bat0/mesh/orig_interval
