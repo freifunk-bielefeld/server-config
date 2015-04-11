@@ -72,7 +72,7 @@ if [ "$(cat /sys/class/net/bat0/address 2> /dev/null)" != "$mac_addr" ]; then
 	ip link set bat0 up
 
 	# we do not accept a default gateway through bat0
-	sysctl net.ipv6.conf.bat0.accept_ra=0
+	echo 0 > /proc/sys/net/ipv6/conf/bat0/accept_ra
 
 	#set neighbor table times to ten times the default
 	echo 600 > /proc/sys/net/ipv6/neigh/bat0/gc_stale_time
