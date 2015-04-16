@@ -138,7 +138,7 @@ fi
 
 if [ -z "$(cat /etc/crontab | grep '/root/scripts/update.sh')" ]; then
 	echo "(I) Add entry to /etc/crontab"
-	echo '*/5 * * * * root /root/scripts/update.sh' >> /etc/crontab
+	echo '*/5 * * * * root /root/scripts/update.sh > /dev/null' >> /etc/crontab
 fi
 
 if ! is_installed "alfred"; then
@@ -172,7 +172,7 @@ if ! is_installed "alfred"; then
 	sha256check "alfred-$VERSION.tar.gz" "99e6c64e7069b0b7cb861369d5c198bfc7d74d41509b8edd8a17ba78e7c8d034"
 	tar -xzf alfred-$VERSION.tar.gz
 	cd alfred-$VERSION/
-	make CONFIG_ALFRED_GPSD=n 
+	make CONFIG_ALFRED_GPSD=n
 	make CONFIG_ALFRED_GPSD=n install
 	cd ..
 	rm -rf alfred-$VERSION*
