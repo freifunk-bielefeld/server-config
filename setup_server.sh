@@ -125,7 +125,7 @@ fi
 	cp -r var/www/* /var/www/
 
 	echo "(I) Add ffmap-d3"
-	apt-get install --assume-yes make
+	apt-get install --assume-yes make git
 	git clone https://github.com/freifunk-bielefeld/ffmap-d3.git
 	cd ffmap-d3
 	make
@@ -145,7 +145,7 @@ if ! is_installed "alfred"; then
 	VERSION=2014.4.0
 
 	echo "(I) Install batman-adv, batctl and alfred ($VERSION)."
-	apt-get install --assume-yes wget build-essential linux-headers-$(uname -r) pkg-config libnl-3-dev libjson-c-dev
+	apt-get install --assume-yes wget build-essential linux-headers-$(uname -r) pkg-config libnl-3-dev libjson-c-dev git
 
 	#install batman-adv
 	wget --no-check-certificate http://downloads.open-mesh.org/batman/releases/batman-adv-$VERSION/batman-adv-$VERSION.tar.gz
