@@ -92,7 +92,7 @@ if ! grep -Fxq "$repo" /etc/apt/sources.list; then
 	apt-get update
 fi
 
-if [ ! -f /root/scripts/update.sh ]; then
+{
 	echo "(I) Create /root/scripts/"
 	apt-get install --assume-yes python3 python3-jsonschema
 	cp -rf scripts /root/
@@ -101,25 +101,25 @@ if [ ! -f /root/scripts/update.sh ]; then
 	sed -i "s/mac_addr=\".*\"/mac_addr=\"$mac_addr\"/g" /root/scripts/update.sh
 	sed -i "s/community=\".*\"/community=\"$community_id\"/g" /root/scripts/update.sh
 	sed -i "s/ff_prefix=\".*\"/ff_prefix=\"$ff_prefix\"/g" /root/scripts/update.sh
-fi
+}
 
 if ! is_installed "lighttpd"; then
 	echo "(I) Install lighttpd"
 	apt-get install --assume-yes lighttpd
 fi
 
-if [ ! -f /etc/lighttpd/lighttpd.conf ]; then
+{
 	echo "(I) Create /etc/lighttpd/lighttpd.conf"
 	cp etc/lighttpd/lighttpd.conf /etc/lighttpd/
 	sed -i "s/fdef:17a0:ffb1:300::1/$ip_addr/g" /etc/lighttpd/lighttpd.conf
-fi
+}
 
 if ! id www-data >/dev/null 2>&1; then
 	echo "(I) Create user/group www-data for lighttpd."
 	useradd --system --no-create-home --user-group --shell /bin/false www-data
 fi
 
-if [ ! -f /var/www/counter.svg ]; then
+{
 	echo "(I) Populate /var/www"
 	mkdir -p /var/www/
 	cp -r var/www/* /var/www/
@@ -134,7 +134,7 @@ if [ ! -f /var/www/counter.svg ]; then
 	rm -rf ffmap-d3
 
 	chown -R www-data:www-data /var/www
-fi
+}
 
 if [ -z "$(cat /etc/crontab | grep '/root/scripts/update.sh')" ]; then
 	echo "(I) Add entry to /etc/crontab"
@@ -221,7 +221,7 @@ if ! is_installed "fastd"; then
 	rm -rf fastd_build fastd-17*
 fi
 
-if [ ! -f /etc/fastd/fastd.conf ]; then
+{
 	echo "(I) Configure fastd"
 	cp -r etc/fastd /etc/
 
@@ -234,7 +234,7 @@ if [ ! -f /etc/fastd/fastd.conf ]; then
 	echo "#key \"$fastd_key\";" >> /etc/fastd/fastd.conf
 
 	sed -i "s/eth0/$wan_iface/g" /etc/fastd/fastd.conf
-fi
+}
 
 if ! id nobody >/dev/null 2>&1; then
 	echo "(I) Create user nobody for fastd."
