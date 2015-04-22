@@ -36,9 +36,9 @@ class AlfredParser:
     A class providing static methods to parse and validate data reported by
     nodes via alfred.
 
-    >>> AlfredParser.parse_node(r'{ "ca:ff:ee:ca:ff:ee", "{\"community\": \"bielefeld\", \"name\":\"MyNode\"}" },')
+    >>> AlfredParser.parse_node(r'{ "ca:ff:ee:ca:ff:ee", "{\"community\": \"ulm\", \"name\":\"MyNode\"}" },')
     Node('ca:ff:ee:ca:ff:ee', {'clientcount': 0,
-     'community': 'bielefeld',
+     'community': 'ulm',
      'firmware': None,
      'gateway': False,
      'geo': None,
@@ -112,16 +112,16 @@ class AlfredParser:
         encoded data. Note that most missing fields are populated with
         reasonable defaults.
 
-        >>> AlfredParser.parse_node(r'{ "fa:d1:11:79:38:32", "{\"community\": \"bielefeld\"}" },')
+        >>> AlfredParser.parse_node(r'{ "fa:d1:11:79:38:32", "{\"community\": \"ulm\"}" },')
         Node('fa:d1:11:79:38:32', {'clientcount': 0,
-         'community': 'bielefeld',
+         'community': 'ulm',
          'firmware': None,
          'gateway': False,
          'geo': None,
          'name': 'fa:d1:11:79:38:32',
          'vpn': False}, online=True)
 
-        >>> AlfredParser.parse_node(r'{ "fa:d1:11:79:38:32", "{\"community\": \"bielefeld\", \"invalid\": \"property\"}" },') # doctest: +ELLIPSIS
+        >>> AlfredParser.parse_node(r'{ "fa:d1:11:79:38:32", "{\"community\": \"ulm\", \"invalid\": \"property\"}" },') # doctest: +ELLIPSIS
         Traceback (most recent call last):
         ...
         jsonschema.exceptions.ValidationError: Additional properties are not allowed ('invalid' was unexpected)
@@ -191,8 +191,8 @@ class Node:
     r'''
     A node in the freifunk network, identified by its primary MAC.
 
-    >>> Node('fa:d1:11:79:38:32', { 'community': 'bielefeld' }, online=True)
-    Node('fa:d1:11:79:38:32', {'community': 'bielefeld'}, online=True)
+    >>> Node('fa:d1:11:79:38:32', { 'community': 'ulm' }, online=True)
+    Node('fa:d1:11:79:38:32', {'community': 'ulm'}, online=True)
 
     The second parameter is a dictionary of attributes (e.g. as reported
     through alfred.)
@@ -209,7 +209,7 @@ class Node:
         r'''
         Replace any properties with their respective values in ``properties``.
 
-        >>> node = Node('fa:d1:11:79:38:32', { 'community': 'bielefeld' }, online=True)
+        >>> node = Node('fa:d1:11:79:38:32', { 'community': 'ulm' }, online=True)
         >>> node.update_properties({'community': 'ulm'})
         >>> node
         Node('fa:d1:11:79:38:32', {'community': 'ulm'}, online=True)
@@ -221,7 +221,7 @@ class Node:
         r'''
         Extend the list of links of this node with `links`.
 
-        >>> node = Node('fa:d1:11:79:38:32', { 'community': 'bielefeld' }, online=True)
+        >>> node = Node('fa:d1:11:79:38:32', { 'community': 'ulm' }, online=True)
         >>> node.links
         []
         >>> node.update_links([Link(node, 'fa:d1:11:79:38:32', 'af:d1:11:79:38:32', .5)])
@@ -236,11 +236,11 @@ class Node:
         Render this node (without its links) to a dictionary in a format
         understood by ffmap.
 
-        >>> node = AlfredParser.parse_node(r'{ "fa:d1:11:79:38:32", "{\"community\":\"bielefeld\"}" },')
+        >>> node = AlfredParser.parse_node(r'{ "fa:d1:11:79:38:32", "{\"community\":\"ulm\"}" },')
         >>> pprint(node.ffmap())
         {'clientcount': 0,
          'clients': [],
-         'community': 'bielefeld',
+         'community': 'ulm',
          'firmware': None,
          'flags': {'gateway': False, 'legacy': True, 'online': True, 'vpn': False},
          'geo': None,
@@ -300,8 +300,8 @@ class Link:
 
     Additionally each link specifies a connection quality in the range `[0,1]`.
 
-    >>> node1 = Node('fa:d1:11:79:38:32', { 'community': 'bielefeld' }, online=True)
-    >>> node2 = Node('fb:d1:11:79:38:32', { 'community': 'bielefeld' }, online=True)
+    >>> node1 = Node('fa:d1:11:79:38:32', { 'community': 'ulm' }, online=True)
+    >>> node2 = Node('fb:d1:11:79:38:32', { 'community': 'ulm' }, online=True)
     >>> l12 = Link(node1, 'fa:d2:11:79:38:32', 'fb:d2:11:79:38:32', 1.0)
     >>> l12
     fa:d2:11:79:38:32 (of fa:d1:11:79:38:32) -> fb:d2:11:79:38:32 (of ?)
@@ -323,8 +323,8 @@ class Link:
         r'''
         Render this link to a dictionary in a format understood by ffmap.
 
-        >>> node1 = Node('fa:d1:11:79:38:32', { 'community': 'bielefeld', 'vpn': True }, online=True)
-        >>> node2 = Node('fb:d1:11:79:38:32', { 'community': 'bielefeld', 'vpn': False }, online=True)
+        >>> node1 = Node('fa:d1:11:79:38:32', { 'community': 'ulm', 'vpn': True }, online=True)
+        >>> node2 = Node('fb:d1:11:79:38:32', { 'community': 'ulm', 'vpn': False }, online=True)
         >>> l12 = Link(node1, 'fa:d2:11:79:38:32', 'fb:d2:11:79:38:32', 1.0)
         >>> l21 = Link(node2, 'fb:d2:11:79:38:32', 'fa:d2:11:79:38:32',  .5)
         
@@ -371,8 +371,8 @@ def render_ffmap(nodes):
     r'''
     Return a JSON representation of ``nodes`` which is understood by ffmap.
 
-    >>> node1 = AlfredParser.parse_node(r'{ "fa:d1:11:79:38:32", "{\"community\": \"bielefeld\"}" },')
-    >>> node2 = AlfredParser.parse_node(r'{ "fb:d1:11:79:38:32", "{\"community\": \"bielefeld\"}" },')
+    >>> node1 = AlfredParser.parse_node(r'{ "fa:d1:11:79:38:32", "{\"community\": \"ulm\"}" },')
+    >>> node2 = AlfredParser.parse_node(r'{ "fb:d1:11:79:38:32", "{\"community\": \"ulm\"}" },')
     >>> l12 = Link(node1, 'fa:d2:11:79:38:32', 'fb:d2:11:79:38:32', 1.0)
     >>> l21 = Link(node2, 'fb:d2:11:79:38:32', 'fa:d2:11:79:38:32',  .5)
     >>> node1.update_links([l12])
@@ -386,7 +386,7 @@ def render_ffmap(nodes):
      'meta': {'timestamp': '...'},
      'nodes': [{'clientcount': 0,
                 'clients': [],
-                'community': 'bielefeld',
+                'community': 'ulm',
                 'firmware': None,
                 'flags': {'gateway': False,
                           'legacy': True,
@@ -397,7 +397,7 @@ def render_ffmap(nodes):
                 'name': 'fa:d1:11:79:38:32'},
                {'clientcount': 0,
                 'clients': [],
-                'community': 'bielefeld',
+                'community': 'ulm',
                 'firmware': None,
                 'flags': {'gateway': False,
                           'legacy': True,

@@ -1,12 +1,12 @@
-Freifunk-Bielefeld Server
+Freifunk-Ulm Server
 ===============
 
-Scripte und Konfigurationsdateien zum schnellen Einrichten eines Servers für Freifunk-Bielefeld.
+Scripte und Konfigurationsdateien zum schnellen Einrichten eines Servers für Freifunk-Ulm.
 Vorausgesetzt wird Debian Wheezy mit wheezy-backports (wird automatisch hinzugefügt).
 Um einen Server einzurichten, reicht es, das Script setup_server.sh als Benutzer 'root' auszuführen:
 
 ```
-git clone https://github.com/freifunk-bielefeld/server-config.git
+git clone https://github.com/ffulm/server-config.git
 cd server-config
 ./setup_server.sh
 ```

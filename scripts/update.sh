@@ -11,7 +11,7 @@ ff_prefix=""
 geo=""
 name="$(hostname)"
 firmware="server"
-community="bielefeld"
+community="ulm"
 vpn="true"
 gateway="false" #start OpenVPN, bind, tayga, radvd
 

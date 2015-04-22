@@ -10,7 +10,7 @@ fastd_secret=""
 wan_iface="eth0"
 
 #The community identifier.
-community_id="bielefeld"
+community_id="ulm"
 
 #The internal IPv6 prefix
 ff_prefix="fdef:17a0:ffb1:300::"

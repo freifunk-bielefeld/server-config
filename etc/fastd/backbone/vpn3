@@ -1,3 +1,3 @@
-key "c1f20f98bf22860aac43796c70387651c832c8e7c067761b262850567deab06e";
+key "7a6a679880776608b23b037c5efe209433f6c0f1a2e160cf83759334c3367dee";
 float no;
-remote "vpn3.freifunk-bielefeld.de" port 1244;
+remote "vpn3.ulm.freifunk.net" port 1244;
