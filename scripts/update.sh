@@ -100,28 +100,6 @@ if ! is_running "lighttpd"; then
 	/etc/init.d/lighttpd start
 fi
 
-if [ "$gateway" = "true" ]; then
-	if ! is_running "openvpn"; then
-		echo "(I) Start openvpn."
-		/etc/init.d/openvpn start
-	fi
-
-	if ! is_running "tayga"; then
-		echo "(I) Start tayga."
-		tayga
-	fi
-
-	if ! is_running "named"; then
-		echo "(I) Start bind."
-		/etc/init.d/bind9 start
-	fi
-
-	if ! is_running "radvd"; then
-		echo "(I) Start radvd."
-		/etc/init.d/radvd start
-	fi
-fi
-
 #announce status website via alfred
 {
 	echo -n "{\"link\" : \"http://[$(addr 6 bat0)]/index.html\", \"label\" : \"Freifunk Gateway $name\"}"
@@ -169,5 +147,27 @@ alfred -r 64 > /tmp/maps.txt
 
 #update nodes/clients/gateways counter
 ./counter_update.py '/var/www/nodes.json' '/var/www/counter.svg'
+
+if [ "$gateway" = "true" ]; then
+	if ! is_running "openvpn"; then
+		echo "(I) Start openvpn."
+		/etc/init.d/openvpn start
+	fi
+
+	if ! is_running "tayga"; then
+		echo "(I) Start tayga."
+		tayga
+	fi
+
+	if ! is_running "named"; then
+		echo "(I) Start bind."
+		/etc/init.d/bind9 start
+	fi
+
+	if ! is_running "radvd"; then
+		echo "(I) Start radvd."
+		/etc/init.d/radvd start
+	fi
+fi
 
 echo "done"
