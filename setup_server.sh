@@ -245,13 +245,13 @@ fi
 
 if [ "$setup_gateway" = "true" ]; then
 
-	if [ ! -d /etc/iptables ]; then
+	{
 		echo "(I) Installing persistent iptables"
 		apt-get install --assume-yes iptables-persistent
 
 		cp -rf etc/iptables/* /etc/iptables/
 		/etc/init.d/iptables-persistent restart
-	fi
+	}
 
 	setup_mullvad() {
 		local mullvad_zip="$1"
@@ -280,7 +280,7 @@ if [ "$setup_gateway" = "true" ]; then
 		echo "route-up /etc/openvpn/update-route" >> /etc/openvpn/mullvad_linux.conf
 	}
 
-	if ! is_installed "openvpn"; then
+	{
 		echo "(I) Install OpenVPN."
 		apt-get install --assume-yes openvpn resolvconf zip
 
@@ -298,10 +298,10 @@ if [ "$setup_gateway" = "true" ]; then
 		esac
 
 		cp etc/openvpn/update-route /etc/openvpn/
-	fi
+	}
 
 	#NAT64
-	if ! is_installed "tayga"; then
+	{
 		echo "(I) Install tayga."
 		apt-get install --assume-yes tayga
 
@@ -310,30 +310,28 @@ if [ "$setup_gateway" = "true" ]; then
 
 		echo "(I) Configure tayga"
 		cp -r etc/tayga.conf /etc/
-	fi
+	}
 
 	#DNS64
-	if ! is_installed "named"; then
+	{
 		echo "(I) Install bind."
 		apt-get install --assume-yes bind9
 
 		echo "(I) Configure bind"
 		cp -r etc/bind /etc/
 		sed -i "s/fdef:17a0:ffb1:300::1/$ip_addr/g" /etc/bind/named.conf.options
-	fi
+	}
 
 	#IPv6 Router Advertisments
-	if ! is_installed "radvd"; then
+	{
 		echo "(I) Install radvd."
 		apt-get install --assume-yes radvd
-	fi
 
-	if [ ! -f /etc/radvd.conf ]; then
 		echo "(I) Configure radvd"
 		cp etc/radvd.conf /etc/
 		sed -i "s/fdef:17a0:ffb1:300::1/$ip_addr/g" /etc/radvd.conf
 		sed -i "s/fdef:17a0:ffb1:300::/$ff_prefix/g" /etc/radvd.conf
-	fi
+	}
 
 	sed -i "s/gateway=\".*\"/gateway=\"true\"/g" /root/scripts/update.sh
 fi
