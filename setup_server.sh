@@ -103,10 +103,10 @@ fi
 	sed -i "s/ff_prefix=\".*\"/ff_prefix=\"$ff_prefix\"/g" /root/scripts/update.sh
 }
 
-if ! is_installed "lighttpd"; then
+{
 	echo "(I) Install lighttpd"
 	apt-get install --assume-yes lighttpd
-fi
+}
 
 {
 	echo "(I) Create /etc/lighttpd/lighttpd.conf"
