@@ -246,6 +246,10 @@ fi
 if [ "$setup_gateway" = "true" ]; then
 
 	{
+		if ! ip6tables -t nat -L > /dev/null  2>&1; then
+			echo "(E) NAT66 support not available. Linux kernel >= 3.9.0 needed."
+		fi
+
 		echo "(I) Installing persistent iptables"
 		apt-get install --assume-yes iptables-persistent
 
