@@ -247,7 +247,9 @@ if [ "$setup_gateway" = "true" ]; then
 
 	{
 		if ! ip6tables -t nat -L > /dev/null  2>&1; then
-			echo "(E) NAT66 support not available. Linux kernel >= 3.9.0 needed."
+			echo "(E) NAT66 support not available in Linux kernel < 3.9.0. Please update and reboot:"
+			echo "apt-get install -t wheezy-backports linux-image-amd64 linux-headers-amd64"
+			exit 1
 		fi
 
 		echo "(I) Installing persistent iptables"
