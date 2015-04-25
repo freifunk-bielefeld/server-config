@@ -38,10 +38,6 @@ is_running() {
 	pidof "$1" > /dev/null || return $?
 }
 
-addr() {
-	ip -$1 address show dev $2 2> /dev/null | tr '/' ' '| awk '/inet/{if($2 ~ /^fdef/) { print($2); exit(0);} }'
-}
-
 #make sure batman-adv is loaded
 modprobe batman_adv
 
@@ -102,7 +98,7 @@ fi
 
 #announce status website via alfred
 {
-	echo -n "{\"link\" : \"http://[$(addr 6 bat0)]/index.html\", \"label\" : \"Freifunk Gateway $name\"}"
+	echo -n "{\"link\" : \"http://[$ip_addr]/index.html\", \"label\" : \"Freifunk Gateway $name\"}"
 } | alfred -s 91
 
 
