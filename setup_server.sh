@@ -181,15 +181,15 @@ if ! is_installed "fastd"; then
 	apt-get install --assume-yes git cmake-curses-gui libnacl-dev flex bison libcap-dev pkg-config zip libjson-c-dev
 
 	#install libsodium
-	wget --no-check-certificate http://github.com/jedisct1/libsodium/releases/download/1.0.0/libsodium-1.0.0.tar.gz
-	sha256check "libsodium-1.0.0.tar.gz" "ced1fe3d2066953fea94f307a92f8ae41bf0643739a44309cbe43aa881dbc9a5"
-	tar -xvzf libsodium-1.0.0.tar.gz
-	cd libsodium-1.0.0
+	wget --no-check-certificate http://github.com/jedisct1/libsodium/releases/download/1.0.2/libsodium-1.0.2.tar.gz
+	sha256check "libsodium-1.0.2.tar.gz" "961d8f10047f545ae658bcc73b8ab0bf2c312ac945968dd579d87c768e5baa19"
+	tar -xvzf libsodium-1.0.2.tar.gz
+	cd libsodium-1.0.2
 	./configure
 	make
 	make install
 	cd ..
-	rm -rf libsodium-1.0.0*
+	rm -rf libsodium-1.0.2*
 	ldconfig
 
 	#install libuecc
