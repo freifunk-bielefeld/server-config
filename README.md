@@ -2,7 +2,7 @@ Freifunk-Bielefeld Server
 ===============
 
 Scripte und Konfigurationsdateien zum schnellen Einrichten eines Servers für Freifunk-Bielefeld.
-Vorausgesetzt wird Debian Wheezy mit wheezy-backports (wird automatisch hinzugefügt).
+Vorausgesetzt wird eine Debian 8 Installation oder Debian 7.8 mit den wheezy backports.
 Um einen Server einzurichten, reicht es, das Script setup_server.sh als Benutzer 'root' auszuführen:
 
 ```
