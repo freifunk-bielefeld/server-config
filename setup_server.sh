@@ -86,11 +86,8 @@ if [ -z "$mac_addr" -o -z "$ip_addr" ]; then
 	exit
 fi
 
-repo="deb http://http.debian.net/debian wheezy-backports main"
-if ! grep -Fxq "$repo" /etc/apt/sources.list; then
-	echo "$repo" >> /etc/apt/sources.list
-	apt-get update
-fi
+echo "(I) Update package database"
+apt-get update
 
 {
 	echo "(I) Create /root/scripts/"
@@ -247,8 +244,7 @@ if [ "$setup_gateway" = "true" ]; then
 
 	{
 		if ! ip6tables -t nat -L > /dev/null  2>&1; then
-			echo "(E) NAT66 support not available in Linux kernel < 3.9.0. Please update and reboot:"
-			echo "apt-get install -t wheezy-backports linux-image-amd64 linux-headers-amd64"
+			echo "(E) NAT66 support not available in Linux kernel."
 			exit 1
 		fi
 
