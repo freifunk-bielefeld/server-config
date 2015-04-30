@@ -339,3 +339,5 @@ if [ "$setup_gateway" = "true" ]; then
 fi
 
 echo "done"
+
+/root/scripts/udpate.sh
