@@ -138,7 +138,7 @@ if [ -z "$(cat /etc/crontab | grep '/root/scripts/update.sh')" ]; then
 	echo '*/5 * * * * root /root/scripts/update.sh > /dev/null' >> /etc/crontab
 fi
 
-if ! is_installed "alfred"; then
+{
 	VERSION=2015.0
 
 	echo "(I) Install batman-adv, batctl and alfred ($VERSION)."
@@ -173,9 +173,9 @@ if ! is_installed "alfred"; then
 	make CONFIG_ALFRED_GPSD=n install
 	cd ..
 	rm -rf alfred-$VERSION*
-fi
+}
 
-if ! is_installed "fastd"; then
+{
 	echo "(I) Install fastd."
 
 	apt-get install --assume-yes git cmake-curses-gui libnacl-dev flex bison libcap-dev pkg-config zip libjson-c-dev
@@ -216,7 +216,7 @@ if ! is_installed "fastd"; then
 	make install
 	cd ..
 	rm -rf fastd_build fastd-17*
-fi
+}
 
 {
 	echo "(I) Configure fastd"
