@@ -340,4 +340,4 @@ fi
 
 echo "done"
 
-/root/scripts/udpate.sh
+/root/scripts/update.sh
