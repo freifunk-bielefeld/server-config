@@ -176,6 +176,19 @@ fi
 }
 
 {
+	# set capablilities for alfred binary (create sockets and use elevated privs)
+	# got reset by installation of new alfred binary above
+	# (FYI: dropping of privileges is possible since alfred version 2015.0)
+	setcap cap_net_raw+ep `which alfred`
+
+	# create alfred group
+	addgroup --system alfred
+
+	echo "(I) Create user alfred for alfred daemon."
+	adduser --system --home /var/run/alfred --shell /bin/false --ingroup alfred --disabled-password alfred
+}
+
+{
 	echo "(I) Install fastd."
 
 	apt-get install --assume-yes git cmake-curses-gui libnacl-dev flex bison libcap-dev pkg-config zip libjson-c-dev
@@ -338,6 +351,7 @@ if [ "$setup_gateway" = "true" ]; then
 	sed -i "s/gateway=\".*\"/gateway=\"true\"/g" /root/scripts/update.sh
 fi
 
-echo "done"
-
 /root/scripts/update.sh
+
+echo "setup done"
+

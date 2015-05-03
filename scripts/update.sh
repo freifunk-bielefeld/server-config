@@ -87,8 +87,21 @@ if ip -6 addr add "$ip_addr/64" dev bat0 2> /dev/null; then
 fi
 
 if ! is_running "alfred"; then
+	# remove remains
+	rm -f /var/run/alfred/*
+	# set minimum access rights for reading information out of kernel debug interface
+	chown root.alfred /sys/kernel/debug
+	chmod 750 /sys/kernel/debug
+	# create separate run dir with appropriate access rights because it gets deleted with every reboot
+	mkdir --parents --mode=775 /var/run/alfred/
+	chown alfred.alfred /var/run/alfred/
+
 	echo "(I) Start alfred."
-	start-stop-daemon --start --background --exec `which alfred` -- -i bat0 -m
+	# set umask of socket from 0117 to 0111 so that update.sh can access alfred.sock
+	start-stop-daemon --start --quiet --pidfile /var/run/alfred/alfred.pid \
+		--umask 0111 --make-pidfile --chuid alfred --group alfred \
+		--background --exec `which alfred` --oknodo \
+		-- -i bat0 -m -u /var/run/alfred/alfred.sock
 fi
 
 if ! is_running "lighttpd"; then
@@ -99,7 +112,7 @@ fi
 #announce status website via alfred
 {
 	echo -n "{\"link\" : \"http://[$ip_addr]/index.html\", \"label\" : \"Freifunk Gateway $name\"}"
-} | alfred -s 91
+} | alfred -s 91 -u /var/run/alfred/alfred.sock
 
 
 #announce map information via alfred
@@ -129,11 +142,11 @@ fi
 	echo -n '], '
 	echo -n "\"clientcount\" : 0"
 	echo -n '}'
-} | gzip -c - | alfred -s 64
+} | gzip -c - | alfred -s 64 -u /var/run/alfred/alfred.sock
 
 
 #collect all map pieces
-alfred -r 64 > /tmp/maps.txt
+alfred -r 64 -u /var/run/alfred/alfred.sock > /tmp/maps.txt
 
 #create map data
 ./ffmap-backend.py -m /tmp/maps.txt -a ./aliases.json > /var/www/nodes.json
@@ -166,4 +179,4 @@ if [ "$gateway" = "true" ]; then
 	fi
 fi
 
-echo "done"
+echo "update done"
