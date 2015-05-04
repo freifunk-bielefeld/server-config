@@ -248,6 +248,7 @@ if [ "$setup_gateway" = "true" ]; then
 			exit 1
 		fi
 
+		#only really needed for a gateway
 		echo "(I) Installing persistent iptables"
 		apt-get install --assume-yes iptables-persistent
 
