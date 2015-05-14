@@ -11,6 +11,7 @@ wan_iface="eth0"
 
 #The community identifier.
 community_id="ulm"
+community_name="Ulm"
 
 #The internal IPv6 prefix
 ff_prefix="fdef:17a0:ffb1:300::"
@@ -125,6 +126,8 @@ fi
 	apt-get install --assume-yes make git
 	git clone https://github.com/freifunk-bielefeld/ffmap-d3.git
 	cd ffmap-d3
+	sed -i "s/gotham/$community_id/g" config.js
+	sed -i "s/Gotham/$community_name/g" config.js
 	make
 	cp -r www/* /var/www/
 	cd ..
