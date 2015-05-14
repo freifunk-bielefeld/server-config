@@ -1,3 +1,3 @@
 key "bf2ad179bce3daed29ddaabb7643f7937829de015263480a12c0a77e68b12924";
 float no;
-remote "vpn4.ulm.freifunk.net" port 1244;
+remote "vpn4.freifunk-ulm.de" port 1244;
