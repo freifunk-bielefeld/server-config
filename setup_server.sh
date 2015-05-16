@@ -128,6 +128,7 @@ fi
 	cd ffmap-d3
 	sed -i "s/gotham/$community_id/g" config.js
 	sed -i "s/Gotham/$community_name/g" config.js
+	sed -i "s/fdef:17a0:ffb1:300::/$ff_prefix/g" config.js
 	make
 	cp -r www/* /var/www/
 	cd ..
