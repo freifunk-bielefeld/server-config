@@ -13,6 +13,7 @@ name="$(hostname)"
 firmware="server"
 community="ulm"
 vpn="true"
+webserver="true" #start webserver, create map/status/status page
 gateway="false" #start OpenVPN, bind, tayga, radvd
 
 
@@ -104,11 +105,6 @@ if ! is_running "alfred"; then
 		-- -i bat0 -m -u /var/run/alfred/alfred.sock
 fi
 
-if ! is_running "lighttpd"; then
-	echo "(I) Start lighttpd."
-	/etc/init.d/lighttpd start
-fi
-
 #announce status website via alfred
 {
 	echo -n "{\"link\" : \"http://[$ip_addr]/index.html\", \"label\" : \"Freifunk Gateway $name\"}"
@@ -144,18 +140,25 @@ fi
 	echo -n '}'
 } | gzip -c - | alfred -s 64 -u /var/run/alfred/alfred.sock
 
+if [ "$webserver" = "true" ]; then
 
-#collect all map pieces
-alfred -r 64 -u /var/run/alfred/alfred.sock > /tmp/maps.txt
+	if ! is_running "lighttpd"; then
+		echo "(I) Start lighttpd."
+		/etc/init.d/lighttpd start
+	fi
 
-#create map data
-./ffmap-backend.py -m /tmp/maps.txt -a ./aliases.json > /var/www/nodes.json
+	#collect all map pieces
+	alfred -r 64 -u /var/run/alfred/alfred.sock > /tmp/maps.txt
 
-#update FF-Internal status page
-./status_page_create.sh '/var/www/index.html'
+	#create map data
+	./ffmap-backend.py -m /tmp/maps.txt -a ./aliases.json > /var/www/nodes.json
 
-#update nodes/clients/gateways counter
-./counter_update.py '/var/www/nodes.json' '/var/www/counter.svg'
+	#update FF-Internal status page
+	./status_page_create.sh '/var/www/index.html'
+
+	#update nodes/clients/gateways counter
+	./counter_update.py '/var/www/nodes.json' '/var/www/counter.svg'
+fi
 
 if [ "$gateway" = "true" ]; then
 	if ! is_running "openvpn"; then

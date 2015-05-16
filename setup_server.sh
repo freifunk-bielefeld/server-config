@@ -16,6 +16,9 @@ community_name="Ulm"
 #The internal IPv6 prefix
 ff_prefix="fdef:17a0:ffb1:300::"
 
+#setup map/counter/status page
+setup_webserver="true"
+
 #setup a gateway with http://mullvad.net
 setup_gateway="false"
 
@@ -101,41 +104,45 @@ apt-get update
 	sed -i "s/ff_prefix=\".*\"/ff_prefix=\"$ff_prefix\"/g" /root/scripts/update.sh
 }
 
-{
-	echo "(I) Install lighttpd"
-	apt-get install --assume-yes lighttpd
-}
+if [ "$setup_webserver" = "true" ]; then
+	{
+		echo "(I) Install lighttpd"
+		apt-get install --assume-yes lighttpd
+	}
 
-{
-	echo "(I) Create /etc/lighttpd/lighttpd.conf"
-	cp etc/lighttpd/lighttpd.conf /etc/lighttpd/
-	sed -i "s/fdef:17a0:ffb1:300::1/$ip_addr/g" /etc/lighttpd/lighttpd.conf
-}
+	{
+		echo "(I) Create /etc/lighttpd/lighttpd.conf"
+		cp etc/lighttpd/lighttpd.conf /etc/lighttpd/
+		sed -i "s/fdef:17a0:ffb1:300::1/$ip_addr/g" /etc/lighttpd/lighttpd.conf
+	}
 
-if ! id www-data >/dev/null 2>&1; then
-	echo "(I) Create user/group www-data for lighttpd."
-	useradd --system --no-create-home --user-group --shell /bin/false www-data
+	if ! id www-data >/dev/null 2>&1; then
+		echo "(I) Create user/group www-data for lighttpd."
+		useradd --system --no-create-home --user-group --shell /bin/false www-data
+	fi
+
+	{
+		echo "(I) Populate /var/www"
+		mkdir -p /var/www/
+		cp -r var/www/* /var/www/
+
+		echo "(I) Add ffmap-d3"
+		apt-get install --assume-yes make git
+		git clone https://github.com/freifunk-bielefeld/ffmap-d3.git
+		cd ffmap-d3
+		sed -i "s/gotham/$community_id/g" config.js
+		sed -i "s/Gotham/$community_name/g" config.js
+		sed -i "s/fdef:17a0:ffb1:300::/$ff_prefix/g" config.js
+		make
+		cp -r www/* /var/www/
+		cd ..
+		rm -rf ffmap-d3
+
+		chown -R www-data:www-data /var/www
+	}
+
+	sed -i "s/webserver=\".*\"/webserver=\"true\"/g" /root/scripts/update.sh
 fi
-
-{
-	echo "(I) Populate /var/www"
-	mkdir -p /var/www/
-	cp -r var/www/* /var/www/
-
-	echo "(I) Add ffmap-d3"
-	apt-get install --assume-yes make git
-	git clone https://github.com/freifunk-bielefeld/ffmap-d3.git
-	cd ffmap-d3
-	sed -i "s/gotham/$community_id/g" config.js
-	sed -i "s/Gotham/$community_name/g" config.js
-	sed -i "s/fdef:17a0:ffb1:300::/$ff_prefix/g" config.js
-	make
-	cp -r www/* /var/www/
-	cd ..
-	rm -rf ffmap-d3
-
-	chown -R www-data:www-data /var/www
-}
 
 if [ -z "$(cat /etc/crontab | grep '/root/scripts/update.sh')" ]; then
 	echo "(I) Add entry to /etc/crontab"
