@@ -12,7 +12,6 @@ geo=""
 name="$(hostname)"
 firmware="server"
 community="bielefeld"
-vpn="true"
 webserver="true" #start webserver, create map/status/status page
 gateway="false" #start OpenVPN, bind, tayga, radvd
 
@@ -100,6 +99,8 @@ fi
 
 #announce map information via alfred
 {
+	vpn="true"
+
 	echo -n "{"
 
 	[ -n "$geo" ] && echo -n "\"geo\" : \"$geo\", "
@@ -108,7 +109,6 @@ fi
 	[ -n "$community" ] && echo -n "\"community\" : \"$community\", "
 	[ -n "$vpn" ] && echo -n "\"vpn\" : $vpn, "
 	[ -n "$gateway" ] && echo -n "\"gateway\" : $gateway, "
-	[ -n "$vpn" ] && echo -n "\"vpn\" : $vpn, "
 
 	echo -n "\"links\" : ["
 
