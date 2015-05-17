@@ -94,14 +94,14 @@ echo "(I) Update package database"
 apt-get update
 
 {
-	echo "(I) Create /root/scripts/"
+	echo "(I) Create /opt/freifunk/"
 	apt-get install --assume-yes python3 python3-jsonschema
-	cp -rf scripts /root/
+	cp -rf freifunk /opt/
 
-	sed -i "s/ip_addr=\".*\"/ip_addr=\"$ip_addr\"/g" /root/scripts/update.sh
-	sed -i "s/mac_addr=\".*\"/mac_addr=\"$mac_addr\"/g" /root/scripts/update.sh
-	sed -i "s/community=\".*\"/community=\"$community_id\"/g" /root/scripts/update.sh
-	sed -i "s/ff_prefix=\".*\"/ff_prefix=\"$ff_prefix\"/g" /root/scripts/update.sh
+	sed -i "s/ip_addr=\".*\"/ip_addr=\"$ip_addr\"/g" /opt/freifunk/update.sh
+	sed -i "s/mac_addr=\".*\"/mac_addr=\"$mac_addr\"/g" /opt/freifunk/update.sh
+	sed -i "s/community=\".*\"/community=\"$community_id\"/g" /opt/freifunk/update.sh
+	sed -i "s/ff_prefix=\".*\"/ff_prefix=\"$ff_prefix\"/g" /opt/freifunk/update.sh
 }
 
 if [ "$setup_webserver" = "true" ]; then
@@ -141,12 +141,12 @@ if [ "$setup_webserver" = "true" ]; then
 		chown -R www-data:www-data /var/www
 	}
 
-	sed -i "s/webserver=\".*\"/webserver=\"true\"/g" /root/scripts/update.sh
+	sed -i "s/webserver=\".*\"/webserver=\"true\"/g" /opt/freifunk/update.sh
 fi
 
-if [ -z "$(cat /etc/crontab | grep '/root/scripts/update.sh')" ]; then
+if [ -z "$(cat /etc/crontab | grep '/opt/freifunk/update.sh')" ]; then
 	echo "(I) Add entry to /etc/crontab"
-	echo '*/5 * * * * root /root/scripts/update.sh > /dev/null' >> /etc/crontab
+	echo '*/5 * * * * root /opt/freifunk/update.sh > /dev/null' >> /etc/crontab
 fi
 
 {
@@ -347,9 +347,9 @@ if [ "$setup_gateway" = "true" ]; then
 		sed -i "s/fdef:17a0:ffb1:300::/$ff_prefix/g" /etc/radvd.conf
 	}
 
-	sed -i "s/gateway=\".*\"/gateway=\"true\"/g" /root/scripts/update.sh
+	sed -i "s/gateway=\".*\"/gateway=\"true\"/g" /opt/freifunk/update.sh
 fi
 
 echo "done"
 
-/root/scripts/update.sh
+/opt/freifunk/update.sh

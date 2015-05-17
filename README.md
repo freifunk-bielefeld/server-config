@@ -11,7 +11,7 @@ cd server-config
 ./setup_server.sh
 ```
 
-Nach erfolgreichem Einrichten wird das Script /root/scripts/update.sh alle 5 Minuten
+Nach erfolgreichem Einrichten wird das Script /opt/freifunk/update.sh alle 5 Minuten
 von crond aufgerufen. Dadurch wird die Karte regelmäßig aktualisiert und z.B. nach
 einem Neustart notwendige Programme neu gestartet.
 
