@@ -102,6 +102,7 @@ if ! is_running "alfred"; then
 		--umask 0111 --make-pidfile --chuid alfred --group alfred \
 		--background --exec `which alfred` --oknodo \
 		-- -i bat0 -m -u /var/run/alfred/alfred.sock
+	sleep 1
 fi
 
 #announce status website via alfred
