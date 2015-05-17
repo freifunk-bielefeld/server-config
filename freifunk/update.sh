@@ -89,6 +89,7 @@ fi
 if ! is_running "alfred"; then
 	echo "(I) Start alfred."
 	start-stop-daemon --start --background --exec `which alfred` -- -i bat0 -m
+	sleep 1
 fi
 
 #announce status website via alfred
