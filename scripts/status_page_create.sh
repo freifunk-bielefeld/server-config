@@ -78,7 +78,7 @@ echo '</head>'
 echo '<body>'
 echo '<div>'
 
-echo '<h2>Statusseite des Gateways '$name'</h2>'
+echo '<h2>Statusseite des Servers '$name'</h2>'
 echo '<center>('`date`')</center>'
 echo '<table>'
 echo '<tr style="vertical-align:bottom;">'
