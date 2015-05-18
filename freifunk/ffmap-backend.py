@@ -21,6 +21,7 @@ Author: Moritz Warning
 Author: Julian Rueth (julian.rueth@fsfe.org)
 '''
 
+import json, jsonschema
 import sys
 
 if sys.version_info[0] < 3:
@@ -86,6 +87,44 @@ class AlfredParser:
         } 
     }
 
+    ALIASES_NODE_SCHEMA = {
+        "type": "object",
+        "additionalProperties": False,
+        "mac" : MAC_SCHEMA,
+        "properties": {
+            "geo": { "type": "string", "pattern": GEO_RE },
+            "name": { "type": "string", "maxLength": 32 },
+            "contact": { "type": "string", "maxLength": 32 },
+            "firmware": { "type": "string", "maxLength": 32 },
+            "community": { "type": "string", "maxLength": 32 },
+            "clientcount": { "type": "integer", "minimum": 0, "maximum": 255 },
+            "gateway": { "type": "boolean" },
+            "vpn": { "type": "boolean" },
+            "force": { "type": "boolean" }
+        }
+    }
+
+    ALIASES_SCHEMA = {
+        "type": "object",
+        "patternProperties": {
+            MAC_RE : {
+                "type": "object",
+                "additionalProperties": False,
+                "properties": {
+                    "geo": { "type": "string", "pattern": GEO_RE },
+                    "name": { "type": "string", "maxLength": 32 },
+                    "contact": { "type": "string", "maxLength": 32 },
+                    "firmware": { "type": "string", "maxLength": 32 },
+                    "community": { "type": "string", "maxLength": 32 },
+                    "clientcount": { "type": "integer", "minimum": 0, "maximum": 255 },
+                    "gateway": { "type": "boolean" },
+                    "vpn": { "type": "boolean" },
+                    "force": { "type": "boolean" }
+                }
+            }
+        }
+    }
+
     @staticmethod
     def _parse_string(s):
         r'''
@@ -139,7 +178,6 @@ class AlfredParser:
          'vpn': True}, online=True)
 
         '''
-        import json, jsonschema
 
         # parse the strange output produced by alfred { MAC, JSON },
         if item[-2:] != "}," or item[0] != "{":
@@ -165,18 +203,18 @@ class AlfredParser:
         jsonschema.validate(properties, AlfredParser.ALFRED_NODE_SCHEMA)
 
         # set some defaults for unspecified fields
-        properties.setdefault('name', mac)
+        #properties.setdefault('name', mac)
         if 'geo' in properties:
             geo = properties['geo'].split()
             properties['geo'] = [ float(geo[0]), float(geo[1]) ]
         else:
             properties['geo'] = None
 
-        properties.setdefault('contact', None)
-        properties.setdefault('firmware', None)
+        #properties.setdefault('contact', None)
+        #properties.setdefault('firmware', None)
         properties.setdefault('clientcount', 0)
         properties.setdefault('gateway', False)
-        properties.setdefault('community', None)
+        #properties.setdefault('community', None)
         properties.setdefault('vpn', False)
         properties.setdefault('links', [])
         links = properties['links']
@@ -205,7 +243,7 @@ class Node:
         self.online = online
         self.index = None # the index of this node in the list produced for ffmap
 
-    def update_properties(self, properties):
+    def update_properties(self, properties, force):
         r'''
         Replace any properties with their respective values in ``properties``.
 
@@ -215,7 +253,14 @@ class Node:
         Node('fa:d1:11:79:38:32', {'community': 'ulm'}, online=True)
 
         '''
-        self.properties.update(properties)
+        if force:
+            ''' merge/overwrite values '''
+            self.properties.update(properties)
+        else:
+            ''' add new key/value pairs only if not already set '''
+            for key, value in properties.items():
+                if key != "force" and not key in self.properties:
+                    self.properties[key] = value
 
     def update_links(self, links):
         r'''
@@ -258,13 +303,14 @@ class Node:
         '''
         properties = self.properties
         try:
-            return {
+            name = properties.get('name', None)
+            contact = properties.get('contact', None)
+            community = properties.get('community', None)
+            firmware = properties.get('firmware', None)
+
+            obj = {
                 'id': self.mac,
-                'name': properties['name'],
                 'geo': properties['geo'],
-                'contact': properties['contact'],
-                'community': properties['community'],
-                'firmware': properties['firmware'],
                 'clientcount': properties['clientcount'],
                 # ffmap looks at 'clients' to compute the number of clients for
                 # its list view. We do not collect any information on the clients
@@ -278,6 +324,20 @@ class Node:
                     "online": self.online
                 }
             }
+
+            if name:
+                obj['name'] = name
+
+            if contact:
+                obj['contact'] = contact
+
+            if community:
+                obj['community'] = community
+
+            if firmware:
+                obj['firmware'] = firmware
+
+            return obj
         except KeyError as e:
             raise ValueError("node is missing required property '{0}'.".format(e.args[0]))
 
@@ -470,16 +530,20 @@ def main():
             continue
 
         if node.mac in nodes:
-            nodes[node.mac].update_properties(node.properties)
+            nodes[node.mac].update_properties(node.properties, True)
             nodes[node.mac].update_links(node.links)
         else:
             nodes[node.mac] = node
 
     if args.aliases:
         aliases = json.loads(args.aliases.read())
+        jsonschema.validate(aliases, AlfredParser.ALIASES_SCHEMA)
+
         for mac, properties in aliases.items():
-            if mac in nodes:
-                nodes[mac].update_properties(properties)
+            node = nodes.get(mac, None);
+            if node:
+                force = properties.get("force", False)
+                node.update_properties(properties, force)
 
     args.output.write(json.dumps(render_ffmap(nodes.values())))
 
