@@ -259,7 +259,13 @@ class Node:
         else:
             ''' add new key/value pairs only if not already set '''
             for key, value in properties.items():
-                if key != "force" and not key in self.properties:
+                if not key in self.properties:
+                    if key == "force":
+                        continue
+
+                    if key == "name":
+                        value = value+"*"
+
                     self.properties[key] = value
 
     def update_links(self, links):
