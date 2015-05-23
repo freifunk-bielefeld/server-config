@@ -98,7 +98,7 @@ class AlfredParser:
                 "type": "object",
                 "additionalProperties": False,
                 "properties": {
-                    "geo": { "type": "string", "pattern": GEO_RE },
+                    "geo": { "type": "array", "items": [{'type' : 'number'}, {'type' : 'number'}]},
                     "name": { "type": "string", "maxLength": 32 },
                     "contact": { "type": "string", "maxLength": 32 },
                     "firmware": { "type": "string", "maxLength": 32 },
