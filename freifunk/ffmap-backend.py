@@ -36,20 +36,6 @@ class AlfredParser:
     r'''
     A class providing static methods to parse and validate data reported by
     nodes via alfred.
-
-    >>> AlfredParser.parse_node(r'{ "ca:ff:ee:ca:ff:ee", "{\"community\": \"bielefeld\", \"name\":\"MyNode\"}" },')
-    Node('ca:ff:ee:ca:ff:ee', {'clientcount': 0,
-     'community': 'bielefeld',
-     'firmware': None,
-     'gateway': False,
-     'geo': None,
-     'name': 'MyNode',
-     'vpn': False}, online=True)
-
-    The data is mostly JSON. However, alfred wraps it in a strange format which
-    requires some manual parsing.
-    The validation of the JSON entries is done through a `JSON Schema
-    <http://json-schema.org/>`_.
     '''
     MAC_RE = "^([0-9a-f]{2}:){5}[0-9a-f]{2}$"
     GEO_RE = "^\d{1,3}\.\d{1,8} {1,3}\d{1,3}\.\d{1,8}$"
@@ -129,14 +115,7 @@ class AlfredParser:
     def _parse_string(s):
         r'''
         Strip an escaped string which is enclosed in double quotes and
-        unescape. 
-
-        >>> AlfredParser._parse_string(r'""')
-        ''
-        >>> AlfredParser._parse_string(r'"\""')
-        '"'
-        >>> AlfredParser._parse_string(r'"\"geo\""')
-        '"geo"'
+        unescape.
         '''
         if s[0] != '"' or s[-1] != '"':
             raise ValueError("malformatted string: {0:r}".format(s))
@@ -150,33 +129,6 @@ class AlfredParser:
         Such lines consist of a nodes MAC address and an escaped string of JSON
         encoded data. Note that most missing fields are populated with
         reasonable defaults.
-
-        >>> AlfredParser.parse_node(r'{ "fa:d1:11:79:38:32", "{\"community\": \"bielefeld\"}" },')
-        Node('fa:d1:11:79:38:32', {'clientcount': 0,
-         'community': 'bielefeld',
-         'firmware': None,
-         'gateway': False,
-         'geo': None,
-         'name': 'fa:d1:11:79:38:32',
-         'vpn': False}, online=True)
-
-        >>> AlfredParser.parse_node(r'{ "fa:d1:11:79:38:32", "{\"community\": \"bielefeld\", \"invalid\": \"property\"}" },') # doctest: +ELLIPSIS
-        Traceback (most recent call last):
-        ...
-        jsonschema.exceptions.ValidationError: Additional properties are not allowed ('invalid' was unexpected)
-        ...
-
-        The second entry might by gzipped.
-
-        >>> AlfredParser.parse_node(r'{ "02:16:3c:03:35:e0", "\x1f\x8b\x08\x00S\xcb\xbfT\x00\x03\x95\x90A\x0e\xc2 \x14D\xafBXwA\x91j;W1.\x08\xfd\x98\xc6\x82J\xa1\xc6\x98\xde\xdd\x821\xd1\xb8r\xf7\xe7M\xe6-\xfe\x83{\xed\x8830>_\xbc\xe4\x15\xe3v\x08\xee\xa6\xc3\x0bN\x14f\x0a\x19\x9b\xb3s\xc9\x0f\xf1^x\x1a]\x86G\x1d\xe9\xa6\x0b\x8a!QU,\x1fi\x1c\xfci\xcay\xffX]N\x9b2\x96\x1au\x07c\xd1\x13L\x87]\x9bU\xfd\xbb\x15\x12\xaa\x83\xdd@\xb5h-\x1a\x95\xdbk\xd2cne#\xd9R\xb1\xbfl\xb5\x86R\x905:\xb1\x1e\xdf\xb6\xe6o\x1b\x11z\x81z\x0b\xb5\x83\xb0?\xb6C~\xd58\x90\x8f\xe6\x9c|\xcc\\,O\xa3\xcb\xb1Af\x01\x00\x00" },')
-        Node('02:16:3c:03:35:e0', {'clientcount': 0,
-         'community': 'ulm',
-         'firmware': 'server',
-         'gateway': True,
-         'geo': None,
-         'name': 'vpn2',
-         'vpn': True}, online=True)
-
         '''
 
         # parse the strange output produced by alfred { MAC, JSON },
@@ -228,13 +180,6 @@ class AlfredParser:
 class Node:
     r'''
     A node in the freifunk network, identified by its primary MAC.
-
-    >>> Node('fa:d1:11:79:38:32', { 'community': 'bielefeld' }, online=True)
-    Node('fa:d1:11:79:38:32', {'community': 'bielefeld'}, online=True)
-
-    The second parameter is a dictionary of attributes (e.g. as reported
-    through alfred.)
-    Links can be added to a node through :meth:`update_links`.
     '''
     def __init__(self, mac, properties, online):
         self.mac = mac
@@ -246,12 +191,6 @@ class Node:
     def update_properties(self, properties, force):
         r'''
         Replace any properties with their respective values in ``properties``.
-
-        >>> node = Node('fa:d1:11:79:38:32', { 'community': 'bielefeld' }, online=True)
-        >>> node.update_properties({'community': 'ulm'})
-        >>> node
-        Node('fa:d1:11:79:38:32', {'community': 'ulm'}, online=True)
-
         '''
         if force:
             ''' merge/overwrite values '''
@@ -271,14 +210,6 @@ class Node:
     def update_links(self, links):
         r'''
         Extend the list of links of this node with `links`.
-
-        >>> node = Node('fa:d1:11:79:38:32', { 'community': 'bielefeld' }, online=True)
-        >>> node.links
-        []
-        >>> node.update_links([Link(node, 'fa:d1:11:79:38:32', 'af:d1:11:79:38:32', .5)])
-        >>> node.links
-        [fa:d1:11:79:38:32 (of fa:d1:11:79:38:32) -> af:d1:11:79:38:32 (of ?)]
-
         '''
         self.links.extend(links)
 
@@ -286,26 +217,6 @@ class Node:
         r'''
         Render this node (without its links) to a dictionary in a format
         understood by ffmap.
-
-        >>> node = AlfredParser.parse_node(r'{ "fa:d1:11:79:38:32", "{\"community\":\"bielefeld\"}" },')
-        >>> pprint(node.ffmap())
-        {'clientcount': 0,
-         'clients': [],
-         'community': 'bielefeld',
-         'firmware': None,
-         'flags': {'gateway': False, 'legacy': True, 'online': True, 'vpn': False},
-         'geo': None,
-         'id': 'fa:d1:11:79:38:32',
-         'name': 'fa:d1:11:79:38:32'}
-
-        This method requires some properties to be set::
-
-        >>> del(node.properties['geo'])
-        >>> node.ffmap()
-        Traceback (most recent call last):
-        ...
-        ValueError: node is missing required property 'geo'.
-
         '''
         properties = self.properties
         try:
@@ -365,18 +276,6 @@ class Link:
     attribute ``reverse`` holds a reference to the symmetric link.
 
     Additionally each link specifies a connection quality in the range `[0,1]`.
-
-    >>> node1 = Node('fa:d1:11:79:38:32', { 'community': 'bielefeld' }, online=True)
-    >>> node2 = Node('fb:d1:11:79:38:32', { 'community': 'bielefeld' }, online=True)
-    >>> l12 = Link(node1, 'fa:d2:11:79:38:32', 'fb:d2:11:79:38:32', 1.0)
-    >>> l12
-    fa:d2:11:79:38:32 (of fa:d1:11:79:38:32) -> fb:d2:11:79:38:32 (of ?)
-    >>> l21 = Link(node2, 'fb:d2:11:79:38:32', 'fa:d2:11:79:38:32',  .5)
-    >>> l21.reverse = l12
-    >>> l12.reverse = l21
-    >>> l12
-    fa:d2:11:79:38:32 (of fa:d1:11:79:38:32) -> fb:d2:11:79:38:32 (of fb:d1:11:79:38:32)
-
     '''
     def __init__(self, source, smac, dmac, quality):
         self.source = source
@@ -388,35 +287,6 @@ class Link:
     def ffmap(self):
         r'''
         Render this link to a dictionary in a format understood by ffmap.
-
-        >>> node1 = Node('fa:d1:11:79:38:32', { 'community': 'bielefeld', 'vpn': True }, online=True)
-        >>> node2 = Node('fb:d1:11:79:38:32', { 'community': 'bielefeld', 'vpn': False }, online=True)
-        >>> l12 = Link(node1, 'fa:d2:11:79:38:32', 'fb:d2:11:79:38:32', 1.0)
-        >>> l21 = Link(node2, 'fb:d2:11:79:38:32', 'fa:d2:11:79:38:32',  .5)
-        
-        A link does not render until its ``reverse`` and ``index`` has been set
-        (this is done automatically by :meth:`render_ffmap`.)
-
-        >>> l12.ffmap()
-        Traceback (most recent call last):
-        ...
-        ValueError: link must have 'reverse' set to render to ffmap
-        >>> l21.reverse = l12
-        >>> l12.reverse = l21
-        >>> l12.ffmap()
-        Traceback (most recent call last):
-        ...
-        ValueError: link's source and target must have their 'index' set to render to ffmap
-
-        >>> node1.index = 0
-        >>> node2.index = 1
-        >>> pprint(l12.ffmap())
-        {'id': 'fa:d2:11:79:38:32-fb:d2:11:79:38:32',
-         'quality': '1.000, 0.500',
-         'source': 0,
-         'target': 1,
-         'type': 'vpn'}
-
         '''
         if not self.reverse:
             raise ValueError("link must have 'reverse' set to render to ffmap")
@@ -436,43 +306,6 @@ class Link:
 def render_ffmap(nodes):
     r'''
     Return a JSON representation of ``nodes`` which is understood by ffmap.
-
-    >>> node1 = AlfredParser.parse_node(r'{ "fa:d1:11:79:38:32", "{\"community\": \"bielefeld\"}" },')
-    >>> node2 = AlfredParser.parse_node(r'{ "fb:d1:11:79:38:32", "{\"community\": \"bielefeld\"}" },')
-    >>> l12 = Link(node1, 'fa:d2:11:79:38:32', 'fb:d2:11:79:38:32', 1.0)
-    >>> l21 = Link(node2, 'fb:d2:11:79:38:32', 'fa:d2:11:79:38:32',  .5)
-    >>> node1.update_links([l12])
-    >>> node2.update_links([l21])
-    >>> pprint(render_ffmap([node1, node2])) # doctest: +ELLIPSIS
-    {'links': [{'id': 'fa:d2:11:79:38:32-fb:d2:11:79:38:32',
-                'quality': '1.000, 0.500',
-                'source': 0,
-                'target': 1,
-                'type': None}],
-     'meta': {'timestamp': '...'},
-     'nodes': [{'clientcount': 0,
-                'clients': [],
-                'community': 'bielefeld',
-                'firmware': None,
-                'flags': {'gateway': False,
-                          'legacy': True,
-                          'online': True,
-                          'vpn': False},
-                'geo': None,
-                'id': 'fa:d1:11:79:38:32',
-                'name': 'fa:d1:11:79:38:32'},
-               {'clientcount': 0,
-                'clients': [],
-                'community': 'bielefeld',
-                'firmware': None,
-                'flags': {'gateway': False,
-                          'legacy': True,
-                          'online': True,
-                          'vpn': False},
-                'geo': None,
-                'id': 'fb:d1:11:79:38:32',
-                'name': 'fb:d1:11:79:38:32'}]}
-
     '''
     ret = {}
 
