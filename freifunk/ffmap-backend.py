@@ -32,6 +32,7 @@ from pprint import pprint, pformat
 # list of firmware version that are not legacy.
 RECENT_FIRMWARES = ["ffbi-0.4.3", "server", None]
 
+
 class AlfredParser:
     r'''
     A class providing static methods to parse and validate data reported by
@@ -159,8 +160,6 @@ class AlfredParser:
         if 'geo' in properties:
             geo = properties['geo'].split()
             properties['geo'] = [ float(geo[0]), float(geo[1]) ]
-        else:
-            properties['geo'] = None
 
         #properties.setdefault('contact', None)
         #properties.setdefault('firmware', None)
@@ -224,10 +223,10 @@ class Node:
             contact = properties.get('contact', None)
             community = properties.get('community', None)
             firmware = properties.get('firmware', None)
+            geo = properties.get('geo', None)
 
             obj = {
                 'id': self.mac,
-                'geo': properties['geo'],
                 'clientcount': properties['clientcount'],
                 # ffmap looks at 'clients' to compute the number of clients for
                 # its list view. We do not collect any information on the clients
@@ -253,6 +252,9 @@ class Node:
 
             if firmware:
                 obj['firmware'] = firmware
+
+            if geo:
+                obj['geo'] = geo
 
             return obj
         except KeyError as e:
