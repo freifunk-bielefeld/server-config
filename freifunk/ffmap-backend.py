@@ -163,7 +163,7 @@ class AlfredParser:
 
         #properties.setdefault('contact', None)
         #properties.setdefault('firmware', None)
-        properties.setdefault('clientcount', 0)
+        #properties.setdefault('clientcount', 0)
         properties.setdefault('gateway', False)
         #properties.setdefault('community', None)
         properties.setdefault('vpn', False)
@@ -224,15 +224,16 @@ class Node:
             community = properties.get('community', None)
             firmware = properties.get('firmware', None)
             geo = properties.get('geo', None)
+            clientcount = properties.get('clientcount', None)
 
             obj = {
                 'id': self.mac,
-                'clientcount': properties['clientcount'],
+                #'clientcount': properties['clientcount'],
                 # ffmap looks at 'clients' to compute the number of clients for
                 # its list view. We do not collect any information on the clients
                 # (other than a count). So we need a list of 'null' values for
                 # ffmap to be happy.
-                'clients': [None]*properties['clientcount'],
+                #'clients': [None]*properties['clientcount'],
                 'flags': {
                     "legacy": properties['firmware'] not in RECENT_FIRMWARES,
                     "gateway": properties['gateway'],
@@ -255,6 +256,9 @@ class Node:
 
             if geo:
                 obj['geo'] = geo
+
+            if clientcount:
+                obj['clientcount'] = clientcount
 
             return obj
         except KeyError as e:
