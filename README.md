@@ -22,7 +22,7 @@ Für die Serverfunktion werden folgende Programme installiert und konfiguriert:
  * Webserver: lighttpd
  * Karte: [ffmap](https://github.com/ffnord/ffmap-d3)
 
-Wir die Variable im Setup-Script entsprechend gesetzt, wird der Server gleich auch
+Wird die entsprechende Variable im Setup-Script auf true gesetzt, wird der Server gleich auch
 als Gateway eingerichtet. Das Script erwartet dann eine ZIP-Datei mit den Accountdaten
 von mullvad.net im gleichen Verzeichnis. Zum Testen eignet sich ein anonymer Testaccount
 für drei Stunden.
