@@ -5,10 +5,11 @@
 -A INPUT -i lo -j ACCEPT
 -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
 
-# allow SSH, ICMP, and HTTP
+# allow SSH, ICMP, DNS, and HTTP
 -A INPUT -p tcp -m tcp --dport 22 -j ACCEPT
 -A INPUT -p icmp -j ACCEPT
 -A INPUT -p icmpv6 -j ACCEPT
+-A INPUT -p udp -m udp --dport 53 -j ACCEPT
 -A INPUT -p tcp -m tcp --dport 80 -j ACCEPT
 
 # allow established connections from freifunk

@@ -5,9 +5,10 @@
 -A INPUT -i lo -j ACCEPT
 -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
 
-# allow SSH, ICMP, HTTP, and fastd
+# allow SSH, ICMP, DNS, HTTP, and fastd
 -A INPUT -p tcp -m tcp --dport 22 -j ACCEPT
 -A INPUT -p icmp -j ACCEPT
+-A INPUT -p udp -m udp --dport 53 -j ACCEPT
 -A INPUT -p tcp -m tcp --dport 80 -j ACCEPT
 -A INPUT -p tcp -m tcp --dport 1244 -j ACCEPT
 -A INPUT -p udp -m udp --dport 1244 -j ACCEPT
