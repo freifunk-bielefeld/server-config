@@ -33,3 +33,13 @@ Ansonsten werden für die Gatewayfunktion folgende Programme installiert und kon
  * DNS64: bind
  * IPv6 Router Advertisment: radvd
  * Auslands-VPN: OpenVPN
+
+Durch die Reaktivierung von IP v4 im Freifunknetz werden weitere Dienste benötigt:
+ * DHCP (isc-dhcp-server)
+
+Serverbetreiber müssen sich absprechen, was den Bereich der verteilten DHCP Adressen angeht, damit es zu keinen Addresskonflikten kommt. Bisher wurden folgende Bereiche vergeben:
+
+ * vpn5: 10.26.80.1 range 10.26.80.2 10.26.83.255
+ * vpn6: 10.26.84.1 range 10.26.84.2 10.26.87.255
+ 
+ 
