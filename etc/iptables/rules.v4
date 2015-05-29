@@ -9,6 +9,7 @@
 -A INPUT -p tcp -m tcp --dport 22 -j ACCEPT
 -A INPUT -p icmp -j ACCEPT
 -A INPUT -i bat0 -p udp -m udp --dport 53 -j ACCEPT
+-A INPUT -i bat0 -p tcp -m tcp --dport 53 -j ACCEPT
 -A INPUT -p tcp -m tcp --dport 80 -j ACCEPT
 -A INPUT -p tcp -m tcp --dport 1244 -j ACCEPT
 -A INPUT -p udp -m udp --dport 1244 -j ACCEPT
