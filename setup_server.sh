@@ -278,7 +278,7 @@ if [ "$setup_gateway" = "true" ]; then
 		apt-get install --assume-yes iptables-persistent
 
 		cp -rf etc/iptables/* /etc/iptables/
-		/etc/init.d/iptables-persistent restart
+		/etc/init.d/netfilter-persistent restart
 	}
 
 	setup_mullvad() {
