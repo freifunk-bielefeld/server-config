@@ -1,0 +1,38 @@
+//Freifunk Bielefeld .ffbi
+zone "ffbi" in {
+        type slave;
+        file "slave/slave.ffbi";
+        masters { fdef:17a0:ffb1:300:fa16:3eff:fee9:8e0d; };
+
+};
+
+// zone for frei.funk
+zone "funk" in {
+        type slave;
+        file "slave/slave.funk";
+        masters { fdef:17a0:ffb1:300:fa16:3eff:fee9:8e0d; };
+
+};
+
+// hack for providing local services for Marta, that are unreachable from the internet
+zone "switch.local-marta-herford.de" in {
+        type slave;
+        file "slave/switch.local-marta-herford.de-zone";
+        masters { fdef:17a0:ffb1:300:fa16:3eff:fee9:8e0d; };
+
+};
+
+// Freifunk Obernkirchen
+zone "ffobk" in {
+        type slave;
+        file "slave/slave.ffobk";
+        masters { fdef:17a0:ffb1:300:22:15ff:fe55:1353; };
+
+};
+
+// Freifunk Lemgo
+zone "ffle" in {
+        type slave;
+        file "slave/slave.ffle";
+        masters { fdef:17a0:ffb1:300:2acf:daff:fe00:cd91; };
+};
