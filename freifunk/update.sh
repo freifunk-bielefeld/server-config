@@ -141,6 +141,11 @@ if [ "$webserver" = "true" ]; then
 
 	#update nodes/clients/gateways counter
 	./counter_update.py '/var/www/nodes.json' '/var/www/counter.svg'
+
+	if ! is_running "lighttpd"; then
+		echo "(I) Start lighttpd."
+		/etc/init.d/lighttpd start
+	fi
 fi
 
 if [ "$gateway" = "true" ]; then
