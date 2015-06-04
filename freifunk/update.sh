@@ -128,25 +128,6 @@ fi
 	echo -n '}'
 } | gzip -c - | alfred -s 64
 
-if [ "$webserver" = "true" ]; then
-
-	#collect all map pieces
-	alfred -r 64 > /tmp/maps.txt
-
-	#create map data
-	./ffmap-backend.py -m /tmp/maps.txt -a ./aliases.json > /var/www/nodes.json
-
-	#update FF-Internal status page
-	./status_page_create.sh '/var/www/index.html'
-
-	#update nodes/clients/gateways counter
-	./counter_update.py '/var/www/nodes.json' '/var/www/counter.svg'
-
-	if ! is_running "lighttpd"; then
-		echo "(I) Start lighttpd."
-		/etc/init.d/lighttpd start
-	fi
-fi
 
 if [ "$gateway" = "true" ]; then
 	if ! is_running "openvpn"; then
@@ -167,6 +148,26 @@ if [ "$gateway" = "true" ]; then
 	if ! is_running "radvd"; then
 		echo "(I) Start radvd."
 		/etc/init.d/radvd start
+	fi
+fi
+
+if [ "$webserver" = "true" ]; then
+
+	#collect all map pieces
+	alfred -r 64 > /tmp/maps.txt
+
+	#create map data
+	./ffmap-backend.py -m /tmp/maps.txt -a ./aliases.json > /var/www/nodes.json
+
+	#update FF-Internal status page
+	./status_page_create.sh '/var/www/index.html'
+
+	#update nodes/clients/gateways counter
+	./counter_update.py '/var/www/nodes.json' '/var/www/counter.svg'
+
+	if ! is_running "lighttpd"; then
+		echo "(I) Start lighttpd."
+		/etc/init.d/lighttpd start
 	fi
 fi
 
