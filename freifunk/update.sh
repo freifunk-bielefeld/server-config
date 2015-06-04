@@ -6,6 +6,7 @@
 mac_addr=""
 ip_addr=""
 ff_prefix=""
+ipv4_mesh_interface=""
 
 #For the map
 geo=""
@@ -13,7 +14,7 @@ name="$(hostname)"
 firmware="server"
 community="ulm"
 webserver="true" #start webserver, create map/status/status page
-gateway="false" #start OpenVPN, bind, tayga, radvd
+gateway="false" #start OpenVPN, bind, tayga, radvd, DHCP, batman gateway mode
 
 
 ##############
@@ -46,6 +47,7 @@ echo 1 > /proc/sys/net/ipv6/conf/default/forwarding
 echo 1 > /proc/sys/net/ipv6/conf/all/forwarding
 echo 1 > /proc/sys/net/ipv4/conf/default/forwarding
 echo 1 > /proc/sys/net/ipv4/conf/all/forwarding
+echo 1 > /proc/sys/net/ipv4/ip_forward
 
 
 if ! is_running "fastd"; then
@@ -66,6 +68,8 @@ if [ "$(cat /sys/class/net/bat0/address 2> /dev/null)" != "$mac_addr" ]; then
 	ip link set bat0 down
 	ip link set bat0 address "$mac_addr"
 	ip link set bat0 up
+	#set IPv4 address on bat0 for DNS; This is gateway specific!
+	ip addr add "$ipv4_mesh_interface/16" dev bat0 2> /dev/null && echo "(I) Add IPv4-Address $ipv4_mesh_interface to bat0"
 
 	# we do not accept a default gateway through bat0
 	echo 0 > /proc/sys/net/ipv6/conf/bat0/accept_ra
@@ -123,7 +127,6 @@ fi
 	[ -n "$community" ] && echo -n "\"community\" : \"$community\", "
 	[ -n "$vpn" ] && echo -n "\"vpn\" : $vpn, "
 	[ -n "$gateway" ] && echo -n "\"gateway\" : $gateway, "
-
 	echo -n "\"links\" : ["
 
 	printLink() { echo -n "{ \"smac\" : \"$(cat /sys/class/net/$3/address)\", \"dmac\" : \"$1\", \"qual\" : $2 }"; }
@@ -181,6 +184,13 @@ if [ "$gateway" = "true" ]; then
 		echo "(I) Start radvd."
 		/etc/init.d/radvd start
 	fi
+	if ! is_running "dhcpd"; then
+		echo "(I) Start DHCP."
+		/etc/init.d/isc-dhcp-server start
+	fi
+	# Activate the gateway announcements on a node that has a DHCP server running
+	batctl gw_mode server
 fi
 
 echo "update done"
+

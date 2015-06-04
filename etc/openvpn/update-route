@@ -30,21 +30,38 @@ ip route show table vpn &> /dev/null || echo 100 vpn >> /etc/iproute2/rt_tables
 # setup table (v6)
 ip -6 rule del table vpn &> /dev/null
 ip -6 route flush table vpn
-#ip -6 route add fe80::/64 dev tun0 table vpn
-ip -6 route add "$vpn_gateway_v6/64" dev tun0 table vpn
-ip -6 route add 2000::/3 dev tun0 table vpn
+#ip -6 route add fe80::/64 dev "$vpn_interface" table vpn
+ip -6 route add "$vpn_gateway_v6/64" dev "$vpn_interface" table vpn
+ip -6 route add 2000::/3 dev "$vpn_interface" table vpn
 ip -6 rule add dev "$mesh_interface" table vpn prio 32565
 
 # setup table (v4)
 ip rule del table vpn &> /dev/null
 ip route flush table vpn
-ip route add "$vpn_gateway_v4" dev tun0 table vpn
-ip route add default dev tun0 table vpn
+ip route add "$vpn_gateway_v4" dev "$vpn_interface" table vpn
+ip route add default dev "$vpn_interface" table vpn
 ip rule add dev nat64 table vpn prio 32565
+
+# allow to use the gateway for IP v4 - hack 
+ip rule add dev "$mesh_interface" table vpn
+ip route flush table vpn
+# route to vpn tunnel
+ip route add 10.8.0.0/16 dev "$vpn_interface"
+ip route add default via "$vpn_gateway_v4" table vpn
+# route dns requests to vpn tunnel
+ip route del DNS_SERVER/32 &> /dev/null
+ip route add DNS_SERVER/32 via "$vpn_gateway_v4" dev "$vpn_interface"
+#
+iptables_a INPUT -i "$vpn_interface" -j ACCEPT
+iptables_a POSTROUTING --table nat -o "$vpn_interface" -j MASQUERADE
+iptables_a FORWARD -i "$mesh_interface" -o "$vpn_interface" -j ACCEPT
+iptables_a FORWARD -i "$vpn_interface" -j ACCEPT
 
 # forward traffic between freifunk and the VPN (if the connection originated in freifunk)
 ip6tables_a FORWARD -i "$vpn_interface" -o "$mesh_interface" -m state --state ESTABLISHED,RELATED -j ACCEPT
 ip6tables_a FORWARD -i "$mesh_interface" -o "$vpn_interface" -j ACCEPT
+iptables_a FORWARD -i "$vpn_interface" -o nat64 -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables_a FORWARD -i "$mesh_interface" -o "$vpn_interface" -j ACCEPT
 
 # allow DNS queries through the VPN
 ip6tables_a INPUT -i "$vpn_interface" -p tcp -m tcp --dport domain -m state --state ESTABLISHED -j ACCEPT
@@ -58,6 +75,7 @@ iptables_a FORWARD -i "$vpn_interface" -o nat64 -m state --state ESTABLISHED,REL
 
 # NAT66 all freifunk traffic
 ip6tables_a POSTROUTING --table nat -o "$vpn_interface" -j MASQUERADE
+iptables_a POSTROUTING --table nat -s 10.26.0.0/20 -j MASQUERADE
 
 # Enable MSS clamping
 iptables_a FORWARD -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
@@ -67,3 +85,4 @@ echo 1 > /proc/sys/net/ipv6/conf/default/forwarding
 echo 1 > /proc/sys/net/ipv6/conf/all/forwarding
 echo 1 > /proc/sys/net/ipv4/conf/default/forwarding
 echo 1 > /proc/sys/net/ipv4/conf/all/forwarding
+echo 1 > /proc/sys/net/ipv4/ip_forward

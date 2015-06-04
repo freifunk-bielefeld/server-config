@@ -16,5 +16,11 @@ options {
 	};
 
 	listen-on-v6 { fdef:17a0:ffb1:300::1; };
+	listen-on { DNS_SERVER; };
+
 	auth-nxdomain no;    # conform to RFC1035
+
+	# ask mullvad to resolve DNS requests - avoid DNS leaks
+	forwarders { 10.8.0.1; }; # IP of mullvad DNS
+	forward only;
 };
