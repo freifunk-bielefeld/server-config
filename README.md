@@ -42,4 +42,5 @@ Serverbetreiber müssen sich absprechen, was den Bereich der verteilten DHCP Adr
  * vpn5: 10.26.80.1 range 10.26.80.2 10.26.83.255
  * vpn6: 10.26.84.1 range 10.26.84.2 10.26.87.255
  
- 
+Innerhalb des Freifunknetzes gibt es die Zone ".ffulm". D.h. es können auch Namen wie "meinserver.ffulm" aufgelöst werden. Masterserver dafür ist zur Zeit vpn6.
+Wenn weitere Server hinzugefügt werden, müssen die Zonendateien auf dem Master (db.10.26, db.ffulm, named.conf.local) manuell angepasst werden. Hierzu bitte auf der Mailingliste melden.

@@ -1,0 +1,20 @@
+//
+// Do any local configuration here
+//
+
+// Consider adding the 1918 zones here, if they are not used in your
+// organization
+//include "/etc/bind/zones.rfc1918";
+
+zone "ffulm" {
+        type slave;
+        file "/etc/bind/db.ffulm";
+        masters { 10.26.84.1; };
+};
+
+zone "26.10.in-addr.arpa" {
+        type slave;
+        file "/etc/bind/db.10.26";
+        masters { 10.26.84.1; };
+};
+
