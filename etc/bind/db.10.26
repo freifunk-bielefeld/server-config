@@ -6,10 +6,10 @@ $TTL    604800
                         2419200		; Expire
                          604800 )	; Negative Cache TTL
 ; name servers
-	IN      NS      vpn6.ffulm.
-	IN      NS      vpn5.ffulm.
+@	IN      NS      vpn6.ffulm.
+@	IN      NS      vpn5.ffulm.
 
 ; PTR Records
-80.1	IN      PTR     vpn5.ffulm.		; 10.26.80.1
-84.1	IN      PTR     vpn6.ffulm.		; 10.26.84.1
-99.1	IN	PTR	pifeg.ffulm.		; 10.26.99.1
+1.80	IN      PTR     vpn5.ffulm.		; 10.26.80.1
+1.84	IN      PTR     vpn6.ffulm.		; 10.26.84.1
+1.99	IN	PTR	pifeg.ffulm.		; 10.26.99.1
