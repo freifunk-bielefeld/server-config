@@ -1,5 +1,5 @@
 $TTL    604800
-@       IN      SOA     vpn6.ffulm. florian@egelhofer.net. (
+@       IN      SOA     vpn6.ffulm. info@freifunk-ulm.de. (
                   4	; Serial
              604800	; Refresh
               86400	; Retry
