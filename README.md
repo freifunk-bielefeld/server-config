@@ -39,6 +39,7 @@ Durch die Reaktivierung von IP v4 im Freifunknetz werden weitere Dienste benöti
 
 Serverbetreiber müssen sich absprechen, was den Bereich der verteilten DHCP Adressen angeht, damit es zu keinen Adresskonflikten kommt. Bisher wurden folgende Bereiche vergeben:
 
+ * vpn3: 10.26.72.1 range 10.26.72.2 10.26.75.255
  * vpn5: 10.26.80.1 range 10.26.80.2 10.26.83.255
  * vpn6: 10.26.84.1 range 10.26.84.2 10.26.87.255
  
