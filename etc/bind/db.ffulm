@@ -1,6 +1,6 @@
 $TTL    604800
 @       IN      SOA     vpn6.ffulm. info@freifunk-ulm.de. (
-                10	; Serial
+                11	; Serial
              604800	; Refresh
               86400	; Retry
             2419200	; Expire
@@ -18,4 +18,5 @@ vpn3.ffulm.   IN      A 10.26.72.1
 
 ; 10.26.0.0/16 - A records
 pifeg.ffulm.		IN      A	10.26.99.1
+tobox.ffulm.    IN      A 10.26.99.2
 testsrv.ffulm.		IN	CNAME	pifeg.ffulm.
