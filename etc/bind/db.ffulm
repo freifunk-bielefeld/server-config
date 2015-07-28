@@ -19,4 +19,5 @@ vpn3.ffulm.   IN      A 10.26.72.1
 ; 10.26.0.0/16 - A records
 pifeg.ffulm.		IN      A	10.26.99.1
 tobox.ffulm.    IN      A 10.26.99.2
-testsrv.ffulm.		IN	CNAME	pifeg.ffulm.
+testsrv.ffulm.	IN      CNAME pifeg.ffulm.
+suche.ffulm.    IN      CNAME tobox.ffulm.
