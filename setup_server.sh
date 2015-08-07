@@ -150,14 +150,14 @@ if [ -z "$(cat /etc/crontab | grep '/opt/freifunk/update.sh')" ]; then
 fi
 
 {
-	VERSION=2015.0
+	VERSION=2015.1
 
 	echo "(I) Install batman-adv, batctl and alfred ($VERSION)."
 	apt-get install --assume-yes wget build-essential linux-headers-$(uname -r) pkg-config libnl-3-dev libjson-c-dev git libcap-dev pkg-config
 
 	#install batman-adv
 	wget --no-check-certificate http://downloads.open-mesh.org/batman/releases/batman-adv-$VERSION/batman-adv-$VERSION.tar.gz
-	sha256check "batman-adv-$VERSION.tar.gz" "03dea8ca04aba2f7c86a8515a9de1aaf5b6df8b0f7fe7b548cc0bdb38b56952b"
+	sha256check "batman-adv-$VERSION.tar.gz" "62ff9b769ada746e7a373a048ca8036fbd73f81c63053bbbe25fa24b4343dd0d"
 	tar -xzf batman-adv-$VERSION.tar.gz
 	cd batman-adv-$VERSION/
 	make
@@ -167,7 +167,7 @@ fi
 
 	#install batctl
 	wget --no-check-certificate http://downloads.open-mesh.org/batman/releases/batman-adv-$VERSION/batctl-$VERSION.tar.gz
-	sha256check "batctl-$VERSION.tar.gz" "634d91189f96bda6d4ce6179dce90ad578566f29d3111b49d6e775d4f3591f04"
+	sha256check "batctl-$VERSION.tar.gz" "ea67ee22785e6fcd5149472bdf2df4e9f21716968e025e7dd41556a010a8d14a"
 	tar -xzf batctl-$VERSION.tar.gz
 	cd batctl-$VERSION/
 	make
@@ -177,7 +177,7 @@ fi
 
 	#install alfred
 	wget --no-check-certificate http://downloads.open-mesh.org/batman/stable/sources/alfred/alfred-$VERSION.tar.gz
-	sha256check "alfred-$VERSION.tar.gz" "c66a20e5814b4afefa7b07370e20cc9a01b5f31ef9c554d132778f89e5ba736c"
+	sha256check "alfred-$VERSION.tar.gz" "e2464175174beeb582564a3487346d6cf5d4de28a23ac04c2ff249099ba2b487"
 	tar -xzf alfred-$VERSION.tar.gz
 	cd alfred-$VERSION/
 	make CONFIG_ALFRED_GPSD=n CONFIG_ALFRED_VIS=n CONFIG_ALFRED_CAPABILITIES=n
