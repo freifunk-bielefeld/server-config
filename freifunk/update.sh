@@ -80,6 +80,18 @@ if [ "$(cat /sys/class/net/bat0/address 2> /dev/null)" != "$mac_addr" ]; then
 	echo 1 >  /sys/class/net/bat0/mesh/multicast_mode
 	echo 1 >  /sys/class/net/bat0/mesh/bridge_loop_avoidance
 	echo 1 >  /sys/class/net/bat0/mesh/aggregated_ogms
+
+	#set size of neighbor table
+	gc_thresh=1024 #default is 256
+
+	sysctl -w net.ipv4.neigh.default.gc_thresh1=$(($gc_thresh * 1))
+	sysctl -w net.ipv4.neigh.default.gc_thresh2=$(($gc_thresh * 2))
+	sysctl -w net.ipv4.neigh.default.gc_thresh3=$(($gc_thresh * 4))
+
+	sysctl -w net.ipv6.neigh.default.gc_thresh1=$(($gc_thresh * 1))
+	sysctl -w net.ipv6.neigh.default.gc_thresh2=$(($gc_thresh * 2))
+	sysctl -w net.ipv6.neigh.default.gc_thresh3=$(($gc_thresh * 4))
+
 fi
 
 if ip -6 addr add "$ip_addr/64" dev bat0 2> /dev/null; then
