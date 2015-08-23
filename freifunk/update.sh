@@ -117,7 +117,7 @@ if ! is_running "alfred"; then
 	start-stop-daemon --start --quiet --pidfile /var/run/alfred/alfred.pid \
 		--umask 0111 --make-pidfile --chuid alfred --group alfred \
 		--background --exec `which alfred` --oknodo \
-		-- -i bat0 -m -u /var/run/alfred/alfred.sock
+		-- -i bat0 -u /var/run/alfred/alfred.sock
 	sleep 1
 fi
 
