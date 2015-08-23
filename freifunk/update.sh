@@ -100,7 +100,7 @@ fi
 
 if ! is_running "alfred"; then
 	echo "(I) Start alfred."
-	start-stop-daemon --start --background --exec `which alfred` -- -i bat0 -m
+	start-stop-daemon --start --background --exec `which alfred` -- -i bat0
 	sleep 1
 fi
 
