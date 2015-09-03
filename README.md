@@ -47,8 +47,8 @@ Innerhalb des Freifunknetzes gibt es die Zone ".ffulm". D.h. es können auch Nam
 Wenn weitere Server hinzugefügt werden, müssen die Zonendateien auf dem Master (db.10.26, db.ffulm, named.conf.local) manuell angepasst werden. Hierzu bitte auf der Mailingliste melden.
 
 Es wurde für Freifunk Ulm folgende Netze registiert:
-ipv4: 10.33.0.0/16
-ipv6: fdaf:17a0:fff1::/48
+ * ipv4: 10.33.0.0/16
+ * ipv6: fdaf:17a0:fff1::/48
 
 Eine Umstellung auf die neuen IP Bereiche muss noch erfolgen.
 
