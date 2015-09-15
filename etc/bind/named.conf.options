@@ -11,11 +11,11 @@ options {
 		responses-per-second 40;
 	};
 
-	dns64 fdef:17a0:ffb1:1337::/96 {
+	dns64 fdef:17a0:fff1:1337::/96 {
 		clients { any; };
 	};
 
-	listen-on-v6 { fdef:17a0:ffb1:300::1; };
+	listen-on-v6 { fdef:17a0:fff1:300::1; };
 	listen-on { DNS_SERVER; };
 
 	auth-nxdomain no;    # conform to RFC1035

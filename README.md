@@ -39,20 +39,14 @@ Durch die Reaktivierung von IP v4 im Freifunknetz werden weitere Dienste benöti
 
 Serverbetreiber müssen sich absprechen, was den Bereich der verteilten DHCP Adressen angeht, damit es zu keinen Adresskonflikten kommt. Bisher wurden folgende Bereiche vergeben:
 
- * vpn3: 10.26.72.1 range 10.26.72.2 10.26.75.255
- * vpn5: 10.26.80.1 range 10.26.80.2 10.26.83.255
- * vpn6: 10.26.84.1 range 10.26.84.2 10.26.87.255
+ * vpn3: 10.33.72.1 range 10.33.72.2 10.33.75.255
+ * vpn5: 10.33.80.1 range 10.33.80.2 10.33.83.255
+ * vpn6: 10.33.84.1 range 10.33.84.2 10.33.87.255
  
 Innerhalb des Freifunknetzes gibt es die Zone ".ffulm". D.h. es können auch Namen wie "meinserver.ffulm" aufgelöst werden. Masterserver dafür ist zur Zeit vpn6.
-Wenn weitere Server hinzugefügt werden, müssen die Zonendateien auf dem Master (db.10.26, db.ffulm, named.conf.local) manuell angepasst werden. Hierzu bitte auf der Mailingliste melden.
+Wenn weitere Server hinzugefügt werden, müssen die Zonendateien auf dem Master (db.10.33, db.ffulm, named.conf.local) manuell angepasst werden. Hierzu bitte auf der Mailingliste melden.
 
 Es wurde für Freifunk Ulm folgende Netze registiert:
  * ipv4: 10.33.0.0/16
  * ipv6: fdaf:17a0:fff1::/48
-
-Eine Umstellung auf die neuen IP Bereiche muss noch erfolgen.
-
-IP Konfiguration neu:
- * vpn3: 10.33.72.1 range 10.33.72.2 10.33.75.255
- * vpn5: 10.33.80.1 range 10.33.80.2 10.33.83.255
- * vpn6: 10.33.84.1 range 10.33.84.2 10.33.87.255
+ 

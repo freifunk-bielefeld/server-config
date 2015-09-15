@@ -14,7 +14,7 @@ community_id="ulm"
 community_name="Ulm"
 
 #The internal IPv6 prefix
-ff_prefix="fdef:17a0:ffb1:300::"
+ff_prefix="fdef:17a0:fff1:300::"
 
 #setup map/counter/status page
 setup_webserver="true"
@@ -125,7 +125,7 @@ if [ "$setup_webserver" = "true" ]; then
 	{
 		echo "(I) Create /etc/lighttpd/lighttpd.conf"
 		cp etc/lighttpd/lighttpd.conf /etc/lighttpd/
-		sed -i "s/fdef:17a0:ffb1:300::1/$ip_addr/g" /etc/lighttpd/lighttpd.conf
+		sed -i "s/fdef:17a0:fff1:300::1/$ip_addr/g" /etc/lighttpd/lighttpd.conf
 	}
 
 	if ! id www-data >/dev/null 2>&1; then
@@ -145,7 +145,7 @@ if [ "$setup_webserver" = "true" ]; then
 		sed -i "s/gotham.freifunk.net/www.freifunk-$community_id.de/g" config.js
 		sed -i "s/gotham/$community_id/g" config.js
 		sed -i "s/Gotham/$community_name/g" config.js
-		sed -i "s/fdef:17a0:ffb1:300::/$ff_prefix/g" config.js
+		sed -i "s/fdef:17a0:fff1:300::/$ff_prefix/g" config.js
 		make
 		cp -r www/* /var/www/
 		cd ..
@@ -381,7 +381,7 @@ if [ "$setup_gateway" = "true" ]; then
 		# grant write access for zone transfers
 		chmod g+w /etc/bind/
 		# adjust config
-		sed -i "s/fdef:17a0:ffb1:300::1/$ip_addr/g" /etc/bind/named.conf.options
+		sed -i "s/fdef:17a0:fff1:300::1/$ip_addr/g" /etc/bind/named.conf.options
 		sed -i "s/DNS_SERVER/$ipv4_mesh_interface/g" /etc/bind/named.conf.options
 	}
 
@@ -392,8 +392,8 @@ if [ "$setup_gateway" = "true" ]; then
 
 		echo "(I) Configure radvd"
 		cp etc/radvd.conf /etc/
-		sed -i "s/fdef:17a0:ffb1:300::1/$ip_addr/g" /etc/radvd.conf
-		sed -i "s/fdef:17a0:ffb1:300::/$ff_prefix/g" /etc/radvd.conf
+		sed -i "s/fdef:17a0:fff1:300::1/$ip_addr/g" /etc/radvd.conf
+		sed -i "s/fdef:17a0:fff1:300::/$ff_prefix/g" /etc/radvd.conf
 	}
 
 	sed -i "s/gateway=\".*\"/gateway=\"true\"/g" /opt/freifunk/update.sh

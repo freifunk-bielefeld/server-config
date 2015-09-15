@@ -75,7 +75,7 @@ iptables_a FORWARD -i "$vpn_interface" -o nat64 -m state --state ESTABLISHED,REL
 
 # NAT66 all freifunk traffic
 ip6tables_a POSTROUTING --table nat -o "$vpn_interface" -j MASQUERADE
-iptables_a POSTROUTING --table nat -s 10.26.0.0/16 -j MASQUERADE
+iptables_a POSTROUTING --table nat -s 10.33.0.0/16 -j MASQUERADE
 
 # Enable MSS clamping
 iptables_a FORWARD -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
