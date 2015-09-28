@@ -14,5 +14,4 @@ $TTL    604800
 1.71	IN      PTR     vpn3.ffulm.		; 10.33.72.1
 1.80	IN      PTR     vpn5.ffulm.		; 10.33.80.1
 1.84	IN      PTR     vpn6.ffulm.		; 10.33.84.1
-1.99	IN      PTR     pifeg.ffulm.	; 10.33.99.1
 2.99	IN      PTR     tobox.ffulm.	; 10.33.99.2
