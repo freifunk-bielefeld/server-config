@@ -1,6 +1,6 @@
 $TTL    604800
 @       IN      SOA     vpn6.ffulm. info@freifunk-ulm.de (
-                            12		; Serial
+                            20		; Serial
                          604800		; Refresh
                           86400		; Retry
                         2419200		; Expire
