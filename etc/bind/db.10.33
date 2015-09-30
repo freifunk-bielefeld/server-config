@@ -15,3 +15,4 @@ $TTL    604800
 1.80	IN      PTR     vpn5.ffulm.		; 10.33.80.1
 1.84	IN      PTR     vpn6.ffulm.		; 10.33.84.1
 2.99	IN      PTR     tobox.ffulm.	; 10.33.99.2
+3.99  IN      PTR     daniel.ffulm. ; 10.33.99.3
