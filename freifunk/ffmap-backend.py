@@ -23,6 +23,7 @@ Author: Julian Rueth (julian.rueth@fsfe.org)
 
 import json, jsonschema
 import sys
+import zlib
 
 if sys.version_info[0] < 3:
     raise Exception("ffmap-backend.py must be executed with Python 3.")
@@ -143,14 +144,13 @@ class AlfredParser:
 
         # the second part must conform to ALFRED_NODE_SCHEMA
         properties = AlfredParser._parse_string(properties.strip())
-        import zlib
-        try:
+
+        if "\x00" in properties:
             decompress = zlib.decompressobj(zlib.MAX_WBITS|32)
             # ignores any output beyond 64k (protection from zip bombs)
             properties = decompress.decompress(properties.encode('raw-unicode-escape'),64*1024).decode('utf-8')
-        except zlib.error:
+        else:
             properties = properties.encode('latin-1').decode('utf8')
-            pass
 
         properties = json.loads(properties)
         jsonschema.validate(properties, AlfredParser.ALFRED_NODE_SCHEMA)
