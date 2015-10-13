@@ -377,7 +377,7 @@ if [ "$setup_gateway" = "true" ]; then
 
 		echo "(I) Configure bind"
 		# copy config files to destination
-		cp -r etc/bind /etc/
+		cp -r etc/bind/named.* /etc/
 		# grant write access for zone transfers
 		chmod g+w /etc/bind/
 		# adjust config
