@@ -225,7 +225,7 @@ class Node:
             obj = {
                 'id': self.mac,
                 'flags': {
-                    "legacy": properties['firmware'] not in RECENT_FIRMWARES,
+                    "legacy": firmware not in RECENT_FIRMWARES,
                     "gateway": properties['gateway'],
                     "vpn": properties["vpn"],
                     "online": self.online
