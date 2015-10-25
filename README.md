@@ -34,19 +34,19 @@ Ansonsten werden für die Gatewayfunktion folgende Programme installiert und kon
  * IPv6 Router Advertisment: radvd
  * Auslands-VPN: OpenVPN
 
-Durch die Reaktivierung von IP v4 im Freifunknetz werden weitere Dienste benötigt:
+Durch die Reaktivierung von IPv4 im Freifunk Netz werden weitere Dienste benötigt:
  * DHCP (isc-dhcp-server)
 
-Serverbetreiber müssen sich absprechen, was den Bereich der verteilten DHCP Adressen angeht, damit es zu keinen Adresskonflikten kommt. Bisher wurden folgende Bereiche vergeben:
+Alle Serverbetreiber müssen sich absprechen, was den Bereich der verteilten DHCP Adressen angeht, damit es zu keinen Adresskonflikten kommt. Bisher wurden folgende Bereiche vergeben:
 
  * vpn3: 10.33.72.1 range 10.33.72.2 10.33.75.255
  * vpn5: 10.33.80.1 range 10.33.80.2 10.33.83.255
  * vpn6: 10.33.84.1 range 10.33.84.2 10.33.87.255
  
-Innerhalb des Freifunknetzes gibt es die Zone ".ffulm". D.h. es können auch Namen wie "meinserver.ffulm" aufgelöst werden. Masterserver dafür ist zur Zeit vpn6.
-Wenn weitere Server hinzugefügt werden, müssen die Zonendateien auf dem Master (db.10.33, db.ffulm, named.conf.local) manuell angepasst werden. Hierzu bitte auf der Mailingliste melden.
+Innerhalb des Freifunknetzes gibt es die DNS Zone ".ffulm". D.h. es können auch Namen wie "meinserver.ffulm" aufgelöst werden. Masterserver dafür ist zur Zeit vpn6.
+Falls weitere Server hinzugefügt werden, müssen die Zonendateien auf dem Master (db.10.33, db.ffulm, named.conf.local) manuell angepasst werden. Hierzu bitte auf der Mailingliste melden.
 
-Es wurde für Freifunk Ulm folgende Netze registiert:
+Freifunk Ulm nutzt folgende Netze:
  * ipv4: 10.33.0.0/16
  * ipv6: fdaf:17a0:fff1::/48
  
