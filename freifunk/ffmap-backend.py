@@ -30,9 +30,6 @@ if sys.version_info[0] < 3:
 
 from pprint import pprint, pformat
 
-# list of firmware version that are not legacy.
-RECENT_FIRMWARES = ["ffbi-0.4.4", "server", None]
-
 
 class AlfredParser:
     r'''
@@ -225,7 +222,6 @@ class Node:
             obj = {
                 'id': self.mac,
                 'flags': {
-                    "legacy": firmware not in RECENT_FIRMWARES,
                     "gateway": properties['gateway'],
                     "vpn": properties["vpn"],
                     "online": self.online
