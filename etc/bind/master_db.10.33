@@ -11,8 +11,9 @@ $TTL    604800
 @	IN      NS      vpn3.ffulm.
 
 ; PTR Records
-1.71	IN      PTR     vpn3.ffulm.		; 10.33.72.1
-1.80	IN      PTR     vpn5.ffulm.		; 10.33.80.1
-1.84	IN      PTR     vpn6.ffulm.		; 10.33.84.1
-2.99	IN      PTR     tobox.ffulm.	; 10.33.99.2
-3.99  IN      PTR     daniel.ffulm. ; 10.33.99.3
+1.71	IN      PTR     vpn3.ffulm.                   ; 10.33.72.1
+1.80	IN      PTR     vpn5.ffulm.                   ; 10.33.80.1
+1.84	IN      PTR     vpn6.ffulm.                   ; 10.33.84.1
+2.99	IN      PTR     tobox.ffulm.                  ; 10.33.99.2
+3.99  IN      PTR     daniel.ffulm.                 ; 10.33.99.3
+4.99  IN      PTR     unterstuertzungsverein.ffulm. ; 10.33.99.4
