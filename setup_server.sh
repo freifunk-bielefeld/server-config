@@ -77,8 +77,14 @@ ula_addr() {
 	echo "${prefix%%::*}:${mac%?}"
 }
 
-random_mac() {
-	echo -n 02; dd bs=1 count=5 if=/dev/urandom 2>/dev/null | hexdump -v -e '/1 ":%02x"'
+get_mac() {
+	local mac="$(cat /sys/class/net/$1/address)" a
+
+	# translate to local administered mac
+	a=${mac%%:*} #cut out first hex
+	a=$((0x$a ^ 2)) #invert second least significant bit
+	a=`printf '%02x\n' $a` #convert back to hex
+	echo "$a:${mac#*:}" #reassemble mac
 }
 
 if ! ip addr list dev $wan_iface &> /dev/null; then
@@ -86,7 +92,7 @@ if ! ip addr list dev $wan_iface &> /dev/null; then
 	exit
 fi
 
-mac_addr="$(random_mac)"
+mac_addr="$(get_mac $wan_iface)"
 ip_addr="$(ula_addr $ff_prefix $mac_addr)"
 
 if [ -z "$mac_addr" -o -z "$ip_addr" ]; then
