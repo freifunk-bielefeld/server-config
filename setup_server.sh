@@ -136,6 +136,7 @@ if [ "$setup_webserver" = "true" ]; then
 		apt-get install --assume-yes make git
 		git clone https://github.com/freifunk-bielefeld/ffmap-d3.git
 		cd ffmap-d3
+		sed -i "s/ffbi-/ffulm-/g" config.js
 		sed -i "s/gotham.freifunk.net/www.freifunk-$community_id.de/g" config.js
 		sed -i "s/gotham/$community_id/g" config.js
 		sed -i "s/Gotham/$community_name/g" config.js
