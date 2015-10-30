@@ -240,16 +240,16 @@ fi
 	ldconfig
 
 	#install libuecc
-	wget --no-check-certificate https://projects.universe-factory.net/attachments/download/80 -O libuecc-5.tar.xz
-	sha256check "libuecc-5.tar.xz" "a9a4bc485019410a0fbd484c70a5f727bb924b7a4fe24e6224e8ec1e9a9037e7"
-	tar xf libuecc-5.tar.xz
+	wget --no-check-certificate https://projects.universe-factory.net/attachments/download/83 -O libuecc-6.tar.xz
+	sha256check "libuecc-6.tar.xz" "a9728cf7f18968dba3930ffede7721a5a11a1fecabe2193ec4d2d63e54ceb3fb"
+	tar xf libuecc-6.tar.xz
 	mkdir libuecc_build
 	cd libuecc_build
-	cmake ../libuecc-5
+	cmake ../libuecc-6
 	make
 	make install
 	cd ..
-	rm -rf libuecc_build libuecc-5*
+	rm -rf libuecc_build libuecc-6*
 	ldconfig
 
 	#install fastd
