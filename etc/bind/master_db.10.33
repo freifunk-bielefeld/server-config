@@ -1,6 +1,6 @@
 $TTL    604800
 @       IN      SOA     vpn6.ffulm. info@freifunk-ulm.de (
-                            23    ; Serial
+                            24    ; Serial
                          604800		; Refresh
                           86400		; Retry
                         2419200		; Expire
@@ -8,12 +8,16 @@ $TTL    604800
 ; name servers
 @	IN      NS      vpn6.ffulm.
 @	IN      NS      vpn5.ffulm.
+@ IN      NS      vpn4.ffulm.
 @	IN      NS      vpn3.ffulm.
 @ IN      NS      vpn2.ffulm.
+@ IN      NS      vpn1.ffulm.
 
 ; PTR Records
+1.64  IN      PTR     vpn1.ffulm.                   ; 10.33.64.1
 1.68  IN      PTR     vpn2.ffulm.                   ; 10.33.68.1
 1.71  IN      PTR     vpn3.ffulm.                   ; 10.33.72.1
+1.76  IN      PTR     vpn4.ffulm.                   ; 10.33.76.1
 1.80  IN      PTR     vpn5.ffulm.                   ; 10.33.80.1
 1.84  IN      PTR     vpn6.ffulm.                   ; 10.33.84.1
 2.99  IN      PTR     tobox.ffulm.                  ; 10.33.99.2
