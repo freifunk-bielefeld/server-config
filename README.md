@@ -49,6 +49,9 @@ Alle Serverbetreiber müssen sich absprechen, was den Bereich der verteilten DHC
 Innerhalb des Freifunknetzes gibt es die DNS Zone ".ffulm". D.h. es können auch Namen wie "meinserver.ffulm" aufgelöst werden. Masterserver dafür ist zur Zeit vpn6.
 Falls weitere Server hinzugefügt werden, müssen die Zonendateien auf dem Master (db.10.33, db.ffulm, named.conf.local) manuell angepasst werden. Hierzu bitte auf der Mailingliste melden.
 
+Des Weiteren sollte mindestens ein Server mit dem Schalter "-m" als "Master" betrieben werden. Zur Zeit ist dies VPN6.
+https://github.com/ffulm/server-config/blob/master/freifunk/update.sh#L121
+
 Freifunk Ulm nutzt folgende Netze:
  * ipv4: 10.33.0.0/16
  * ipv6: fdaf:17a0:fff1::/48
