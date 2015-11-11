@@ -331,7 +331,7 @@ if [ "$setup_gateway" = "true" ]; then
 		apt-get install --assume-yes bind9
 
 		echo "(I) Configure bind"
-		cp -r etc/bind /etc/
+		cp -r etc/bind /etc/bind/
 		sed -i "s/fdef:17a0:ffb1:300::1/$ip_addr/g" /etc/bind/named.conf.options
 	}
 
