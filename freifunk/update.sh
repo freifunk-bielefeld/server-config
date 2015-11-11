@@ -111,7 +111,8 @@ if ! is_running "alfred"; then
 	# create separate run dir with appropriate access rights because it gets deleted with every reboot
 	mkdir --parents --mode=775 /var/run/alfred/
 	chown alfred.alfred /var/run/alfred/
-
+	# wait for changes to settle before starting up alfred... 
+	sleep 3
 	echo "(I) Start alfred."
 	# set umask of socket from 0117 to 0111 so that update.sh can access alfred.sock
 	start-stop-daemon --start --quiet --pidfile /var/run/alfred/alfred.pid \
