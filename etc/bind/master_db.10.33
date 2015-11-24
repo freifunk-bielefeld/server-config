@@ -20,6 +20,6 @@ $TTL    604800
 1.76  IN      PTR     vpn4.ffulm.                   ; 10.33.76.1
 1.80  IN      PTR     vpn5.ffulm.                   ; 10.33.80.1
 1.84  IN      PTR     vpn6.ffulm.                   ; 10.33.84.1
-2.99  IN      PTR     tobox.ffulm.                  ; 10.33.99.2
+1.99  IN      PTR     monitor.ffulm.                ; 10.33.99.1
 3.99  IN      PTR     daniel.ffulm.                 ; 10.33.99.3
 4.99  IN      PTR     unterstuertzungsverein.ffulm. ; 10.33.99.4
