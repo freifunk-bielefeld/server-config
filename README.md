@@ -42,7 +42,7 @@ Alle Serverbetreiber müssen sich absprechen, was den Bereich der verteilten DHC
  * vpn1: 10.33.64.1 range 10.33.64.2 10.33.67.255 geplant
  * vpn2: 10.33.68.1 range 10.33.68.2 10.33.71.255
  * vpn3: 10.33.72.1 range 10.33.72.2 10.33.75.255
- * vpn4: 10.33.76.1 range 10.44.76.2 10.33.79.255 geplant
+ * vpn4: 10.33.76.1 range 10.33.76.2 10.33.79.255 geplant
  * vpn5: 10.33.80.1 range 10.33.80.2 10.33.83.255
  * vpn6: 10.33.84.1 range 10.33.84.2 10.33.87.255
  
