@@ -46,7 +46,7 @@ Alle Serverbetreiber müssen sich absprechen, was den Bereich der verteilten DHC
  * vpn5: 10.33.80.1 range 10.33.80.2 10.33.83.255
  * vpn6: 10.33.84.1 range 10.33.84.2 10.33.87.255
  
-Innerhalb des Freifunknetzes gibt es die DNS Zone ".ffulm". D.h. es können auch Namen wie "meinserver.ffulm" aufgelöst werden. Masterserver dafür ist zur Zeit vpn6.
+Innerhalb des Freifunknetzes gibt es die DNS Zone ".ffulm". D.h. es können auch Namen wie "meinserver.ffulm" aufgelöst werden. Masterserver dafür ist zur Zeit vpn5.
 Falls weitere Server hinzugefügt werden, müssen die Zonendateien auf dem Master (db.10.33, db.ffulm, named.conf.local) manuell angepasst werden. Hierzu bitte auf der Mailingliste melden.
 
 Des Weiteren sollte mindestens ein Server mit dem Schalter "-m" als "Master" betrieben werden. Zur Zeit ist dies VPN6.
