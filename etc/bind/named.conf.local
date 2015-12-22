@@ -9,11 +9,11 @@
 zone "ffulm" {
         type slave;
         file "/etc/bind/db.ffulm";
-        masters { 10.33.84.1; };
+        masters { 10.33.80.1; };
 };
 
 zone "33.10.in-addr.arpa" {
         type slave;
         file "/etc/bind/db.10.33";
-        masters { 10.33.84.1; };
+        masters { 10.33.80.1; };
 };
