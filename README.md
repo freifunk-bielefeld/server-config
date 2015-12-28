@@ -54,7 +54,7 @@ https://github.com/ffulm/server-config/blob/master/freifunk/update.sh#L121
 
 Freifunk Ulm nutzt folgende Netze:
  * ipv4: 10.33.0.0/16
- * ipv6: fdaf:17a0:fff1::/48
+ * ipv6: fdef:17a0:fff1::/48
  
 ICVPN
 -----
@@ -68,4 +68,4 @@ Tinc selbst bauen:
 https://gist.github.com/mweinelt/efff4fb7eba1ee41ef2d
 
 ICVPN im Freifunk wiki:
-https://wiki.freifunk.net/IC-VPN/Tinc
+https://wiki.freifunk.net/IC-VPN/
