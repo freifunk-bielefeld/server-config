@@ -56,6 +56,10 @@ Freifunk Ulm nutzt folgende Netze:
  * ipv4: 10.33.0.0/16
  * ipv6: fdef:17a0:fff1::/48
  
+Durchsatz und Statistiken
+-----
+Es wird vnstat und munin auf den Servern verwendet. Wenn dies nicht gewünscht wird muss die Variable setup_statistics auf "no" gesetzt werden.
+
 ICVPN
 -----
 
@@ -64,8 +68,8 @@ Tinc aus Debian jessie ist (angeblich) nicht stabil genug.
 Doku zu ICVPN bei FF Bielefeld:
 https://wiki.freifunk-bielefeld.de/doku.php?id=ic-vpn
 
-Tinc selbst bauen:
+Tinc 1.11 pre selbst bauen:
 https://gist.github.com/mweinelt/efff4fb7eba1ee41ef2d
 
 ICVPN im Freifunk wiki:
-https://wiki.freifunk.net/IC-VPN/
+https://wiki.freifunk.net/IC-VPN
