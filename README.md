@@ -6,6 +6,7 @@ Vorausgesetzt wird eine Debian 8 Installation (Jessie).
 Um einen Server einzurichten, reicht es, das Script setup_server.sh als Benutzer 'root' auszuführen:
 
 ```
+apt-get install git
 git clone https://github.com/ffulm/server-config.git
 cd server-config
 ./setup_server.sh
