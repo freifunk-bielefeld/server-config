@@ -5,10 +5,11 @@
 -A INPUT -i lo -j ACCEPT
 -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
 
-# allow SSH, ICMP, and HTTP
+# allow SSH
 -A INPUT -p tcp -m tcp --dport 22 -j ACCEPT
--A INPUT -p icmp -j ACCEPT
+# allow icmp
 -A INPUT -p icmpv6 -j ACCEPT
+# allow HTTP
 -A INPUT -p tcp -m tcp --dport 80 -j ACCEPT
 
 # allow established connections from freifunk
@@ -20,6 +21,9 @@
 
 # allow ALFRED from freifunk
 -A INPUT -i bat0 -p udp --dport 16962 -j ACCEPT
+
+# allow munin stats from freifunk
+-A INPUT -i bat0 -p tcp -m tcp --dport 4949 -j ACCEPT
 
 # allow NAT64
 -A FORWARD -i bat0 -o nat64 -j ACCEPT

@@ -15,6 +15,7 @@ firmware="server"
 community="ulm"
 webserver="true" #start webserver, create map/status/status page
 gateway="false" #start OpenVPN, bind, tayga, radvd, DHCP, batman gateway mode
+statistics="true" #start and setup statistical output
 
 
 ##############
@@ -175,6 +176,13 @@ if [ "$webserver" = "true" ]; then
 
 	#update nodes/clients/gateways counter
 	./counter_update.py '/var/www/nodes.json' '/var/www/counter.svg'
+
+	# statistics
+	if [ "$statistics" = "true" ]; then
+	  # add vnstat interface for bat0
+	  vnstat -u -i bat0
+	  /etc/init.d/vnstat start
+	fi
 fi
 
 if [ "$gateway" = "true" ]; then
@@ -201,6 +209,7 @@ if [ "$gateway" = "true" ]; then
 		echo "(I) Start DHCP."
 		/etc/init.d/isc-dhcp-server start
 	fi
+
 	# Activate the gateway announcements on a node that has a DHCP server running
 	batctl gw_mode server
 fi

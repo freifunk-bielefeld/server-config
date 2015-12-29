@@ -5,12 +5,23 @@
 -A INPUT -i lo -j ACCEPT
 -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
 
-# allow SSH, ICMP, DNS, HTTP, and fastd
+# allow SSH
 -A INPUT -p tcp -m tcp --dport 22 -j ACCEPT
+
+# allow icmp
 -A INPUT -p icmp -j ACCEPT
+
+# allow HTTP
+-A INPUT -p tcp -m tcp --dport 80 -j ACCEPT
+
+# allow DNS from freifunk
 -A INPUT -i bat0 -p udp -m udp --dport 53 -j ACCEPT
 -A INPUT -i bat0 -p tcp -m tcp --dport 53 -j ACCEPT
--A INPUT -p tcp -m tcp --dport 80 -j ACCEPT
+
+# allow munin stats from freifunk
+-A INPUT -i bat0 -p tcp -m tcp --dport 4949 -j ACCEPT
+
+# allow fastd
 -A INPUT -p tcp -m tcp --dport 1244 -j ACCEPT
 -A INPUT -p udp -m udp --dport 1244 -j ACCEPT
 

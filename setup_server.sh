@@ -22,6 +22,10 @@ setup_webserver="true"
 #setup a gateway with http://mullvad.net
 setup_gateway="false"
 
+#setup statistics
+# webserver must be enabled for this to work
+setup_statistics="true"
+
 #IP v4 for mesh interface.
 #This is gateway specific. Get your IP by writing to the mailing list!
 #Format: xxx.xxx.xxx.xxx
@@ -156,6 +160,23 @@ if [ "$setup_webserver" = "true" ]; then
 	}
 
 	sed -i "s/webserver=\".*\"/webserver=\"true\"/g" /opt/freifunk/update.sh
+fi
+
+if [ "$setup_webserver" = "true" && "$setup_statistics" = "true" ]; then
+	echo "stats: Setup statistic client (vnstat/munin)"
+	apt-get install --assume-yes php5-cgi vnstat munin-node
+	cp -f etc/vnstat.conf /etc/vnstat/
+	cp -f etc/munin/munin-node.conf /etc/munin/
+	# substitute hostname in munin-node.conf
+	host=`$(hostname) | cut -f1 -d"."`
+	sed -i "s/host_name\ vpnX/host_name\ $host/g" /etc/munin/munin-node.conf
+	# add vnstat interface for main NIC
+	vnstat -u -i eth0
+else if [ "$setup_statistics " != "true" ]; then
+	echo "stats: no statistics configured"
+	# set switch to "false" in update.sh
+	sed -i "s/statistics=\".*\"/statistics=\"false\"/g" /opt/freifunk/update.sh
+     fi
 fi
 
 if [ -z "$(cat /etc/crontab | grep '/opt/freifunk/update.sh')" ]; then
@@ -396,6 +417,13 @@ if [ "$setup_gateway" = "true" ]; then
 		sed -i "s/fdef:17a0:fff1:300::1/$ip_addr/g" /etc/radvd.conf
 		sed -i "s/fdef:17a0:fff1:300::/$ff_prefix/g" /etc/radvd.conf
 	}
+
+        # statistics
+        if [ "$setup_statistics" = "true" ]; then
+          # add vnstat interface for tun0
+          vnstat -u -i tun0
+        fi
+	
 
 	sed -i "s/gateway=\".*\"/gateway=\"true\"/g" /opt/freifunk/update.sh
 fi
