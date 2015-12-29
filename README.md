@@ -60,6 +60,33 @@ Freifunk Ulm nutzt folgende Netze:
 Durchsatz und Statistiken
 -----
 Es wird vnstat und munin auf den Servern verwendet. Wenn dies nicht gewünscht wird muss die Variable setup_statistics auf "no" gesetzt werden.
+```
+apt-get install munin
+cd /var/www
+ln -s /var/cache/munin/www/munin
+```
+Dann unter /etc/munin.conf anpassen:
+```
+#[localhost.localdomain]
+#    address 127.0.0.1
+#    use_node_name yes
+[vpn1.ffulm]
+     address 10.33.64.1
+[vpn2.ffulm]
+     address 10.33.68.1
+[vpn3.ffulm]
+     address 10.33.72.1
+[vpn4.ffulm]
+     address 10.33.76.1
+[vpn5.ffulm]
+     address 127.0.0.1
+[vpn6.ffulm]
+     address 10.33.84.1
+```
+Daemon neustarten
+```
+/etc/init.d/munin restart
+```
 
 ICVPN
 -----
