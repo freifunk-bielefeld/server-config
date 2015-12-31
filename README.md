@@ -59,13 +59,15 @@ Freifunk Ulm nutzt folgende Netze:
  
 Durchsatz und Statistiken
 -----
-Es wird vnstat und munin auf den Servern verwendet. Wenn dies nicht gewünscht wird muss die Variable setup_statistics auf "no" gesetzt werden.
+Es wird vnstat und munin auf den Gateways verwendet. Wenn dies nicht gewünscht wird, muss die Variable setup_statistics auf "no" gesetzt werden. Die Software für munin clients wird automatisch eingerichtet, der master server für munin ist z.Z. vpn5 und wird folgendermaßen konfiguriert:
+
+### munin master
 ```
 apt-get install munin
 cd /var/www
 ln -s /var/cache/munin/www/munin
 ```
-Dann unter /etc/munin.conf anpassen:
+Dann unter /etc/munin.conf anpassen und alle clients eintragen:
 ```
 #[localhost.localdomain]
 #    address 127.0.0.1
