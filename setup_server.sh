@@ -165,13 +165,13 @@ if [ "$setup_webserver" = "true" ]; then
 	fi
 fi
 
-if [ "$setup_webserver" = "true" && "$setup_statistics" = "true" ]; then
+if [ "$setup_webserver" = "true" ] && [ "$setup_statistics" = "true" ]; then
 	echo "stats: Setup statistic client (vnstat/munin)"
 	apt-get install --assume-yes php5-cgi vnstat munin-node
-	cp -f etc/vnstat.conf /etc/vnstat/
+	cp -f etc/vnstat.conf /etc/
 	cp -f etc/munin/munin-node.conf /etc/munin/
 	# substitute hostname in munin-node.conf
-	host=`$(hostname) | cut -f1 -d"."`
+	host=`echo $(hostname) | cut -f1 -d"."`
 	sed -i "s/host_name\ vpnX/host_name\ $host/g" /etc/munin/munin-node.conf
 	# add vnstat interface for main NIC
 	vnstat -u -i eth0
