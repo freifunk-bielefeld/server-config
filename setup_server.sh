@@ -160,6 +160,9 @@ if [ "$setup_webserver" = "true" ]; then
 	}
 
 	sed -i "s/webserver=\".*\"/webserver=\"true\"/g" /opt/freifunk/update.sh
+	else if [ "$setup_webserver" != "true" ]; then
+		sed -i "s/webserver=\".*\"/webserver=\"false\"/g" /opt/freifunk/update.sh
+	fi
 fi
 
 if [ "$setup_webserver" = "true" && "$setup_statistics" = "true" ]; then
@@ -172,7 +175,7 @@ if [ "$setup_webserver" = "true" && "$setup_statistics" = "true" ]; then
 	sed -i "s/host_name\ vpnX/host_name\ $host/g" /etc/munin/munin-node.conf
 	# add vnstat interface for main NIC
 	vnstat -u -i eth0
-else if [ "$setup_statistics " != "true" ]; then
+else if [ "$setup_statistics" != "true" ]; then
 	echo "stats: no statistics configured"
 	# set switch to "false" in update.sh
 	sed -i "s/statistics=\".*\"/statistics=\"false\"/g" /opt/freifunk/update.sh
