@@ -98,9 +98,10 @@ Daemon neustarten
 ICVPN
 -----
 Folgende Adressen wurden im [Transfernetz des ICVPN] (https://github.com/freifunk/icvpn-meta/blob/master/ulm) für die Ulmer community reserviert:
+
 vpn5
- * ipv4: 10.207.0.105
- * ipv6: fec0::a:cf:0:96
+ * ipv4: ```10.207.0.105```
+ * ipv6: ```fec0::a:cf:0:96```
 
 Doku zu ICVPN bei FF Bielefeld: (veraltet)
 https://wiki.freifunk-bielefeld.de/doku.php?id=ic-vpn
