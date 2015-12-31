@@ -59,8 +59,8 @@ https://github.com/ffulm/server-config/blob/master/freifunk/update.sh#L121
 
 ### Netz
 Freifunk Ulm nutzt folgende Netze:
- * ipv4: 10.33.0.0/16
- * ipv6: fdef:17a0:fff1::/48
+ * ipv4: ```10.33.0.0/16```
+ * ipv6: ```fdef:17a0:fff1::/48```
  
 Durchsatz und Statistiken
 -----
