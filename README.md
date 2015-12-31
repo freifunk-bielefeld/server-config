@@ -3,7 +3,7 @@ Freifunk-Ulm Server
 
 Scripte und Konfigurationsdateien zum schnellen Einrichten eines Servers für Freifunk-Ulm.
 Vorausgesetzt wird eine Debian 8 Installation (Jessie).
-Um einen Server einzurichten, reicht es, das Script setup_server.sh als Benutzer 'root' auszuführen:
+Um einen Server einzurichten, reicht es, das Script "setup_server.sh" als Benutzer 'root' auszuführen:
 
 ```
 apt-get install git
@@ -12,29 +12,32 @@ cd server-config
 ./setup_server.sh
 ```
 
-Nach erfolgreichem Einrichten wird das Script /opt/freifunk/update.sh alle 5 Minuten
-von crond aufgerufen. Dadurch wird die Karte regelmäßig aktualisiert und z.B. nach
+Nach erfolgreichem Einrichten wird das Script "/opt/freifunk/update.sh" alle 5 Minuten
+von crond aufgerufen. Dadurch wird die Karte regelmäßig aktualisiert und nach
 einem Neustart notwendige Programme neu gestartet.
 
-Für die Serverfunktion werden folgende Programme installiert und konfiguriert:
+### Server
+Für die Serverfunktion werden folgende Programme installiert und automatisch konfiguriert:
 
  * Routingprotokoll: [batman-adv](http://www.open-mesh.org/projects/batman-adv/wiki)
  * FF-VPN: [fastd](https://projects.universe-factory.net/projects/fastd/wiki)
  * Webserver: lighttpd
  * Karte: [ffmap](https://github.com/ffnord/ffmap-d3)
 
-Wird die entsprechende Variable im Setup-Script auf true gesetzt, wird der Server gleich auch
+### Gateway
+Wird die Variable "setup_gateway" im Setup-Script auf "true" gesetzt, wird der Server zusätzlich
 als Gateway eingerichtet. Das Script erwartet dann eine ZIP-Datei mit den Accountdaten
 von mullvad.net im gleichen Verzeichnis. Zum Testen eignet sich ein anonymer Testaccount
 für drei Stunden.
 
-Ansonsten werden für die Gatewayfunktion folgende Programme installiert und konfiguriert:
+Für die Gatewayfunktion werden folgende Programme installiert und automatisch konfiguriert:
 
  * NAT64: [tayga](http://www.litech.org/tayga/)
  * DNS64: bind
  * IPv6 Router Advertisment: radvd
  * Auslands-VPN: OpenVPN
 
+### IPv4
 Durch die Reaktivierung von IPv4 im Freifunk Netz werden weitere Dienste benötigt:
  * DHCP (isc-dhcp-server)
 
@@ -50,16 +53,18 @@ Alle Serverbetreiber müssen sich absprechen, was den Bereich der verteilten DHC
 Innerhalb des Freifunknetzes gibt es die DNS Zone ".ffulm". D.h. es können auch Namen wie "meinserver.ffulm" aufgelöst werden. Masterserver dafür ist zur Zeit vpn5.
 Falls weitere Server hinzugefügt werden, müssen die Zonendateien auf dem Master (db.10.33, db.ffulm, named.conf.local) manuell angepasst werden. Hierzu bitte auf der Mailingliste melden.
 
-Des Weiteren sollte mindestens ein Server mit dem Schalter "-m" als "Master" betrieben werden. Zur Zeit ist dies VPN6.
+### alfred
+Des Weiteren sollte mindestens ein Server mit dem Schalter "-m" als alfred master betrieben werden. Zur Zeit ist dies vpn6.
 https://github.com/ffulm/server-config/blob/master/freifunk/update.sh#L121
 
+### Netz
 Freifunk Ulm nutzt folgende Netze:
  * ipv4: 10.33.0.0/16
  * ipv6: fdef:17a0:fff1::/48
  
 Durchsatz und Statistiken
 -----
-Es wird vnstat und munin auf den Gateways verwendet. Wenn dies nicht gewünscht wird, muss die Variable setup_statistics auf "no" gesetzt werden. Die Software für munin clients wird automatisch eingerichtet, der master server für munin ist z.Z. vpn5 und wird folgendermaßen konfiguriert:
+Es wird vnstat und munin auf den Gateways verwendet. Wenn dies nicht gewünscht wird, muss die Variable "setup_statistics" auf "false" gesetzt werden. Die Software für munin clients wird automatisch eingerichtet, der master server für munin ist z.Z. vpn5 und wird folgendermaßen konfiguriert:
 
 ### munin master
 ```
@@ -92,12 +97,15 @@ Daemon neustarten
 
 ICVPN
 -----
+Folgende Adressen wurden im [Transfernetz des ICVPN] (https://github.com/freifunk/icvpn-meta/blob/master/ulm) für die Ulmer community reserviert:
+vpn5
+ * ipv4: 10.207.0.105
+ * ipv6: fec0::a:cf:0:96
 
-Tinc aus Debian jessie ist (angeblich) nicht stabil genug.
-
-Doku zu ICVPN bei FF Bielefeld:
+Doku zu ICVPN bei FF Bielefeld: (veraltet)
 https://wiki.freifunk-bielefeld.de/doku.php?id=ic-vpn
 
+Tinc aus Debian jessie ist (angeblich) nicht stabil genug.
 Tinc 1.11 pre selbst bauen:
 https://gist.github.com/mweinelt/efff4fb7eba1ee41ef2d
 
