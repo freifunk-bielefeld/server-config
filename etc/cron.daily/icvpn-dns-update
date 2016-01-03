@@ -1,0 +1,13 @@
+#!/bin/sh
+
+DATADIR=/var/lib/icvpn-meta
+
+# pull new bgp configs of peering partners from https://github.com/freifunk/icvpn-meta
+cd "$DATADIR"
+git pull -q
+
+# refresh DNS config for freifunk zones
+sudo -u nobody /opt/icvpn-scripts/mkdns -f bind -s "$DATADIR" -x ulm > /etc/bind/named.conf.freifunk
+
+# reload bind9 config
+/etc/init.d/bind9 reload > /dev/null

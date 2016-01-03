@@ -26,6 +26,10 @@ setup_gateway="false"
 # webserver must be enabled for this to work
 setup_statistics="true"
 
+#setup icvpn dns updates
+# get daily updates of intercity vpn dns zones for bind9
+setup_icvpn_dns="true"
+
 #IP v4 for mesh interface.
 #This is gateway specific. Get your IP by writing to the mailing list!
 #Format: xxx.xxx.xxx.xxx
@@ -180,6 +184,17 @@ else if [ "$setup_statistics" != "true" ]; then
 	# set switch to "false" in update.sh
 	sed -i "s/statistics=\".*\"/statistics=\"false\"/g" /opt/freifunk/update.sh
      fi
+fi
+
+if [ "$setup_icvpn_dns" = "true" ]; then
+	echo "icvpn dns: Install git and python yaml package"
+	apt-get install --assume-yes git python-yaml
+	echo "icvpn dns: Copy cron daily file"
+	cp -f etc/cron.daily/icvpn-dns-update /etc/cron.daily/
+	echo "icvpn dns: Clone icvpn-meta"
+	git clone https://github.com/freifunk/icvpn-meta /var/lib/icvpn-meta
+	echo "icvpn dns: Clone icvpn-scripts"
+	git clone https://github.com/freifunk/icvpn-scripts /opt/icvpn-scripts
 fi
 
 if [ -z "$(cat /etc/crontab | grep '/opt/freifunk/update.sh')" ]; then
