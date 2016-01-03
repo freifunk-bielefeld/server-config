@@ -142,5 +142,5 @@ birdc6 configure > /dev/null
 sudo -u nobody /opt/icvpn-scripts/mkdns -f bind -s "$DATADIR" -x ulm > /etc/bind/named.conf.freifunk
 
 # reload bind9 config
-/etc/init.d/bind9 reload
+/etc/init.d/bind9 reload > /dev/null
 ```
