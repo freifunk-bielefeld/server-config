@@ -112,3 +112,35 @@ https://gist.github.com/mweinelt/efff4fb7eba1ee41ef2d
 
 ICVPN im Freifunk wiki:
 https://wiki.freifunk.net/IC-VPN
+
+DNS im Freifunk wiki:
+https://wiki.freifunk.net/DNS
+
+Die Konfig sollte automatisch per cron.hourly/daily aktualisiert werden: 
+```
+#!/bin/sh
+
+DATADIR=/var/lib/icvpn-meta
+
+# pull new public keys of peering partners for tinc vpn daemon from https://github.com/freifunk/icvpn
+cd /etc/tinc/icvpn
+git pull -q
+
+# pull new bgp configs of peering partners from https://github.com/freifunk/icvpn-meta
+cd "$DATADIR"
+git pull -q
+
+# refresh bgp config v4/v6
+sudo -u nobody /opt/icvpn-scripts/mkbgp -4 -f bird -d peers -s "$DATADIR" -x ulm > /etc/bird/bird.d/icvpn.conf
+sudo -u nobody /opt/icvpn-scripts/mkbgp -6 -f bird -d peers -s "$DATADIR" -x ulm -t berlin:upstream > /etc/bird/bird6.d/icvpn.conf
+
+# reload bird v4/v6
+birdc configure > /dev/null
+birdc6 configure > /dev/null
+
+# refresh DNS config for freifunk zones
+sudo -u nobody /opt/icvpn-scripts/mkdns -f bind -s "$DATADIR" -x ulm > /etc/bind/named.conf.freifunk
+
+# reload bind9 config
+/etc/init.d/bind9 reload
+```
