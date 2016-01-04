@@ -188,7 +188,7 @@ fi
 
 if [ "$setup_icvpn_dns" = "true" ]; then
 	echo "icvpn dns: Install git and python yaml package"
-	apt-get install --assume-yes git python-yaml
+	apt-get install --assume-yes git sudo python-yaml
 	echo "icvpn dns: Copy cron daily file"
 	cp -f etc/cron.daily/icvpn-dns-update /etc/cron.daily/
 	echo "icvpn dns: Clone icvpn-meta"
