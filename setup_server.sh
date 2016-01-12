@@ -357,6 +357,8 @@ if [ "$setup_gateway" = "true" ]; then
 		unzip $mullvad_zip -d $tmp_dir
 		cp $tmp_dir/*/mullvad_linux.conf /etc/openvpn
 		cp $tmp_dir/*/mullvad.key /etc/openvpn
+		# set restrictive access rights on key file
+		chmod 600 /etc/openvpn/mullvad.key
 		cp $tmp_dir/*/mullvad.crt /etc/openvpn
 		cp $tmp_dir/*/ca.crt /etc/openvpn
 		cp $tmp_dir/*/crl.pem /etc/openvpn
