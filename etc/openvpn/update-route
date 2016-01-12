@@ -26,6 +26,8 @@ ip6tables_a() {
 
 # create table if it does not exist yet
 ip route show table vpn &> /dev/null || echo 100 vpn >> /etc/iproute2/rt_tables
+# prepare for ICVPN:
+ip route show table icvpn &> /dev/null || echo 200 icvpn >> /etc/iproute2/rt_tables
 
 # setup table (v6)
 ip -6 rule del table vpn &> /dev/null
@@ -36,14 +38,25 @@ ip -6 route add 2000::/3 dev "$vpn_interface" table vpn
 ip -6 rule add dev "$mesh_interface" table vpn prio 32565
 
 # setup table (v4)
+# delete bat0 rule
 ip rule del table vpn &> /dev/null
+# delete nat64 rule when server is gateway
+ip rule del table vpn &> /dev/null
+# delete ICVPN table
+ip rule del table icvpn &> /dev/null
+# add NAT64 rule
+ip rule add dev nat64 table vpn prio 32565
+# add bat0 rule
+ip rule add dev "$mesh_interface" table vpn prio 32564
+# add ICVPN rule
+ip rule add from all lookup icvpn prio 32563
+
 ip route flush table vpn
 ip route add "$vpn_gateway_v4" dev "$vpn_interface" table vpn
 ip route add default dev "$vpn_interface" table vpn
 ip rule add dev nat64 table vpn prio 32565
 
 # allow to use the gateway for IP v4 - hack 
-ip rule add dev "$mesh_interface" table vpn
 ip route flush table vpn
 # route to vpn tunnel
 ip route add 10.8.0.0/16 dev "$vpn_interface"
