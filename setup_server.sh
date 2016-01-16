@@ -179,6 +179,8 @@ if [ "$setup_webserver" = "true" ] && [ "$setup_statistics" = "true" ]; then
 	sed -i "s/host_name\ vpnX/host_name\ $host/g" /etc/munin/munin-node.conf
 	# add vnstat interface for main NIC
 	vnstat -u -i eth0
+	# grant access for vnstat
+	chown vnstat.vnstat /var/lib/vnstat/eth0
 else if [ "$setup_statistics" != "true" ]; then
 	echo "stats: no statistics configured"
 	# set switch to "false" in update.sh
@@ -442,6 +444,8 @@ if [ "$setup_gateway" = "true" ]; then
         if [ "$setup_statistics" = "true" ]; then
           # add vnstat interface for tun0
           vnstat -u -i tun0
+	  # grant access for vnstat
+	  chown vnstat.vnstat /var/lib/vnstat/tun0
         fi
 	
 

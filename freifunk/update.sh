@@ -181,6 +181,8 @@ if [ "$webserver" = "true" ]; then
 	if [ "$statistics" = "true" ]; then
 	  # add vnstat interface for bat0
 	  vnstat -u -i bat0
+	  # grant access for vnstat
+	  chown vnstat.vnstat /var/lib/vnstat/bat0
 	  /etc/init.d/vnstat start
 	fi
 fi
