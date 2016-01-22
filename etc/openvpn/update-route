@@ -24,12 +24,34 @@ ip6tables_a() {
 	ip6tables -C $@ || ip6tables -A $@
 }
 
-# create table if it does not exist yet
+# create table shortcut if it does not exist yet
 ip route show table vpn &> /dev/null || echo 100 vpn >> /etc/iproute2/rt_tables
-# prepare for ICVPN:
 ip route show table icvpn &> /dev/null || echo 200 icvpn >> /etc/iproute2/rt_tables
+ip route show table dns &> /dev/null || echo 300 dns >> /etc/iproute2/rt_tables
 
-# setup table (v6)
+# delete rules (v4)
+ip rule del table vpn &> /dev/null   #bat0
+ip rule del table vpn &> /dev/null   #nat64
+ip rule del table icvpn &> /dev/null
+ip rule del table dns &> /dev/null
+
+# flush routes
+ip route flush table vpn
+ip route flush table dns
+
+# add priority rules (v4)
+ip rule add dev nat64 table vpn prio 32565
+ip rule add dev "$mesh_interface" table vpn prio 32564
+ip rule add from all lookup icvpn prio 32563
+ip rule add from all lookup dns prio 32562
+
+# set default route to vpn tunnel
+ip route add default via "$vpn_gateway_v4" dev "$vpn_interface" table vpn
+
+# route dns requests to vpn tunnel before doing icvpn-routing
+ip route add "$vpn_gateway_v4"/32 via "$vpn_gateway_v4" dev "$vpn_interface" table dns
+
+# setup table vpn (v6)
 ip -6 rule del table vpn &> /dev/null
 ip -6 route flush table vpn
 #ip -6 route add fe80::/64 dev "$vpn_interface" table vpn
@@ -37,33 +59,6 @@ ip -6 route add "$vpn_gateway_v6/64" dev "$vpn_interface" table vpn
 ip -6 route add 2000::/3 dev "$vpn_interface" table vpn
 ip -6 rule add dev "$mesh_interface" table vpn prio 32565
 
-# setup table (v4)
-# delete bat0 rule
-ip rule del table vpn &> /dev/null
-# delete nat64 rule when server is gateway
-ip rule del table vpn &> /dev/null
-# delete ICVPN table
-ip rule del table icvpn &> /dev/null
-# add NAT64 rule
-ip rule add dev nat64 table vpn prio 32565
-# add bat0 rule
-ip rule add dev "$mesh_interface" table vpn prio 32564
-# add ICVPN rule
-ip rule add from all lookup icvpn prio 32563
-
-ip route flush table vpn
-ip route add "$vpn_gateway_v4" dev "$vpn_interface" table vpn
-ip route add default dev "$vpn_interface" table vpn
-ip rule add dev nat64 table vpn prio 32565
-
-# allow to use the gateway for IP v4 - hack 
-ip route flush table vpn
-# route to vpn tunnel
-ip route add 10.8.0.0/16 dev "$vpn_interface"
-ip route add default via "$vpn_gateway_v4" table vpn
-# route dns requests to vpn tunnel
-ip route del DNS_SERVER/32 &> /dev/null
-ip route add DNS_SERVER/32 via "$vpn_gateway_v4" dev "$vpn_interface"
 #
 iptables_a INPUT -i "$vpn_interface" -j ACCEPT
 iptables_a POSTROUTING --table nat -o "$vpn_interface" -j MASQUERADE
