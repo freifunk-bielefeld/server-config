@@ -11,8 +11,9 @@
 # allow icmp
 -A INPUT -p icmp -j ACCEPT
 
-# allow HTTP
+# allow HTTP, HTTPS
 -A INPUT -p tcp -m tcp --dport 80 -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 443 -j ACCEPT
 
 # allow DNS from freifunk
 -A INPUT -i bat0 -p udp -m udp --dport 53 -j ACCEPT
