@@ -170,6 +170,8 @@ if [ "$setup_webserver" = "true" ]; then
 		# copy cert renewal script
 		cp -r opt/letsencrypt/* /opt/letsencrypt/
 		# call once to get initial cert
+		mkdir -p /var/log/letsencrypt/
+		touch /var/log/letsencrypt/renew.log
 		/opt/letsencrypt/check_update_ssl.sh
 
 		# add letsencrypt certificate renewal script to crontab
