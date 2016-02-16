@@ -163,6 +163,22 @@ if [ "$setup_webserver" = "true" ]; then
 		chown -R www-data:www-data /var/www
 	}
 
+	{
+		# get letsencrypt client
+		echo "(I) Populate /opt/letsencrypt/"
+		mkdir -p /opt/letsencrypt/
+		cp -r opt/letsencrypt/* /opt/letsencrypt/
+		git clone https://github.com/letsencrypt/letsencrypt /opt/letsencrypt/
+		# call once to get initial cert
+		/opt/letsencrypt/check_update_ssl.sh
+
+		# add letsencrypt certificate renewal script to crontab
+		if [ -z "$(cat /etc/crontab | grep '/opt/letsencrypt/check_update_ssl.sh')" ]; then
+			echo "(I) Add certificate check entry to /etc/crontab"
+			echo '0 3 * * * * root /opt/letsencrypt/check_update_ssl.sh > /dev/null' >> /etc/crontab
+		fi
+	}
+
 	sed -i "s/webserver=\".*\"/webserver=\"true\"/g" /opt/freifunk/update.sh
 	else if [ "$setup_webserver" != "true" ]; then
 		sed -i "s/webserver=\".*\"/webserver=\"false\"/g" /opt/freifunk/update.sh
@@ -200,7 +216,7 @@ if [ "$setup_icvpn_dns" = "true" ]; then
 fi
 
 if [ -z "$(cat /etc/crontab | grep '/opt/freifunk/update.sh')" ]; then
-	echo "(I) Add entry to /etc/crontab"
+	echo "(I) Add update.sh entry to /etc/crontab"
 	echo '*/5 * * * * root /opt/freifunk/update.sh > /dev/null' >> /etc/crontab
 fi
 
