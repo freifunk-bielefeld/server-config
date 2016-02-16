@@ -5,5 +5,5 @@ if ! /opt/letsencrypt/letsencrypt-auto certonly -tvv --standalone --keep -d $(ho
     cat /var/log/letsencrypt/renew.log
     exit 1
 fi
-cat /etc/letsencrypt/live/freifunk/privkey.pem /etc/letsencrypt/live/freifunk/cert.pem > /etc/letsencrypt/live/freifunk/ssl.pem
+cat /etc/letsencrypt/live/$(hostname)/privkey.pem /etc/letsencrypt/live/$(hostname)/cert.pem > /etc/letsencrypt/live/$(hostname)/ssl.pem
 service lighttpd start

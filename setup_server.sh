@@ -41,6 +41,7 @@ ipv4_mesh_interface=""
 ipv4_dhcp_range=""
 
 #Set to 1 for this script to run. :-)
+# Make sure to set content of /etc/hostname to vpnX.freifunk-ulm.de scheme
 run=0
 
 #####################################
@@ -134,6 +135,7 @@ if [ "$setup_webserver" = "true" ]; then
 		echo "(I) Create /etc/lighttpd/lighttpd.conf"
 		cp etc/lighttpd/lighttpd.conf /etc/lighttpd/
 		sed -i "s/fdef:17a0:fff1:300::1/$ip_addr/g" /etc/lighttpd/lighttpd.conf
+		sed -i "s/SERVERNAME/$(hostname)/g" /etc/lighttpd/lighttpd.conf
 	}
 
 	if ! id www-data >/dev/null 2>&1; then
@@ -169,9 +171,11 @@ if [ "$setup_webserver" = "true" ]; then
 		git clone https://github.com/letsencrypt/letsencrypt /opt/letsencrypt/
 		# copy cert renewal script
 		cp -r opt/letsencrypt/* /opt/letsencrypt/
-		# call once to get initial cert
 		mkdir -p /var/log/letsencrypt/
 		touch /var/log/letsencrypt/renew.log
+
+		# call once to get initial cert
+		echo "(I) Get Letsencrypt Certificate... This can take some time!"
 		/opt/letsencrypt/check_update_ssl.sh
 
 		# add letsencrypt certificate renewal script to crontab
