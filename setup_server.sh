@@ -166,9 +166,9 @@ if [ "$setup_webserver" = "true" ]; then
 	{
 		# get letsencrypt client
 		echo "(I) Populate /opt/letsencrypt/"
-		mkdir -p /opt/letsencrypt/
-		cp -r opt/letsencrypt/* /opt/letsencrypt/
 		git clone https://github.com/letsencrypt/letsencrypt /opt/letsencrypt/
+		# copy cert renewal script
+		cp -r opt/letsencrypt/* /opt/letsencrypt/
 		# call once to get initial cert
 		/opt/letsencrypt/check_update_ssl.sh
 
