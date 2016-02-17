@@ -129,6 +129,8 @@ if [ "$setup_webserver" = "true" ]; then
 	{
 		echo "(I) Install lighttpd"
 		apt-get install --assume-yes lighttpd
+		# generate strong DH primes
+		openssl dhparam -out /etc/ssl/certs/dhparam.pem 4096
 	}
 
 	{
