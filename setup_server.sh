@@ -393,6 +393,10 @@ if [ "$setup_gateway" = "true" ]; then
 		#prevent OpenVPN from setting routes
 		echo "route-noexec" >> /etc/openvpn/mullvad_linux.conf
 
+		# prevent OpenVPN from changing nameservers in resolv.conf
+	        sed -i "s|up /etc/openvpn/update-resolv-conf|#up /etc/openvpn/update-resolv-conf|g" /etc/openvpn/mullvad_linux.conf
+	        sed -i "s|down /etc/openvpn/update-resolv-conf|#down /etc/openvpn/update-resolv-conf|g" /etc/openvpn/mullvad_linux.conf
+
 		#set a script that will set routes
 		echo "route-up /etc/openvpn/update-route" >> /etc/openvpn/mullvad_linux.conf
 		
