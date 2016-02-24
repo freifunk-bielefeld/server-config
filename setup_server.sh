@@ -225,7 +225,7 @@ fi
 
 if [ -z "$(cat /etc/crontab | grep '/opt/freifunk/update.sh')" ]; then
 	echo "(I) Add update.sh entry to /etc/crontab"
-	echo '*/5 * * * * root /opt/freifunk/update.sh > /dev/null' >> /etc/crontab
+	echo '*/5 * * * root /opt/freifunk/update.sh > /dev/null' >> /etc/crontab
 fi
 
 {
