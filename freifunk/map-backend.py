@@ -388,13 +388,13 @@ class Node:
             obj['clientcount'] = clientcount
 
         if uptime:
-            obj['uptime'] = self.uptime
+            obj['uptime'] = uptime
 
         if loadavg:
-            obj['loadavg'] = self.loadavg
+            obj['loadavg'] = loadavg
 
         if model:
-            obj['model'] = self.model
+            obj['model'] = model
 
         if loadavg:
             obj['loadavg'] = loadavg
