@@ -117,8 +117,8 @@ fi
 
 	echo -n "{"
 
-	[ -n "$latitude" ] && echo -n "\"latitude\" : \"$latitude\", "
-	[ -n "$longitude" ] && echo -n "\"longitude\" : \"$longitude\", "
+	[ -n "$latitude" ] && echo -n "\"latitude\" : $latitude, "
+	[ -n "$longitude" ] && echo -n "\"longitude\" : $longitude, "
 	[ -n "$name" ] && echo -n "\"name\" : \"$name\", "
 	[ -n "$firmware" ] && echo -n "\"firmware\" : \"$firmware\", "
 	[ -n "$community" ] && echo -n "\"community\" : \"$community\", "
