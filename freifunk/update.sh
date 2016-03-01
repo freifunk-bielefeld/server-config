@@ -8,7 +8,8 @@ ip_addr=""
 ff_prefix=""
 
 #For the map
-geo=""
+longitude=""
+latitude=""
 name="$(hostname)"
 firmware="server"
 community="bielefeld"
@@ -116,7 +117,8 @@ fi
 
 	echo -n "{"
 
-	[ -n "$geo" ] && echo -n "\"geo\" : \"$geo\", "
+	[ -n "$latitude" ] && echo -n "\"latitude\" : \"$latitude\", "
+	[ -n "$longitude" ] && echo -n "\"longitude\" : \"$longitude\", "
 	[ -n "$name" ] && echo -n "\"name\" : \"$name\", "
 	[ -n "$firmware" ] && echo -n "\"firmware\" : \"$firmware\", "
 	[ -n "$community" ] && echo -n "\"community\" : \"$community\", "
