@@ -203,14 +203,6 @@ class AlfredParser:
             nodes[smac] = node
             links[(smac, dmac)] = Link(node, smac, dmac, quality)
 
-'''
-def createTestNodes():
-        n1 = Node("00:02:b3:8d:61:25", {'name' : 'AHF-Master', 'contact' : 'foo@bar.ham', 'community' : 'ffbi',  'firmware' : '1.2.3', 'longitude' :  8.216205, 'latitude' : 50.078978, 'clientcount' : 2,  "gateway" : False, "vpn" : False}, True)
-        n2 = Node("30:b5:c2:b0:4e:ba", {'name' : 'Kastel2', 'contact' : 'foo@bar.ham', 'community' : 'ffbi',  'firmware' : '1.2.3', 'longitude' : 8.216553, 'latitude' : 50.079531, 'clientcount' : 8,  "gateway" : False, "vpn" : False}, True)
-        l1 = Link(n1, n1.mac, n2.mac, 255/255.)
-        l2 = Link(n2, n2.mac, n1.mac, 255/255.)
-        return ([n1, n2], [l1, l2])
-'''
 
 class Node:
     r'''
@@ -266,8 +258,11 @@ class Node:
         rootfs_usage = properties.get('rootfs_usage', None)
         memory_usage = properties.get('memory_usage', None)
         
-        obj = {}
-        obj["statistics"] = {}
+        obj = {
+            "statistics" : {},
+            "owner" : {},
+            "nodeinfo" : {}
+        }
 
         if uptime:
             obj["statistics"]['uptime'] = uptime
@@ -283,8 +278,6 @@ class Node:
         if memory_usage:
             obj["statistics"]['memory_usage'] = memory_usage
 
-        obj["nodeinfo"] = {}
-
         obj["nodeinfo"]['network'] = {
             "mac": self.mac,
             #"addresses": [],
@@ -294,6 +287,9 @@ class Node:
 
         obj['nodeinfo']['hostname'] = name
         obj['nodeinfo']['node_id'] = re.sub('[:]', '', self.mac)
+
+        if contact:
+            obj["owner"]["contact"] = contact
 
         if longitude and latitude:
             obj['nodeinfo']['location'] = {
