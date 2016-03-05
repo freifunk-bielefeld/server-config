@@ -52,6 +52,7 @@ class AlfredParser:
             'loadavg': { "type": "number" },
             'rootfs_usage' : { "type": "number" },
             'memory_usage' : { "type": "number" },
+            'addresses' :  {"type": "array", "items": { "type": "string" } },
 
             "clientcount": { "type": "integer", "minimum": 0, "maximum": 255 },
             "gateway": { "type": "boolean" },
@@ -257,10 +258,15 @@ class Node:
         model = properties.get('model', None)
         rootfs_usage = properties.get('rootfs_usage', None)
         memory_usage = properties.get('memory_usage', None)
+        addresses = properties.get('addresses', None)
         
         obj = {
-            "statistics" : {},
-            "nodeinfo" : {}
+            'statistics' : {},
+            'nodeinfo' : {
+                'network' : {
+                    'mac': self.mac
+                }
+            }
         }
 
         if uptime:
@@ -277,12 +283,8 @@ class Node:
         if memory_usage:
             obj["statistics"]['memory_usage'] = memory_usage
 
-        obj["nodeinfo"]['network'] = {
-            "mac": self.mac,
-            #"addresses": [],
-            #"mesh_interfaces" : [],
-            #"mesh" : {}
-        }
+        if addresses:
+            obj["nodeinfo"]['network']['addresses'] = addresses
 
         obj['nodeinfo']['hostname'] = name
         obj['nodeinfo']['node_id'] = re.sub('[:]', '', self.mac)
