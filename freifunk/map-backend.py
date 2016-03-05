@@ -260,7 +260,6 @@ class Node:
         
         obj = {
             "statistics" : {},
-            "owner" : {},
             "nodeinfo" : {}
         }
 
@@ -289,7 +288,7 @@ class Node:
         obj['nodeinfo']['node_id'] = re.sub('[:]', '', self.mac)
 
         if contact:
-            obj["owner"]["contact"] = contact
+            obj["nodeinfo"]["owner"] = { "contact" : contact }
 
         if longitude and latitude:
             obj['nodeinfo']['location'] = {
