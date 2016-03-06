@@ -601,7 +601,6 @@ def removeOldNodes(nodes, delta):
         count += 1
 
     print("Removed {} old nodes".format(count))
-    
 
 # count unique node entries
 def countNodes(nodes):
@@ -629,7 +628,6 @@ def main():
     parser.add_argument('--meshviewer-nodes', help=r'output nodes.json file for meshviewer')
     parser.add_argument('--meshviewer-graph', help=r'output graph.json file for meshviewer')
     parser.add_argument('--storage', default="nodes_backup.bin",help=r'store old data between calls e.g. to remember node lastseen values')
-    parser.add_argument('-c', '--communities', nargs='+', help=r'Communities we want to filter for. Show all if none defined.')
     args = parser.parse_args()
 
     nodes = {}
@@ -660,11 +658,6 @@ def main():
                 if node:
                     force = properties.get("force", False)
                     node.update_properties(properties, force)
-
-    #filter out unknown communities
-    for node in nodes.values():
-        if args.communities and node.properties.get('community') not in args.communities:
-            continue
 
     # find reverse node for each link
     for link in links.values():
