@@ -229,8 +229,10 @@ class Node:
         Replace any properties with their respective values in ``properties``.
         '''
         if force:
-            ''' merge/overwrite values '''
-            self.properties.update(properties)
+            ''' discard all previous properties '''
+            self.properties = dict(properties)
+            if 'force' in self.properties:
+                del self.properties['force']
         else:
             ''' add new key/value pairs only if not already set '''
             for key, value in properties.items():
