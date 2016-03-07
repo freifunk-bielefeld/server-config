@@ -618,6 +618,17 @@ def countNodes(nodes):
 def isFile(path):
     return path and os.path.isfile(path)
 
+def removeUnknownCommunities(nodes, communities):
+    del_keys = []
+
+    for key, node in nodes.items():
+        community = node.properties.get('community', None)
+        if community not in communities:
+            del_keys.append(key)
+
+    for key in del_keys:
+        del nodes[key]
+
 def main():
     import argparse, sys, json
 
@@ -628,6 +639,7 @@ def main():
     parser.add_argument('--meshviewer-nodes', help=r'output nodes.json file for meshviewer')
     parser.add_argument('--meshviewer-graph', help=r'output graph.json file for meshviewer')
     parser.add_argument('--storage', default="nodes_backup.bin",help=r'store old data between calls e.g. to remember node lastseen values')
+    parser.add_argument('-c', '--communities', nargs='+', help=r'Communities we want to filter for. Show all if none defined.')
     args = parser.parse_args()
 
     nodes = {}
@@ -635,7 +647,9 @@ def main():
 
     if isFile(args.storage):
         nodes = loadNodes(args.storage)
-        print("Loaded {} nodes from {}".format(countNodes(nodes), args.storage))
+
+    if args.communities:
+        removeUnknownCommunities(nodes, args.communities)
 
     removeOldNodes(nodes, datetime.timedelta(days = 7))
 
