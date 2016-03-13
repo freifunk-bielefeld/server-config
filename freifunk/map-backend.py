@@ -468,7 +468,7 @@ class Link:
             'source': self.source.index,
             'target': self.reverse.source.index,
             'quality': '{:.3f}, {:.3f}'.format(self.quality, self.reverse.quality),
-            'vpn': True if self.source.properties['vpn'] or self.reverse.source.properties['vpn'] else False
+            'type': 'vpn' if self.source.properties['vpn'] or self.reverse.source.properties['vpn'] else None
         }
 
     # a printable representation
