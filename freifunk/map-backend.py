@@ -649,7 +649,10 @@ def main():
     parser.add_argument('-c', '--communities', nargs='+', help=r'Communities we want to filter for. Show all if none defined.')
     args = parser.parse_args()
 
+    # mac => node
     nodes = {}
+
+    # (smac, dmac) => Link
     links = {}
 
     if isFile(args.storage):
