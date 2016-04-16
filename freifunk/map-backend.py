@@ -486,7 +486,9 @@ def render_meshviewer_nodes(nodes, links):
     for node in nodes.values():
         if node.done:
             continue
-        node.done = True
+        else:
+            node.done = True
+
         id = re.sub('[:]', '', node.mac)
         all_nodes[id] = node.meshviewer()
 
@@ -509,6 +511,8 @@ def render_meshviewer_graph(nodes, links):
     for node in nodes.values():
         if node.done:
             continue
+        else:
+            node.done = True
 
         node.index = index
         all_nodes.append({
@@ -516,7 +520,6 @@ def render_meshviewer_graph(nodes, links):
             'id' : node.mac
         })
         index += 1
-        node.done = False
 
     # a dictionary (smac,dmac)->link which is used to discover the reverse of each link
     all_links = []
@@ -613,8 +616,10 @@ def countNodes(nodes):
     for node in nodes.values():
         if node.done:
             continue;
+        else:
+            node.done = True
         count += 1
-        node.done = True
+
     return count
 
 def isFile(path):
