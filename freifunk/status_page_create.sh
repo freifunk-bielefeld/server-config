@@ -64,7 +64,7 @@ else
 fi
 
 
-u=`uptime`
+u="$(uptime)"
 load="${u##*:}"
 u="${u%%,*}"
 uptime="${u##*up}"
