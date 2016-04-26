@@ -64,20 +64,20 @@ def main(argv):
 	client_counter = 0
 	gateway_counter = 0
 
-	for element in decoded["nodes"]:
+	for element in decoded["nodes"].values():
 		if not element["flags"].get("online", False):
 			continue
 
-		if community and community != element.get("community", None):
+		if community and community != element["nodeinfo"]["system"].get("site_code", None):
 			continue
 
 		node_counter += 1
-		client_counter += element.get("clientcount", 0)
+		client_counter += element["statistics"].get("clients", 0)
 
 		if element["flags"].get("gateway", False):
 			gateway_counter += 1
 
-	#print("gatewway_counter: {}".format(gateway_counter))
+	#print("gateway_counter: {}".format(gateway_counter))
 	#print("client_counter: {}".format(client_counter))
 	#print("node_counter: {}".format(node_counter))
 
