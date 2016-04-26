@@ -9,7 +9,9 @@ import subprocess
 
 '''
 This script sets the text values for fields labeled
-"node_counter" and "client_counter" of a SVG file.
+"node_counter" and "client_counter", "gateway_counter" and "date_updated" of a SVG file.
+
+The input file is the same nodes.json file that the meshviewer uses.
 '''
 def execute(args):
 	p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
