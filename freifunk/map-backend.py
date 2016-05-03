@@ -41,7 +41,7 @@ class AlfredParser:
         "properties": {
             "geo": { "type": "string", "pattern": GEO_RE }, #deprecated in favor of longitude/latitude
             "name": { "type": "string", "maxLength": 32 },
-            "contact": { "type": "string", "maxLength": 32 },
+            "contact": { "type": "string", "maxLength": 50 },
             "firmware": { "type": "string", "maxLength": 32 },
             "community": { "type": "string", "maxLength": 32 },
 
