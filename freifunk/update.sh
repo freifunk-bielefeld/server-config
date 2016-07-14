@@ -44,7 +44,7 @@ ula_addr()
         fi
 
         mac=${mac//:/} # remove ':'
-        mac=${mac:0:6}fffe${mac:6:6} # insert ffee
+        mac=${mac:0:6}fffe${mac:6:6} # insert fffe
         mac=$(echo $mac | sed 's/..../&:/g') # insert ':'
 
         # assemble IPv6 address
