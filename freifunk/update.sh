@@ -201,7 +201,7 @@ if [ "$webserver" = "true" ]; then
 	alfred -r 64 > /tmp/maps.txt
 
 	#create map data
-	./map-backend.py -m /tmp/maps.txt -a ./aliases.json --ffmap-nodes /var/www/nodes.json
+	./map-backend.py -m /tmp/maps.txt -a ./aliases.json --meshviewer-nodes /var/www/nodes.json  --meshviewer-graph /var/www/graph.json
 
 	#update FF-Internal status page
 	./status_page_create.sh '/var/www/index.html'
