@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #This script is called every 5 minutes via crond
 
