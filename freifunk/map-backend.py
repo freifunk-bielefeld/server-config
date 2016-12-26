@@ -582,9 +582,10 @@ def loadNodes(path):
         nodes = pickle.load(f)
 
     for node in nodes.values():
-        #reset temporaies
+        #reset old properties
         node.online = False
-        node.index = None;
+        node.index = None
+        node.clientcount = 0
 
     return nodes
 
@@ -655,6 +656,8 @@ def main():
     # (smac, dmac) => Link
     links = {}
 
+    # load old nodes that we have stored from the last call of this script,
+    # that way we can show nodes that are offline
     if isFile(args.storage):
         nodes = loadNodes(args.storage)
 
