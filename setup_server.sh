@@ -91,11 +91,11 @@ if [ -z "$mac_addr" -o -z "$ip_addr" ]; then
 fi
 
 echo "(I) Update package database"
-apt-get update
+apt update
 
 {
 	echo "(I) Create /opt/freifunk/"
-	apt-get install --assume-yes python3 python3-jsonschema
+	apt install --assume-yes python3 python3-jsonschema
 	cp -rf freifunk /opt/
 
 	sed -i "s/ip_addr=\".*\"/ip_addr=\"$ip_addr\"/g" /opt/freifunk/update.sh
@@ -107,7 +107,7 @@ apt-get update
 if [ "$setup_webserver" = "true" ]; then
 	{
 		echo "(I) Install lighttpd"
-		apt-get install --assume-yes lighttpd
+		apt install --assume-yes lighttpd
 	}
 
 	{
@@ -127,7 +127,7 @@ if [ "$setup_webserver" = "true" ]; then
 		cp -r var/www/* /var/www/
 
 		echo "(I) Add ffmap-d3"
-		apt-get install --assume-yes make git
+		apt install --assume-yes make git
 		git clone https://github.com/freifunk-bielefeld/ffmap-d3.git
 		cd ffmap-d3
 		sed -i "s/gotham/$community_id/g" config.js
@@ -153,7 +153,7 @@ fi
 	VERSION=2016.1
 
 	echo "(I) Install batman-adv, batctl and alfred ($VERSION)."
-	apt-get install --assume-yes wget build-essential linux-headers-$(uname -r) pkg-config libnl-3-dev libjson-c-dev git libcap-dev pkg-config
+	apt install --assume-yes wget build-essential linux-headers-$(uname -r) pkg-config libnl-3-dev libjson-c-dev git libcap-dev pkg-config
 
 	#install batman-adv
 	wget --no-check-certificate http://downloads.open-mesh.org/batman/releases/batman-adv-$VERSION/batman-adv-$VERSION.tar.gz
@@ -189,7 +189,7 @@ fi
 {
 	echo "(I) Install fastd."
 
-	apt-get install --assume-yes git cmake-curses-gui libnacl-dev flex bison libcap-dev pkg-config zip libjson-c-dev
+	apt install --assume-yes git cmake-curses-gui libnacl-dev flex bison libcap-dev pkg-config zip libjson-c-dev
 
 	#install libsodium
 	wget --no-check-certificate https://github.com/jedisct1/libsodium/releases/download/1.0.5/libsodium-1.0.5.tar.gz
@@ -260,7 +260,7 @@ if [ "$setup_gateway" = "true" ]; then
 		fi
 
 		echo "(I) Installing persistent iptables"
-		apt-get install --assume-yes netfilter-persistent
+		apt install --assume-yes netfilter-persistent
 
 		cp -rf etc/iptables/* /etc/iptables/
 		/etc/init.d/netfilter-persistent restart
@@ -295,7 +295,7 @@ if [ "$setup_gateway" = "true" ]; then
 
 	{
 		echo "(I) Install OpenVPN."
-		apt-get install --assume-yes openvpn resolvconf zip
+		apt install --assume-yes openvpn resolvconf zip
 
 		echo "(I) Configure OpenVPN"
 		#mullvad "tun-ipv6" to their OpenVPN configuration file.
@@ -303,7 +303,7 @@ if [ "$setup_gateway" = "true" ]; then
 			"mullvad")
 				setup_mullvad "mullvadconfig.zip"
 			;;
-			#apt-get install openvpn resolvconf
+			#apt install openvpn resolvconf
 			*)
 				echo "Unknown argument"
 				exit 1
@@ -316,7 +316,7 @@ if [ "$setup_gateway" = "true" ]; then
 	#NAT64
 	{
 		echo "(I) Install tayga."
-		apt-get install --assume-yes tayga
+		apt install --assume-yes tayga
 
 		#enable tayga
 		sed -i 's/RUN="no"/RUN="yes"/g' /etc/default/tayga
@@ -328,7 +328,7 @@ if [ "$setup_gateway" = "true" ]; then
 	#DNS64
 	{
 		echo "(I) Install bind."
-		apt-get install --assume-yes bind9
+		apt install --assume-yes bind9
 
 		echo "(I) Configure bind"
 		cp -r etc/bind /etc/bind/
@@ -338,7 +338,7 @@ if [ "$setup_gateway" = "true" ]; then
 	#IPv6 Router Advertisments
 	{
 		echo "(I) Install radvd."
-		apt-get install --assume-yes radvd
+		apt install --assume-yes radvd
 
 		echo "(I) Configure radvd"
 		cp etc/radvd.conf /etc/
