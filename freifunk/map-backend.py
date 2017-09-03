@@ -482,19 +482,18 @@ def render_meshviewer_nodes(nodes, links):
     for node in nodes.values():
         node.done = False
 
-    all_nodes = {}
+    all_nodes = []
     for node in nodes.values():
         if node.done:
             continue
         else:
             node.done = True
 
-        id = re.sub('[:]', '', node.mac)
-        all_nodes[id] = node.meshviewer()
+        all_nodes.append(node.meshviewer())
 
     return {
         'meta' : { 'timestamp': now_timestamp.isoformat() },
-        'version' : 1,
+        'version' : 2,
         'nodes' : all_nodes
     }
 
