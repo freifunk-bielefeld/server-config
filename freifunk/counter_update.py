@@ -66,7 +66,7 @@ def main(argv):
 	client_counter = 0
 	gateway_counter = 0
 
-	for element in decoded["nodes"].values():
+	for element in decoded["nodes"]:
 		if not element["flags"].get("online", False):
 			continue
 
