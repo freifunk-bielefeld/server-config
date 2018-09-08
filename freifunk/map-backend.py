@@ -257,7 +257,10 @@ class Node:
         longitude = properties.get('longitude', 360)
         latitude = properties.get('latitude', 360)
         clientcount = properties.get('clientcount', 0)
-        uptime = properties.get('uptime', '')
+        if properties.get('uptime', '') != "":
+            uptime = str(datetime.datetime.utcnow() - datetime.timedelta(seconds=int(properties.get('uptime', ''))))
+        else:
+            uptime = properties.get('uptime', '')
         loadavg = properties.get('loadavg', 0)
         model = properties.get('model', '-')
         rootfs_usage = properties.get('rootfs_usage', 0)
