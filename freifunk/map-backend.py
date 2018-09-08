@@ -257,10 +257,7 @@ class Node:
         longitude = properties.get('longitude', 360)
         latitude = properties.get('latitude', 360)
         clientcount = properties.get('clientcount', 0)
-        if properties.get('uptime', '') != "":
-            uptime = str(datetime.datetime.utcnow() - datetime.timedelta(seconds=int(properties.get('uptime', ''))))
-        else:
-            uptime = properties.get('uptime', '')
+        uptime = properties.get('uptime', 0)
         loadavg = properties.get('loadavg', 0)
         model = properties.get('model', '-')
         rootfs_usage = properties.get('rootfs_usage', 0)
@@ -268,6 +265,14 @@ class Node:
         addresses = properties.get('addresses', [])
         gateway = properties.get('gateway', False)
         vpn = properties.get('vpn', False)
+
+        def fmt_time(d):
+            return d.strftime("%Y-%m-%d %H:%M:%S")
+
+        if uptime:
+            uptime = fmt_time(datetime.datetime.utcnow() - datetime.timedelta(seconds=int(uptime)))
+        else:
+            uptime = fmt_time(datetime.datetime.utcnow())
 
         r'''
         Prevent display of node on map
