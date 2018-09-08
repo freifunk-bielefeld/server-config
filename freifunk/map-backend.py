@@ -269,10 +269,7 @@ class Node:
         def fmt_time(d):
             return d.strftime("%Y-%m-%d %H:%M:%S")
 
-        if uptime:
-            uptime = fmt_time(datetime.datetime.utcnow() - datetime.timedelta(seconds=int(uptime)))
-        else:
-            uptime = fmt_time(datetime.datetime.utcnow())
+        uptime = fmt_time(datetime.datetime.utcnow() - datetime.timedelta(seconds=int(uptime)))
 
         r'''
         Prevent display of node on map
