@@ -254,8 +254,6 @@ class Node:
         contact = properties.get('contact', '')
         community = properties.get('community', '')
         firmware = properties.get('firmware', '')
-        longitude = properties.get('longitude', 360)
-        latitude = properties.get('latitude', 360)
         clientcount = properties.get('clientcount', 0)
         uptime = properties.get('uptime', 0)
         loadavg = properties.get('loadavg', 0)
@@ -271,17 +269,8 @@ class Node:
 
         uptime = fmt_time(datetime.datetime.utcnow() - datetime.timedelta(seconds=int(uptime)))
 
-        r'''
-        Prevent display of node on map
-        '''
-        if not self.has_location():
-            vpn = True
-
         obj = {
-            'location': {
-                'longitude': longitude,
-                'latitude': latitude
-            },
+            'location': {},
             'firmware': {
                 'base': '-',
                 'release': '-'
@@ -294,6 +283,12 @@ class Node:
         }
 
         #contact info?
+
+        if self.has_location():
+            obj['location'] = {
+                'longitude': properties['longitude'],
+                'latitude': properties['latitude']
+            }
 
         if self.firstseen:
             obj['firstseen'] = self.firstseen.isoformat()
