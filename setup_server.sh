@@ -126,17 +126,16 @@ if [ "$setup_webserver" = "true" ]; then
 		mkdir -p /var/www/
 		cp -r var/www/* /var/www/
 
-		echo "(I) Add ffmap-d3"
-		apt install --assume-yes make git
-		git clone https://github.com/freifunk-bielefeld/ffmap-d3.git
-		cd ffmap-d3
-		sed -i "s/gotham/$community_id/g" config.js
-		sed -i "s/Gotham/$community_name/g" config.js
-		sed -i "s/fdef:17a0:ffb1:300::/$ff_prefix/g" config.js
-		make
-		cp -r www/* /var/www/
+		echo "(I) Install Meshviewer Map"
+		apt install --assume-yes make git yarn
+		git clone https://github.com/ffrgb/meshviewer
+		cp meshviewer_config/*.js meshviewer/
+		cd meshviewer
+		yarn
+		cp -r build /var/www/meshviewer
+		mkdir -p /var/www/meshviewer/data
 		cd ..
-		rm -rf ffmap-d3
+		rm -rf meshviewer
 
 		chown -R www-data:www-data /var/www
 	}

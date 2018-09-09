@@ -201,13 +201,13 @@ if [ "$webserver" = "true" ]; then
 	alfred -r 64 > /tmp/maps.txt
 
 	#create map data
-	./map-backend.py -m /tmp/maps.txt -a ./aliases.json --meshviewer-nodes /var/www/nodes.json  --meshviewer-graph /var/www/graph.json
+	./map-backend.py -m /tmp/maps.txt -a ./aliases.json --meshviewer-org /var/www/meshviewer/data/meshviewer.json
 
 	#update FF-Internal status page
 	./status_page_create.sh '/var/www/index.html'
 
 	#update nodes/clients/gateways counter
-	./counter_update.py '/var/www/nodes.json' '/var/www/counter.svg'
+	./counter_update.py '/var/var/www/meshviewer/data/meshviewer.json' '/var/www/counter.svg'
 
 	if ! is_running "lighttpd"; then
 		echo "(I) Start lighttpd."
