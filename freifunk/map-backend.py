@@ -251,7 +251,6 @@ class Node:
     def meshviewer_org(self):
         properties = self.properties
         name = properties.get('name', self.mac)
-        contact = properties.get('contact', '')
         community = properties.get('community', '')
         firmware = properties.get('firmware', '')
         clientcount = properties.get('clientcount', 0)
@@ -282,7 +281,8 @@ class Node:
             'nproc': 1
         }
 
-        #contact info?
+        if 'contact' in properties:
+            obj['contact'] = properties['contact']
 
         if self.has_location():
             obj['location'] = {
