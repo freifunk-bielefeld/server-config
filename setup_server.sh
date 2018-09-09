@@ -129,7 +129,9 @@ if [ "$setup_webserver" = "true" ]; then
 		echo "(I) Install Meshviewer Map"
 		apt install --assume-yes make git yarn
 		git clone https://github.com/ffrgb/meshviewer
-		cp meshviewer_config/*.js meshviewer/
+		cp meshviewer_config/config.js meshviewer/
+		cp meshviewer_config/config.default.js meshviewer/
+		cp meshviewer_config/scss/custom/custom.scss meshviewer/scss/custom/
 		cd meshviewer
 		yarn
 		cp -r build /var/www/meshviewer
