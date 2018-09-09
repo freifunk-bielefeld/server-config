@@ -67,16 +67,16 @@ def main(argv):
 	gateway_counter = 0
 
 	for element in decoded["nodes"]:
-		if not element["flags"].get("online", False):
+		if not element.get("is_online", False):
 			continue
 
-		if community and community != element["nodeinfo"]["system"].get("site_code", None):
+		if community and community != element.get("site_code", None):
 			continue
 
 		node_counter += 1
-		client_counter += element["statistics"].get("clients", 0)
+		client_counter += element.get("clients", 0)
 
-		if element["flags"].get("gateway", False):
+		if element.get("is_gateway", False):
 			gateway_counter += 1
 
 	#print("gateway_counter: {}".format(gateway_counter))
