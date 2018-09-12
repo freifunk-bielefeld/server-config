@@ -81,8 +81,23 @@ module.exports = function () {
         'value': 'Autoupdate'
       },
       {
-        'name': 'node.site',
-        'value': 'Site'
+        'name': 'Community',
+        'value': function (d, nodeDict) {
+          var V = require('snabbdom').default;
+
+          var name = d.site_code;
+          var link = '#';
+          if (config.siteNames) {
+            config.siteNames.forEach(function (e) {
+              if (d.site_code === e.site) {
+                name = e.name;
+                link = e.link;
+              }
+            });
+          }
+
+          return V.h('a', {props: {href: link}}, name);
+        }
       },
       {
         'name': 'node.clients',
