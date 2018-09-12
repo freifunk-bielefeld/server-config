@@ -58,7 +58,7 @@ module.exports = function () {
       },
       {
         'name': 'node.contact',
-        'value': 'Contact'
+        'value': 'contact'
       },
       {
         'name': 'node.firstSeen',
