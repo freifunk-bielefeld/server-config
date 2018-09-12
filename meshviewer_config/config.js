@@ -89,6 +89,9 @@ module.exports = function () {
       { "site" : "loehne", "name": "Löhne" },
       { "site" : "hildesheim", "name": "Hildesheim", "link" : "http://freifunk-hi.de" },
       { "site" : "lemgo", "name" : "Lemgo", "link" : "https://www.freifunk-lemgo.de" },
+      { "site" : "vlotho", "name" : "Vlotho" },
+      { "site" : "bueckeburg", "name" : "Bückeburg" },
+      { "site" : "petershagen", "name" : "Petershagen" },
       { "site" : "lage", "name": "Lage" }
     ],
     'linkList': [
