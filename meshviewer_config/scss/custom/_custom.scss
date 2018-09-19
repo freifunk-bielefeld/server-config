@@ -1,0 +1,14 @@
+
+// Hide gluon uci command field in location picker
+#box-uci { display: none; }
+
+// Hide gateway field
+table.attributes tr:last-of-type { display: none; }
+
+// Hide section "gateway next hop"
+.gateway { display: none; }
+
+// Hide 2.4 GHz / 5.0 GHz section
+.legend-24ghz { display: none; }
+.legend-5ghz { display: none; }
+.legend-others { display: none; }
