@@ -256,7 +256,7 @@ class Node:
         clientcount = properties.get('clientcount', 0)
         uptime = properties.get('uptime', 0)
         loadavg = properties.get('loadavg', 0)
-        model = properties.get('model', '-')
+        model = properties.get('model', '')
         rootfs_usage = properties.get('rootfs_usage', 0)
         memory_usage = properties.get('memory_usage', 0)
         addresses = properties.get('addresses', [])
