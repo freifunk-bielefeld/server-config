@@ -131,7 +131,7 @@ if [ "$setup_webserver" = "true" ]; then
 		git clone https://github.com/ffrgb/meshviewer
 		cp meshviewer_config/config.js meshviewer/
 		cp meshviewer_config/config.default.js meshviewer/
-		cp meshviewer_config/scss/custom/custom.scss meshviewer/scss/custom/
+		cp meshviewer_config/scss/custom/_custom.scss meshviewer/scss/custom/
 		cd meshviewer
 		yarn
 		cp -r build /var/www/meshviewer
