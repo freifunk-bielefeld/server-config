@@ -254,7 +254,7 @@ class Node:
         community = properties.get('community', '')
         firmware = properties.get('firmware', '')
         clientcount = properties.get('clientcount', 0)
-        uptime = properties.get('uptime', 0)
+        uptime = properties.get('uptime', '')
         loadavg = properties.get('loadavg', 0)
         model = properties.get('model', '')
         rootfs_usage = properties.get('rootfs_usage', 0)
@@ -266,7 +266,10 @@ class Node:
         def fmt_time(d):
             return d.strftime("%Y-%m-%d %H:%M:%S")
 
-        uptime = fmt_time(datetime.datetime.utcnow() - datetime.timedelta(seconds=int(uptime)))
+        if uptime:
+            uptime = fmt_time(datetime.datetime.utcnow() - datetime.timedelta(seconds=int(uptime)))
+        else:
+            uptime = ''
 
         obj = {
             'location': {},

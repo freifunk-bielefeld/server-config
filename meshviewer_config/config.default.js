@@ -54,7 +54,14 @@ module.exports = function () {
       },
       {
         'name': 'node.uptime',
-        'value': 'Uptime'
+        'value': function (d, nodeDict) {
+           var moment = require('moment');
+           if (d.uptime) {
+             return moment.utc(d.uptime).local().fromNow(true);
+           } else {
+             return '-';
+           }
+         }
       },
       {
         'name': 'node.contact',
