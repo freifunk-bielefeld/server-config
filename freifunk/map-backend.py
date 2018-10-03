@@ -269,7 +269,7 @@ class Node:
         if uptime:
             uptime = fmt_time(datetime.datetime.utcnow() - datetime.timedelta(seconds=int(uptime)))
         else:
-            uptime = ''
+            uptime = '1970-01-01T00:00:00'
 
         obj = {
             'location': {},
@@ -309,8 +309,8 @@ class Node:
         obj['loadavg'] = loadavg
         obj['memory_usage'] = memory_usage
         obj['uptime'] = uptime
-        obj['gateway_nexthop'] = '000000000000'
-        obj['gateway'] = '000000000000'
+        obj['gateway_nexthop'] = '-'
+        obj['gateway'] = '-'
         obj['node_id'] = re.sub('[:]', '', self.mac)
         obj['mac'] = self.mac
         obj['addresses'] = addresses

@@ -56,11 +56,10 @@ module.exports = function () {
         'name': 'node.uptime',
         'value': function (d, nodeDict) {
            var moment = require('moment');
-           if (d.uptime) {
-             return moment.utc(d.uptime).local().fromNow(true);
-           } else {
+           if (d.uptime == "1970-01-01T00:00:00") {
              return '-';
            }
+           return moment.utc(d.uptime).local().fromNow(true);
          }
       },
       {
