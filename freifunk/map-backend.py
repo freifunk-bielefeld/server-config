@@ -47,7 +47,7 @@ class AlfredParser:
 
             'longitude' : { "type": "number" },
             'latitude' : { "type": "number" },
-            'model': { "type": "string", "maxLength": 32 },
+            'model': { "type": "string", "maxLength": 50 },
             'uptime': { "type": "number" },
             'loadavg': { "type": "number" },
             'rootfs_usage' : { "type": "number" },
@@ -86,7 +86,7 @@ class AlfredParser:
             "geo": { "type": "string", "pattern": GEO_RE }, #deprecated in favor of longitude/latitude
             'latitude' : { "type": "number" },
             'longitude' : { "type": "number" },
-            'model': { "type": "string", "maxLength": 32 },
+            'model': { "type": "string", "maxLength": 50 },
             'uptime': { "type": "number" },
 
             "name": { "type": "string", "maxLength": 32 },
@@ -112,7 +112,7 @@ class AlfredParser:
                     "geo": { "type": "array", "items": [{'type' : 'number'}, {'type' : 'number'}]}, #deprecated in favor of longitude/latitude
                     'latitude' : { "type": "number" },
                     'longitude' : { "type": "number" },
-                    'model': { "type": "string", "maxLength": 32 },
+                    'model': { "type": "string", "maxLength": 50 },
                     'uptime': { "type": "number" },
                     'loadavg': { "type": "number" },
                     
