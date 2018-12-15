@@ -31,26 +31,25 @@ cd "$(dirname $0)"
 #create an IPv6 ULA-address based on EUI-64
 ula_addr()
 {
-        local prefix a prefix="$1" mac="$2" invert=${3:-0}
+	local prefix a prefix="$1" mac="$2" invert=${3:-0}
 
-        #prefix="$(uci get network.globals.ula_prefix)"
+	#prefix="$(uci get network.globals.ula_prefix)"
 
-        if [ $invert -eq 1 ]; then
-                # translate to local administered mac
-                a=${mac%%:*} #cut out first hex
-                a=$((0x$a ^ 2)) #invert second least significant bit
-                a=$(printf '%02x\n' $a) #convert back to hex
-                mac="$a:${mac#*:}" #reassemble mac
-        fi
+	if [ $invert -eq 1 ]; then
+		# translate to local administered mac
+		a=${mac%%:*} #cut out first hex
+		a=$((0x$a ^ 2)) #invert second least significant bit
+		a=$(printf '%02x\n' $a) #convert back to hex
+		mac="$a:${mac#*:}" #reassemble mac
+	fi
 
-        mac=${mac//:/} # remove ':'
-        mac=${mac:0:6}fffe${mac:6:6} # insert fffe
-        mac=$(echo $mac | sed 's/..../&:/g') # insert ':'
+	mac=${mac//:/} # remove ':'
+	mac=${mac:0:6}fffe${mac:6:6} # insert fffe
+	mac=$(echo $mac | sed 's/..../&:/g') # insert ':'
 
-        # assemble IPv6 address
-        echo "${prefix%%::*}:${mac%?}"
+	# assemble IPv6 address
+	echo "${prefix%%::*}:${mac%?}"
 }
-
 
 #limit name length
 name="$(echo $name | cut -c 1-31)"
@@ -92,12 +91,11 @@ if [ "$(cat /sys/class/net/bat0/address 2> /dev/null)" != "$mac_addr" ]; then
 	ip link set bat0 address "$mac_addr"
 	ip link set bat0 up
 
-
-        # Add IPv6 address the same way the routers do.
-        # This makes the address consistent with the one used on the routers status page.
-        macaddr="$(cat /sys/kernel/debug/batman_adv/bat0/originators | awk -F'[/ ]' '{print $7; exit;}')"
-        ipaddr="$(ula_addr $ff_prefix $macaddr)"
-        ip a a "$ipaddr/64" dev bat0
+	# Add IPv6 address the same way the routers do.
+	# This makes the address consistent with the one used on the routers status page.
+	macaddr="$(cat /sys/kernel/debug/batman_adv/bat0/originators | awk -F'[/ ]' '{print $7; exit;}')"
+	ipaddr="$(ula_addr $ff_prefix $macaddr)"
+	ip a a "$ipaddr/64" dev bat0
 
 	# we do not accept a default gateway through bat0
 	echo 0 > /proc/sys/net/ipv6/conf/bat0/accept_ra
@@ -107,11 +105,11 @@ if [ "$(cat /sys/class/net/bat0/address 2> /dev/null)" != "$mac_addr" ]; then
 	echo 300000 > /proc/sys/net/ipv6/neigh/bat0/base_reachable_time_ms
 
 	echo "(I) Configure batman-adv."
-	echo 10000 >  /sys/class/net/bat0/mesh/orig_interval
-	echo 1 >  /sys/class/net/bat0/mesh/distributed_arp_table
-	echo 1 >  /sys/class/net/bat0/mesh/multicast_mode
-	echo 1 >  /sys/class/net/bat0/mesh/bridge_loop_avoidance
-	echo 1 >  /sys/class/net/bat0/mesh/aggregated_ogms
+	echo 10000 > /sys/class/net/bat0/mesh/orig_interval
+	echo 1 > /sys/class/net/bat0/mesh/distributed_arp_table
+	echo 1 > /sys/class/net/bat0/mesh/multicast_mode
+	echo 1 > /sys/class/net/bat0/mesh/bridge_loop_avoidance
+	echo 1 > /sys/class/net/bat0/mesh/aggregated_ogms
 
 	#set size of neighbor table
 	gc_thresh=1024 #default is 256
