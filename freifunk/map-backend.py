@@ -69,7 +69,7 @@ class AlfredParser:
                 "properties": {
                     "smac": { "$ref": "#/definitions/MAC" },
                     "dmac": { "$ref": "#/definitions/MAC" },
-                    "qual": { "type": "integer", "minimum": 0, "maximum": 255 },
+                    "qual": { "type": "number" },
                     "type": { "enum": [ "vpn" ] },
                 },
                 "required": ["smac", "dmac"],
