@@ -553,7 +553,7 @@ class Link:
             'source': re.sub('[:]', '', self.source.mac),
             'target': re.sub('[:]', '', self.reverse.source.mac),
             'source_tq': map_quality(self.quality),
-            'target_tq': float('{:.3f}'.format(self.reverse.quality)),
+            'target_tq': map_quality(self.reverse.quality),
             'source_addr': self.source.mac,
             'target_addr': self.reverse.source.mac,
             'type': link_type
