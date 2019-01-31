@@ -88,13 +88,11 @@ class AlfredParser:
             'longitude' : { "type": "number" },
             'model': { "type": "string", "maxLength": 50 },
             'uptime': { "type": "number" },
-
             "name": { "type": "string", "maxLength": 32 },
             "contact": { "type": "string", "maxLength": 64 },
             "firmware": { "type": "string", "maxLength": 32 },
             "community": { "type": "string", "maxLength": 32 },
             "clientcount": { "type": "integer", "minimum": 0, "maximum": 255 },
-            
             "gateway": { "type": "boolean" },
             "vpn": { "type": "boolean" },
             "type" : { "enum": [ "node", "gateway" ] },
@@ -115,7 +113,6 @@ class AlfredParser:
                     'model': { "type": "string", "maxLength": 50 },
                     'uptime': { "type": "number" },
                     'loadavg': { "type": "number" },
-                    
                     "name": { "type": "string", "maxLength": 32 },
                     "contact": { "type": "string", "maxLength": 32 },
                     "firmware": { "type": "string", "maxLength": 32 },
@@ -359,7 +356,7 @@ class Node:
             obj['statistics']['uptime'] = uptime
 
         obj['statistics']['clients'] = clientcount
-        
+
         if loadavg:
             obj['statistics']['loadavg'] = loadavg
 
@@ -713,7 +710,7 @@ def render_ffmap(nodes, links):
         node.index = index
         index += 1
         all_nodes.append(node.ffmap())
-    
+
     # render a list of links
     all_links = []
     for link in links.values():
