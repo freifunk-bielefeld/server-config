@@ -200,7 +200,7 @@ class AlfredParser:
         for node_link in node_links:
             smac = node_link['smac']
             dmac = node_link['dmac']
-            quality = node_link.get('qual', 0.) / 255.
+            quality = node_link.get('qual', 0.)
             nodes[smac] = node
             links[(smac, dmac)] = Link(node, smac, dmac, quality)
 
@@ -537,10 +537,22 @@ class Link:
         if not self.source.has_location() or not self.reverse.source.has_location():
             link_type = "vpn"
 
+        r'''
+        Map Mbps to a percent value from 0-1
+        '''
+        def map_quality(quality):
+            max = 40.
+            if quality < 0:
+                return 0.0
+            elif quality > max:
+                return 1.0
+            else:
+                return (quality / max)
+
         return {
             'source': re.sub('[:]', '', self.source.mac),
             'target': re.sub('[:]', '', self.reverse.source.mac),
-            'source_tq': float('{:.3f}'.format(self.quality)),
+            'source_tq': map_quality(self.quality),
             'target_tq': float('{:.3f}'.format(self.reverse.quality)),
             'source_addr': self.source.mac,
             'target_addr': self.reverse.source.mac,
@@ -561,7 +573,7 @@ class Link:
             'source': self.source.index,
             'target': self.reverse.source.index,
             "bidirect": True,
-            'tq': float('{:.3f}'.format((1. / self.quality + 1. / self.reverse.quality) / 2.0)),
+            'tq': float('{:.3f}'.format((1. / self.quality + 1. / self.reverse.quality) / (2.0 * 256))),
             'vpn': True if self.source.properties['vpn'] or self.reverse.source.properties['vpn'] else False
         }
 
