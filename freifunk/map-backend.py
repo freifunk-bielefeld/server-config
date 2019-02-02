@@ -529,12 +529,6 @@ class Link:
             link_type = "vpn"
 
         r'''
-        Prevent display of link on map
-        '''
-        if not self.source.has_location() or not self.reverse.source.has_location():
-            link_type = "vpn"
-
-        r'''
         Map Mbps to a percent value from 0-1
         '''
         def map_quality(quality):
