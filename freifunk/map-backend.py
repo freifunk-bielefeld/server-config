@@ -528,23 +528,11 @@ class Link:
         if self.source.properties['vpn'] or self.reverse.source.properties['vpn']:
             link_type = "vpn"
 
-        r'''
-        Map Mbps to a percent value from 0-1
-        '''
-        def map_quality(quality):
-            max = 40.
-            if quality < 0:
-                return 0.0
-            elif quality > max:
-                return 1.0
-            else:
-                return (quality / max)
-
         return {
             'source': re.sub('[:]', '', self.source.mac),
             'target': re.sub('[:]', '', self.reverse.source.mac),
-            'source_tq': map_quality(self.quality),
-            'target_tq': map_quality(self.reverse.quality),
+            'source_tq': (self.quality / 100),
+            'target_tq': (self.reverse.quality / 100),
             'source_addr': self.source.mac,
             'target_addr': self.reverse.source.mac,
             'type': link_type
