@@ -44,6 +44,7 @@ class AlfredParser:
             "contact": { "type": "string", "maxLength": 50 },
             "firmware": { "type": "string", "maxLength": 32 },
             "community": { "type": "string", "maxLength": 32 },
+            "autoupdater": { "type": "string", "maxLength": 32 },
 
             'longitude' : { "type": "number" },
             'latitude' : { "type": "number" },
@@ -117,6 +118,7 @@ class AlfredParser:
                     "contact": { "type": "string", "maxLength": 32 },
                     "firmware": { "type": "string", "maxLength": 32 },
                     "community": { "type": "string", "maxLength": 32 },
+                    "autoupdater": { "type": "string", "maxLength": 32 },
                     "clientcount": { "type": "integer", "minimum": 0, "maximum": 255 },
                     "gateway": { "type": "boolean" },
                     "vpn": { "type": "boolean" },
@@ -257,6 +259,7 @@ class Node:
         rootfs_usage = properties.get('rootfs_usage', 0)
         memory_usage = properties.get('memory_usage', 0)
         addresses = properties.get('addresses', [])
+        autoupdater = properties.get('autoupdater', "")
         gateway = properties.get('gateway', False)
         vpn = properties.get('vpn', False)
 
@@ -275,8 +278,8 @@ class Node:
                 'release': '-'
             },
             'autoupdater': {
-                'enabled': True,
-                'branch': 'stable'
+                'enabled': (autoupdater != ""),
+                'branch': autoupdater
             },
             'nproc': 1
         }
