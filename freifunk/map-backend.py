@@ -79,28 +79,6 @@ class AlfredParser:
         }
     }
 
-    ALIASES_NODE_SCHEMA = {
-        "type": "object",
-        "additionalProperties": False,
-        "mac" : MAC_SCHEMA,
-        "properties": {
-            "geo": { "type": "string", "pattern": GEO_RE }, #deprecated in favor of longitude/latitude
-            'latitude' : { "type": "number" },
-            'longitude' : { "type": "number" },
-            'model': { "type": "string", "maxLength": 50 },
-            'uptime': { "type": "number" },
-            "name": { "type": "string", "maxLength": 32 },
-            "contact": { "type": "string", "maxLength": 64 },
-            "firmware": { "type": "string", "maxLength": 32 },
-            "community": { "type": "string", "maxLength": 32 },
-            "clientcount": { "type": "integer", "minimum": 0, "maximum": 255 },
-            "gateway": { "type": "boolean" },
-            "vpn": { "type": "boolean" },
-            "type" : { "enum": [ "node", "gateway" ] },
-            "force": { "type": "boolean" }
-        }
-    }
-
     ALIASES_SCHEMA = {
         "type": "object",
         "patternProperties": {
