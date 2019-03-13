@@ -71,7 +71,6 @@ echo 1 > /proc/sys/net/ipv6/conf/all/forwarding
 echo 1 > /proc/sys/net/ipv4/conf/default/forwarding
 echo 1 > /proc/sys/net/ipv4/conf/all/forwarding
 
-
 if ! is_running "fastd"; then
 	echo "(I) Start fastd."
 	fastd --config /etc/fastd/fastd.conf --daemon
@@ -82,6 +81,8 @@ if [ $(batctl if | grep fastd_mesh -c) = 0 ]; then
 	echo "(I) Add fastd interface to batman-adv."
 	ip link set fastd_mesh up
 	ip addr flush dev fastd_mesh
+	# force BATMAN V routing algo _before_ batctl sets up the interface
+	echo BATMAN_V > /sys/module/batman_adv/parameters/routing_algo
 	batctl if add fastd_mesh
 fi
 
