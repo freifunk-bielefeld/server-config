@@ -129,14 +129,14 @@ fi
 
 if ! is_running "alfred"; then
 	echo "(I) Start alfred."
-	start-stop-daemon --start --background --exec `which alfred` -- -i bat0
+	start-stop-daemon --start --background --exec `which alfred` -- -i bat0 -u /var/run/alfred/alfred.sock
 	sleep 1
 fi
 
 #announce status website via alfred
 {
 	echo -n "{\"link\" : \"http://[$ip_addr]/index.html\", \"label\" : \"Freifunk Gateway $name\"}"
-} | alfred -s 91
+} | alfred -s 91 -u /var/run/alfred/alfred.sock
 
 
 #announce map information via alfred
@@ -144,31 +144,26 @@ fi
 	vpn="true"
 
 	echo -n "{"
-
-	[ -n "$latitude" ] && echo -n "\"latitude\" : $latitude, "
-	[ -n "$longitude" ] && echo -n "\"longitude\" : $longitude, "
 	[ -n "$name" ] && echo -n "\"name\" : \"$name\", "
 	[ -n "$firmware" ] && echo -n "\"firmware\" : \"$firmware\", "
 	[ -n "$community" ] && echo -n "\"community\" : \"$community\", "
 	[ -n "$vpn" ] && echo -n "\"vpn\" : $vpn, "
 	[ -n "$gateway" ] && echo -n "\"gateway\" : $gateway, "
-
 	echo -n "\"links\" : ["
-
-	printLink() { echo -n "{ \"smac\" : \"$(cat /sys/class/net/$3/address)\", \"dmac\" : \"$1\", \"qual\" : $2 }"; }
+	printLink() { echo -n "{ \"smac\" : \"$(cat /sys/class/net/$3/address)\", \"dmac\" : \"$1\", \"qual\" : 100.0 }"; }
+	# do not remove the linebreak between quotes below - it is intentional
 	IFS="
 "
 	nd=0
-	for entry in $(cat /sys/kernel/debug/batman_adv/bat0/originators 2> /dev/null | tr '\t/[]()' ' ' | awk '{ if($1==$4) print($1, int($3), $5) }'); do
+	for entry in $(awk -F '[][)( \t]+' '/^[a-f0-9]/{ print($1, $3, $4) }' /sys/kernel/debug/batman_adv/bat0/neighbors 2> /dev/null); do
 		[ $nd -eq 0 ] && nd=1 || echo -n ", "
 		IFS=" "
 		printLink $entry
 	done
-
 	echo -n '], '
 	echo -n "\"clientcount\" : 0"
 	echo -n '}'
-} | gzip -c - | alfred -s 64
+} | gzip -c - | alfred -s 64 -u /var/run/alfred/alfred.sock
 
 
 if [ "$gateway" = "true" ]; then
@@ -196,7 +191,7 @@ fi
 if [ "$webserver" = "true" ]; then
 
 	#collect all map pieces
-	alfred -r 64 > /tmp/maps.txt
+	alfred -r 64 -u /var/run/alfred/alfred.sock > /tmp/maps.txt
 
 	#create map data
 	./map-backend.py -m /tmp/maps.txt -a ./aliases.json --meshviewer-org /var/www/meshviewer/data/meshviewer.json
