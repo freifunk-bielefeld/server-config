@@ -44,6 +44,7 @@ class AlfredParser:
             "contact": { "type": "string", "maxLength": 50 },
             "firmware": { "type": "string", "maxLength": 32 },
             "community": { "type": "string", "maxLength": 32 },
+            "autoupdater": { "type": "string", "maxLength": 32 },
 
             'longitude' : { "type": "number" },
             'latitude' : { "type": "number" },
@@ -78,28 +79,6 @@ class AlfredParser:
         }
     }
 
-    ALIASES_NODE_SCHEMA = {
-        "type": "object",
-        "additionalProperties": False,
-        "mac" : MAC_SCHEMA,
-        "properties": {
-            "geo": { "type": "string", "pattern": GEO_RE }, #deprecated in favor of longitude/latitude
-            'latitude' : { "type": "number" },
-            'longitude' : { "type": "number" },
-            'model': { "type": "string", "maxLength": 50 },
-            'uptime': { "type": "number" },
-            "name": { "type": "string", "maxLength": 32 },
-            "contact": { "type": "string", "maxLength": 64 },
-            "firmware": { "type": "string", "maxLength": 32 },
-            "community": { "type": "string", "maxLength": 32 },
-            "clientcount": { "type": "integer", "minimum": 0, "maximum": 255 },
-            "gateway": { "type": "boolean" },
-            "vpn": { "type": "boolean" },
-            "type" : { "enum": [ "node", "gateway" ] },
-            "force": { "type": "boolean" }
-        }
-    }
-
     ALIASES_SCHEMA = {
         "type": "object",
         "patternProperties": {
@@ -117,6 +96,7 @@ class AlfredParser:
                     "contact": { "type": "string", "maxLength": 32 },
                     "firmware": { "type": "string", "maxLength": 32 },
                     "community": { "type": "string", "maxLength": 32 },
+                    "autoupdater": { "type": "string", "maxLength": 32 },
                     "clientcount": { "type": "integer", "minimum": 0, "maximum": 255 },
                     "gateway": { "type": "boolean" },
                     "vpn": { "type": "boolean" },
@@ -294,6 +274,7 @@ class Node:
         rootfs_usage = properties.get('rootfs_usage', 0)
         memory_usage = properties.get('memory_usage', 0)
         addresses = properties.get('addresses', [])
+        autoupdater = properties.get('autoupdater', "")
         gateway = properties.get('gateway', False)
         vpn = properties.get('vpn', False)
 
@@ -312,8 +293,8 @@ class Node:
                 'release': '-'
             },
             'autoupdater': {
-                'enabled': True,
-                'branch': 'stable'
+                'enabled': (autoupdater != ""),
+                'branch': autoupdater
             },
             'nproc': 1
         }
@@ -565,29 +546,11 @@ class Link:
         if self.source.properties['vpn'] or self.reverse.source.properties['vpn']:
             link_type = "vpn"
 
-        r'''
-        Prevent display of link on map
-        '''
-        if not self.source.has_location() or not self.reverse.source.has_location():
-            link_type = "vpn"
-
-        r'''
-        Map Mbps to a percent value from 0-1
-        '''
-        def map_quality(quality):
-            max = 40.
-            if quality < 0:
-                return 0.0
-            elif quality > max:
-                return 1.0
-            else:
-                return (quality / max)
-
         return {
             'source': re.sub('[:]', '', self.source.mac),
             'target': re.sub('[:]', '', self.reverse.source.mac),
-            'source_tq': map_quality(self.quality),
-            'target_tq': map_quality(self.reverse.quality),
+            'source_tq': (self.quality / 100),
+            'target_tq': (self.reverse.quality / 100),
             'source_addr': self.source.mac,
             'target_addr': self.reverse.source.mac,
             'type': link_type

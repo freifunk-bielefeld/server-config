@@ -151,40 +151,40 @@ if [ -z "$(cat /etc/crontab | grep '/opt/freifunk/update.sh')" ]; then
 fi
 
 {
-	VERSION=2016.1
+	batman_version=2019.0
 
 	echo "(I) Install batman-adv, batctl and alfred ($VERSION)."
-	apt install --assume-yes wget build-essential linux-headers-$(uname -r) pkg-config libnl-3-dev libjson-c-dev git libcap-dev pkg-config
+	apt install --assume-yes wget build-essential linux-headers-$(uname -r) pkg-config libnl-3-dev libjson-c-dev git libcap-dev pkg-config libnl-genl-3-dev
 
 	#install batman-adv
-	wget --no-check-certificate http://downloads.open-mesh.org/batman/releases/batman-adv-$VERSION/batman-adv-$VERSION.tar.gz
-	sha256check "batman-adv-$VERSION.tar.gz" "518dc228dfd3fcc1ea1c6af7c32aceb19ab67810983d82473891ce3605daa072"
-	tar -xzf batman-adv-$VERSION.tar.gz
-	cd batman-adv-$VERSION/
-	make
-	make install
+	wget -N --no-check-certificate http://downloads.open-mesh.org/batman/releases/batman-adv-$batman_version/batman-adv-$batman_version.tar.gz
+	sha256check "batman-adv-$batman_version.tar.gz" "3e97d8a771cdbd7b2df42c52b88e071eaa58b5d28eb4e17a4b13b6698debbdc0"
+	tar -xzf batman-adv-$batman_version.tar.gz
+	cd batman-adv-$batman_version/
+	make CONFIG_BATMAN_ADV_DEBUGFS=y
+	make CONFIG_BATMAN_ADV_DEBUGFS=y install
 	cd ..
-	rm -rf batman-adv-$VERSION*
+	rm -rf batman-adv-$batman_version*
 
 	#install batctl
-	wget --no-check-certificate http://downloads.open-mesh.org/batman/releases/batman-adv-$VERSION/batctl-$VERSION.tar.gz
-	sha256check "batctl-$VERSION.tar.gz" "c854397b2ddd2cb8d15d1e65839819380648ccb37507d0303e133011fe6f03c9"
-	tar -xzf batctl-$VERSION.tar.gz
-	cd batctl-$VERSION/
+	wget -N --no-check-certificate http://downloads.open-mesh.org/batman/releases/batman-adv-$batman_version/batctl-$batman_version.tar.gz
+	sha256check "batctl-$batman_version.tar.gz" "997721096ff396644e8d697ea7651e9d38243faf317bcea2661d4139ff58b531"
+	tar -xzf batctl-$batman_version.tar.gz
+	cd batctl-$batman_version/
 	make
 	make install
 	cd ..
-	rm -rf batctl-$VERSION*
+	rm -rf batctl-$batman_version*
 
 	#install alfred
-	wget --no-check-certificate http://downloads.open-mesh.org/batman/stable/sources/alfred/alfred-$VERSION.tar.gz
-	sha256check "alfred-$VERSION.tar.gz" "7e0efaf263d6772e5e23bdad933f676951cd03124382e6dbae53a7b9431d2609"
-	tar -xzf alfred-$VERSION.tar.gz
-	cd alfred-$VERSION/
-	make CONFIG_ALFRED_GPSD=n CONFIG_ALFRED_VIS=n CONFIG_ALFRED_CAPABILITIES=n
-	make CONFIG_ALFRED_GPSD=n CONFIG_ALFRED_VIS=n CONFIG_ALFRED_CAPABILITIES=n install
+	wget -N --no-check-certificate http://downloads.open-mesh.org/batman/stable/sources/alfred/alfred-$batman_version.tar.gz
+	sha256check "alfred-$batman_version.tar.gz" "c06a674763fe27e85a979d7ca65d2af39df4943ff2a4128cad90dd09d237b46a"
+	tar -xzf alfred-$batman_version.tar.gz
+	cd alfred-$batman_version/
+	make CONFIG_ALFRED_GPSD=n CONFIG_ALFRED_VIS=n
+	make CONFIG_ALFRED_GPSD=n CONFIG_ALFRED_VIS=n install
 	cd ..
-	rm -rf alfred-$VERSION*
+	rm -rf alfred-$batman_version*
 }
 
 {
@@ -193,41 +193,46 @@ fi
 	apt install --assume-yes git cmake-curses-gui libnacl-dev flex bison libcap-dev pkg-config zip libjson-c-dev
 
 	#install libsodium
-	wget --no-check-certificate https://github.com/jedisct1/libsodium/releases/download/1.0.5/libsodium-1.0.5.tar.gz
-	sha256check "libsodium-1.0.5.tar.gz" "bfcafc678c7dac87866c50f9b99aa821750762edcf8e56fc6d13ba0ffbef8bab"
-	tar -xvzf libsodium-1.0.5.tar.gz
-	cd libsodium-1.0.5
+	wget -N --no-check-certificate -O libsodium-1.0.17.tar.gz http://github.com/jedisct1/libsodium/releases/download/1.0.17/libsodium-1.0.17.tar.gz
+	sha256check "libsodium-1.0.17.tar.gz" "0cc3dae33e642cc187b5ceb467e0ad0e1b51dcba577de1190e9ffa17766ac2b1"
+	tar -xvzf libsodium-1.0.17.tar.gz
+	cd libsodium-1.0.17
 	./configure
 	make
 	make install
 	cd ..
-	rm -rf libsodium-1.0.5*
+	rm -rf libsodium-1.0.17*
 	ldconfig
+
+	echo "(I) ${green}Build and install libuecc${col_reset}"
 
 	#install libuecc
-	wget --no-check-certificate https://projects.universe-factory.net/attachments/download/80 -O libuecc-5.tar.xz
-	sha256check "libuecc-5.tar.xz" "a9a4bc485019410a0fbd484c70a5f727bb924b7a4fe24e6224e8ec1e9a9037e7"
-	tar xf libuecc-5.tar.xz
+	wget -N --no-check-certificate https://projects.universe-factory.net/attachments/download/85 -O libuecc-7.tar.xz
+	sha256check "libuecc-7.tar.xz" "b94aef08eab5359d0facaa7ead2ce81b193eef0c61379d9835213ebc0a46257a"
+	tar xf libuecc-7.tar.xz
 	mkdir libuecc_build
 	cd libuecc_build
-	cmake ../libuecc-5
+	cmake ../libuecc-7
 	make
 	make install
 	cd ..
-	rm -rf libuecc_build libuecc-5*
+	rm -rf libuecc_build libuecc-7*
 	ldconfig
 
+	echo "(I) ${green}Build and install fastd${col_reset}"
+
 	#install fastd
-	wget --no-check-certificate https://projects.universe-factory.net/attachments/download/81 -O fastd-17.tar.xz
-	sha256check "fastd-17.tar.xz" "26d4a8bf2f8cc52872f836f6dba55f3b759f8c723699b4e4decaa9340d3e5a2d"
-	tar xf fastd-17.tar.xz
+	wget -N --no-check-certificate https://projects.universe-factory.net/attachments/download/86 -O fastd-18.tar.xz
+	sha256check "fastd-18.tar.xz" "714ff09d7bd75f79783f744f6f8c5af2fe456c8cf876feaa704c205a73e043c9"
+	tar xf fastd-18.tar.xz
 	mkdir fastd_build
 	cd fastd_build
-	cmake ../fastd-17
+	# -D is workaround needed till fastd-19
+	cmake ../fastd-18 -DWITH_CIPHER_AES128_CTR_NACL=OFF
 	make
 	make install
 	cd ..
-	rm -rf fastd_build fastd-17*
+	rm -rf fastd_build fastd-18*
 }
 
 {
