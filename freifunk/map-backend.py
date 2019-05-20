@@ -634,14 +634,14 @@ def render_nodelist(nodes, links):
         all_nodes.append(node.nodelist())
 
     return {
-        "version": "1.0.0",
+        "version": "1.0.1",
         "updated_at": now_timestamp.isoformat(),
         #"community": {
         #    "name": "Freifunk Gothan",
         #    "href": "https://.../meta.json"
         #},
         'nodes' : all_nodes,
-        'linked' : []
+        'linked' : {}
     }
 
 def render_meshviewer_nodes_old(nodes, links):
