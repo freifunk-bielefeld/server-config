@@ -276,7 +276,6 @@ class Node:
         addresses = properties.get('addresses', [])
         autoupdater = properties.get('autoupdater', "")
         gateway = properties.get('gateway', False)
-        vpn = properties.get('vpn', False)
 
         def fmt_time(d):
             return d.strftime("%Y-%m-%d %H:%M:%S")
@@ -287,11 +286,7 @@ class Node:
             uptime = ''
 
         obj = {
-            'location': {},
-            'firmware': {
-                'base': '-',
-                'release': '-'
-            },
+            'firmware': {},
             'autoupdater': {
                 'enabled': (autoupdater != ""),
                 'branch': autoupdater
@@ -300,7 +295,7 @@ class Node:
         }
 
         if 'contact' in properties:
-            obj['contact'] = properties['contact']
+            obj['owner'] = properties['contact']
 
         if self.has_location():
             obj['location'] = {
@@ -326,10 +321,11 @@ class Node:
         obj['uptime'] = uptime
         obj['gateway_nexthop'] = '-'
         obj['gateway'] = '-'
+        obj['gateway6'] = '-'
         obj['node_id'] = re.sub('[:]', '', self.mac)
         obj['mac'] = self.mac
         obj['addresses'] = addresses
-        obj['site_code'] = community
+        obj['domain'] = community
         obj['hostname'] = name
 
         if '-' in firmware:
@@ -340,7 +336,6 @@ class Node:
             obj['firmware']['release'] = firmware
 
         obj['model'] = model
-        obj['vpn'] = vpn
 
         return obj
 
@@ -622,7 +617,7 @@ def render_meshviewer_org(nodes, links):
             link.reverse.done = True
 
     return {
-        'meta' : { 'timestamp': now_timestamp.isoformat() },
+        'timestamp': now_timestamp.isoformat(),
         'nodes' : all_nodes,
         'links' : all_links
     }
